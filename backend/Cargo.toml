@@ -12,6 +12,7 @@ license = "MIT"
 hermes-five = { path = "../../hermes-five/hermes-five" }
 anyhow = "1.0.86"
 clap = { version = "4.5.11", features = ["derive", "env"] }
+chrono = "0.4.38"
 #colorful = "0.2.2" @todo restore this once: https://github.com/mellite/colorful/pull/28
 colorful = { branch = "main", git = "https://github.com/dclause/colorful" }
 figment = { version = "0.10.19", features = ["env", "toml"] }

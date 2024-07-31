@@ -17,7 +17,7 @@ use crate::utils::cli::CliArgs;
 static CONFIG: RwLock<Option<Config>> = RwLock::new(None);
 
 /// Consolidated Config structure to be exposed globally throughout the application.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Config {
     /// Defines the logger level configuration for the application.
     pub loglevel: Level,
@@ -69,10 +69,17 @@ impl Config {
         Ok(config)
     }
 
+    /// Saves the current config globally.
+    /// Once done, the configuration is available through the method: [`Config::get()`].
     pub fn save(self) {
         let mut lock = CONFIG.write();
         *lock = Some(self);
         tui_success!("Configuration loaded");
+    }
+
+    /// Gets the globally saved configuration.
+    pub fn get() -> Config {
+        CONFIG.read().clone().unwrap()
     }
 }
 
