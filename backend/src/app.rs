@@ -1,31 +1,24 @@
 use anyhow::Result;
+use clap::Parser;
 use colorful::Colorful;
 
 use crate::{tui_info, tui_opening};
+use crate::utils::cli::CliArgs;
+use crate::utils::config::Config;
 
 pub struct App;
 
 impl App {
-    // pub fn get_config(config_path: &'static str) -> Config {
-    //     match Config::from(config_path) {
-    //         Ok(config) => {
-    //             tui_success!("Configuration initialized from file", config_path);
-    //             config
-    //         }
-    //         Err(err) => {
-    //             tui_info!(
-    //                 "Default configuration used",
-    //                 err.to_string().split('\n').next().unwrap()
-    //             );
-    //             Config::default()
-    //         }
-    //     }
-    // }
-
     /// Starts the application.
     #[hermes_five::runtime]
     pub async fn run() -> Result<()> {
+        // Parse cli args: handle `help`, `version`, etc...
+        let args = CliArgs::parse();
+
         tui_opening!();
+
+        // Build configuration and save it globally.
+        Config::from(args)?.save();
 
         tui_info!("Application is now stopped");
         Ok(())
