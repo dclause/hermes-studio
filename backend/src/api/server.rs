@@ -82,13 +82,16 @@ impl Server {
             .layer(CorsLayer::permissive())
             .with_state(AppState { database, socket });
 
+        let listener = tokio::net::TcpListener::bind((self.config.host, self.config.port)).await?;
         tui_success!(
             "Server ready at",
-            format!("http://{}:{}", self.config.host, self.config.port)
+            match self.config.host.is_loopback() || self.config.host.is_unspecified() {
+                true => format!("http://localhost:{}", self.config.port),
+                false => format!("http://{}", listener.local_addr()?.to_string()),
+            }
         );
         tui_success!("Application is now started (press Ctrl+C to stop gracefully)");
 
-        let listener = tokio::net::TcpListener::bind((self.config.host, self.config.port)).await?;
         axum::serve(listener, app)
             .with_graceful_shutdown(async { tokio::signal::ctrl_c().await.unwrap() })
             .await?;
