@@ -19,10 +19,13 @@ impl App {
         tui_opening!();
 
         // Build configuration and save it globally.
-        Config::from(args)?.save();
+        let config = Config::from(args)?;
 
         // Build and run the logger
-        Logger::default().init()?;
+        Logger::from(config).init()?;
+
+        // // Initialises a storage.
+        // Storage::init_persistent(&Config::get())?;
 
         tui_success!("Application is now started (press Ctrl+C to stop gracefully)");
         tui_info!("Application is now stopped");

@@ -13,9 +13,6 @@ use serde::{Deserialize, Serialize};
 use crate::tui_success;
 use crate::utils::cli::CliArgs;
 
-/// Globally accessible config (access via Config::get()).
-static CONFIG: RwLock<Option<Config>> = RwLock::new(None);
-
 /// Consolidated Config structure to be exposed globally throughout the application.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Config {
@@ -30,7 +27,7 @@ pub struct Config {
     /// Host to expose the application.
     pub host: IpAddr,
     /// Port to expose the application.
-    pub port: u32,
+    pub port: u16,
 }
 
 impl Default for Config {
@@ -67,19 +64,6 @@ impl Config {
 
         log::debug!("Configuration built:\n{:?}", config);
         Ok(config)
-    }
-
-    /// Saves the current config globally.
-    /// Once done, the configuration is available through the method: [`Config::get()`].
-    pub fn save(self) {
-        let mut lock = CONFIG.write();
-        *lock = Some(self);
-        tui_success!("Configuration loaded");
-    }
-
-    /// Gets the globally saved configuration.
-    pub fn get() -> Config {
-        CONFIG.read().clone().unwrap()
     }
 }
 

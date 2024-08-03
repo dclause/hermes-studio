@@ -22,14 +22,6 @@ pub struct Logger {
     config: Config,
 }
 
-impl Default for Logger {
-    fn default() -> Self {
-        Self {
-            config: Config::get(),
-        }
-    }
-}
-
 impl Logger {
     pub fn from(config: Config) -> Self {
         Logger { config }

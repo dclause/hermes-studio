@@ -48,7 +48,7 @@ pub struct CliArgs {
     /// Server port [default=5000]..
     #[arg(long, global(true))]
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
-    port: Option<u32>,
+    port: Option<u16>,
 
     /// Auto open embedded UI in default browser [default=false]..
     #[arg(long, action, global(true), value_name = "bool", num_args = 0..=1, default_missing_value = "true")]
