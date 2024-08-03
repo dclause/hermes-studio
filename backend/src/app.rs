@@ -2,7 +2,8 @@ use anyhow::Result;
 use clap::Parser;
 use colorful::Colorful;
 
-use crate::{tui_info, tui_opening, tui_success};
+use crate::{tui_error, tui_info, tui_opening, tui_success};
+use crate::api::server::Server;
 use crate::utils::cli::CliArgs;
 use crate::utils::config::Config;
 use crate::utils::logger::Logger;
@@ -22,12 +23,15 @@ impl App {
         let config = Config::from(args)?;
 
         // Build and run the logger
-        Logger::from(config).init()?;
+        Logger::from(config.clone()).init()?;
 
-        // // Initialises a storage.
-        // Storage::init_persistent(&Config::get())?;
+        // Build the server.
+        let server = Server::from(config);
 
-        tui_success!("Application is now started (press Ctrl+C to stop gracefully)");
+        if let Err(err) = server.start().await {
+            tui_error!("An error occurred:", err.to_string());
+        }
+
         tui_info!("Application is now stopped");
         Ok(())
     }

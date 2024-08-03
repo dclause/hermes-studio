@@ -30,7 +30,7 @@ pub struct CliArgs {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     debug: Option<bool>,
 
-    /// Outputs logs on console [default=true].
+    /// Outputs logs on console [default=false].
     #[arg(short, long, global(true), value_name = "bool", num_args = 0..=1, default_missing_value = "true")]
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub console: Option<bool>,

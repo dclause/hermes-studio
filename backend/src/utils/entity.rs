@@ -1,13 +1,15 @@
 use std::any::{Any, type_name};
 use std::fmt::Debug;
 
+use dyn_clone::DynClone;
+
 use crate::utils::entity::private_entity::EntityToAny;
 
 pub type EntityType = String;
 pub type Id = usize;
 
 #[typetag::serde(tag = "type")]
-pub trait Entity: Debug + Any + Send + Sync + EntityToAny {
+pub trait Entity: DynClone + Debug + Any + Send + Sync + EntityToAny {
     /// Exposes the entity id.
     fn get_id(&self) -> Id;
 
@@ -23,6 +25,8 @@ pub trait Entity: Debug + Any + Send + Sync + EntityToAny {
         type_name::<Self>().split("::").last().unwrap().to_string()
     }
 }
+// Makes a Box<dyn DynClone> clone (used for Database cloning).
+dyn_clone::clone_trait_object!(Entity);
 
 pub(crate) mod private_entity {
     use std::any::Any;

@@ -21,7 +21,7 @@ use anyhow::{anyhow, bail, Result};
 use crate::utils::entity::{Entity, EntityType, Id};
 
 /// Storage structure: stores all data accessible via the API.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Database {
     /// Path to the destination storage folder.
     /// If given, the `.save()` function will be able to serialize the content into that folder.

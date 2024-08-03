@@ -1,16 +1,13 @@
 //! This file contains code relative to configuration within the application.
 use std::net::IpAddr;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use anyhow::Result;
-use colorful::Colorful;
 use figment::Figment;
 use figment::providers::{Env, Format, Serialized, Toml};
 use log::Level;
-use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 
-use crate::tui_success;
 use crate::utils::cli::CliArgs;
 
 /// Consolidated Config structure to be exposed globally throughout the application.
@@ -28,17 +25,20 @@ pub struct Config {
     pub host: IpAddr,
     /// Port to expose the application.
     pub port: u16,
+    /// The database path.
+    pub db_folder: PathBuf,
 }
 
 impl Default for Config {
     fn default() -> Self {
         Config {
             loglevel: Level::Error,
-            console: true,
+            console: false,
             logfile: false,
             logpath: String::from("/logs/debug.log"),
             host: IpAddr::from([0, 0, 0, 0]),
-            port: 5000,
+            port: 4000,
+            db_folder: PathBuf::from("./database"),
         }
     }
 }
