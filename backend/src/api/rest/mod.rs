@@ -5,8 +5,7 @@ use serde::Deserialize;
 
 use crate::api::AppState;
 
-// mod animations;
-// mod boards;
+mod config;
 mod root;
 
 /// Generic pagination query parameters to be reused when needed across endpoints.
@@ -21,7 +20,9 @@ pub struct Pagination {
 
 /// Consolidates all available REST API routes.
 pub(crate) fn build_rest_routes() -> Router<AppState> {
-    Router::new().nest("/", root::routes())
+    Router::new()
+        .nest("/", root::routes())
+        .nest("/config", config::routes())
     // .nest("/boards", boards::routes())
     // .nest("/animations", animations::routes())
 }

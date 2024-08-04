@@ -7,12 +7,14 @@ use socketioxide::layer::SocketIoLayer;
 use socketioxide::SocketIo;
 
 use crate::api::sockets::ack::Ack;
+use crate::api::sockets::config::register_config_events;
 
 // use crate::api::sockets::animations::register_animation_events;
 // use crate::api::sockets::boards::register_board_events;
 // use crate::api::sockets::devices::register_device_events;
 
 pub mod ack;
+mod config;
 // mod animations;
 // mod boards;
 // mod devices;
@@ -37,7 +39,7 @@ pub(crate) fn build_socket_routes(
     io.ns("/ws", move |socket: SocketRef| {
         info!("Socket.IO connected: {:?} {:?}", socket.ns(), socket.id);
 
-        // @todo
+        register_config_events(&socket);
         // register_board_events(&socket);
         // register_device_events(&socket);
         // register_animation_events(&socket);

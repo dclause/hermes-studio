@@ -17,3 +17,9 @@ Cargo.lock
 **/tests/**/generated
 **/wip
 **/cobertura.xml
+
+
+# Configurations
+configs/*
+!configs/readme.md
+

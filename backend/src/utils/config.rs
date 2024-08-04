@@ -53,7 +53,7 @@ impl Config {
     ///  - default configuration
     pub fn from(args: CliArgs) -> Result<Config> {
         // TOML file path.
-        let config_path = Path::new("/configs").join("config.toml");
+        let config_path = Path::new("./configs").join("config.toml");
 
         let config: Config = Figment::new()
             .merge(Serialized::defaults(Config::default()))

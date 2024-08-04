@@ -5,15 +5,16 @@ use std::path::Path;
 use anyhow::Result;
 use chrono::Utc;
 use colorful::Colorful;
+use log::{LevelFilter, Record};
 use log4rs::append::console::{ConsoleAppender, Target};
 use log4rs::append::rolling_file::policy::compound::CompoundPolicy;
 use log4rs::append::rolling_file::policy::compound::roll::fixed_window::FixedWindowRoller;
 use log4rs::append::rolling_file::policy::compound::trigger::size::SizeTrigger;
 use log4rs::append::rolling_file::RollingFileAppender;
 use log4rs::config::{Appender, Root};
+use log4rs::config::runtime::Logger as LogLogger;
 use log4rs::encode::{Encode, Write};
 use log4rs::Handle;
-use log::Record;
 
 use crate::{tui_color, tui_error, tui_info, tui_success};
 use crate::utils::config::Config;
@@ -63,6 +64,7 @@ impl Logger {
 
     fn build(&self) -> Result<Option<Handle>> {
         let mut log_builder = log4rs::Config::builder();
+        let mut hermes_logger = LogLogger::builder();
         let mut root_builder = Root::builder();
 
         // =======================================================================
@@ -74,7 +76,7 @@ impl Logger {
                 .build();
             log_builder =
                 log_builder.appender(Appender::builder().build("stderr", Box::new(stderr)));
-            root_builder = root_builder.appender("stderr");
+            hermes_logger = hermes_logger.appender("stderr");
         }
 
         // =======================================================================
@@ -99,22 +101,26 @@ impl Logger {
                 .build(log_path, compound_policy)?;
             log_builder =
                 log_builder.appender(Appender::builder().build("logfile", Box::new(logfile)));
-            root_builder = root_builder.appender("logfile");
+            hermes_logger = hermes_logger.appender("logfile");
         }
+
+        // =======================================================================
+        // Set logging level for 'hermes-studio' and disable logging for other crates.
+        let hermes_logger = hermes_logger
+            .additive(true)
+            .build("hermes_studio", self.config.loglevel.to_level_filter());
+        log_builder = log_builder.logger(hermes_logger);
 
         // =======================================================================
         if !self.config.console && !self.config.logfile {
             return Ok(None);
         }
 
-        let logger =
-            log_builder.build(root_builder.build(self.config.loglevel.to_level_filter()))?;
+        let logger = log_builder.build(root_builder.build(LevelFilter::Off))?;
         let guard = log4rs::init_config(logger)?;
         Ok(Some(guard))
     }
 }
-
-// =======================================================================
 
 /// Custom Encoder for the project, usable into log4rs.
 /// This encoder adds support for styling through colorful crate.
