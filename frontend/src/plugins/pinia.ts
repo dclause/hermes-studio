@@ -1,6 +1,6 @@
-import { createPinia } from 'pinia'
+import { createPinia } from 'pinia';
 
 // https://pinia.vuejs.org
-const pinia = createPinia()
+const pinia = createPinia();
 
-export default pinia
+export default pinia;

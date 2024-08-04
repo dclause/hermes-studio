@@ -1,0 +1,13 @@
+{
+  "app": {
+    "slogan": "un Système de Gestion de Robot"
+  },
+  "form": {
+    "cancel": "Annuler",
+    "leave": "Quitter",
+    "save": "Enregistrer",
+    "add": "Créer {entity}",
+    "edit": "Editer {entity}",
+    "delete": "Supprimer {entity}"
+  }
+}

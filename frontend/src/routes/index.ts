@@ -1,9 +1,3 @@
-import HomePage from '@/pages/HomePage.vue'
+import coreRoutes from './core';
 
-export const routes = [
-  {
-    path: '/',
-    name: 'home',
-    component: HomePage
-  }
-]
+export const routes = [...coreRoutes];
