@@ -6,6 +6,7 @@ use crate::app::App;
 
 mod api;
 mod app;
+mod hardware;
 mod utils;
 
 /// Entry point for the project.

@@ -21,7 +21,7 @@ use anyhow::{anyhow, bail, Result};
 use crate::utils::entity::{Entity, EntityType, Id};
 
 /// Storage structure: stores all data accessible via the API.
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct Database {
     /// Path to the destination storage folder.
     /// If given, the `.save()` function will be able to serialize the content into that folder.
@@ -208,23 +208,7 @@ impl Database {
     }
 
     /// Stores or Updates an entity stored in the storage.
-    ///
-    /// This method is private to this crate only since developers should rather
-    /// use the entities CRUD methods instead of directly using the storage.
-    ///
-    /// # Examples
-    /// ```
-    /// use hermes_core::hardware::boards::arduino::{ArduinoBoard, ArduinoModel};
-    /// use hermes_core::hardware::boards::Board;
-    /// use hermes_core::storage::entity::Entity;
-    /// use hermes_core::storage::storage::Storage;
-    /// Storage::init_volatile().expect("Storage init");
-    /// let entity = ArduinoBoard::build("Board", ArduinoModel::MEGA);
-    /// assert_eq!(entity.get_id(), 0);  // Ids are 0 by default, ie not saved.
-    /// let saved_entity = entity.save().expect("Storage failed");
-    /// assert!(saved_entity.get_id() != 0); // Saving for the first time will give the entity a none null id.
-    /// ```
-    pub fn set<T: Entity + 'static + Clone>(&mut self, mut entity: T) -> Result<T> {
+    fn set<T: Entity + 'static + Clone>(&mut self, mut entity: T) -> Result<T> {
         let entity_type = T::get_entity_type();
         let entities = self
             .entities
@@ -260,6 +244,23 @@ impl Database {
         }
 
         Ok(entity)
+    }
+
+    /// Inserts a new entity in the storage.
+    pub fn insert<T: Entity + 'static + Clone>(&mut self, entity: T) -> Result<T> {
+        // Get the entity id or generate if not set.
+        if entity.get_id() > 0 {
+            bail!("Cannot insert an entity that already have an id");
+        }
+        self.set(entity)
+    }
+
+    /// Updates an existing entity in the storage.
+    pub fn update<T: Entity + 'static + Clone>(&mut self, entity: T) -> Result<T> {
+        if self.get::<T>(&entity.get_id())?.is_none() {
+            bail!("No entity found with this ID.")
+        };
+        self.set(entity)
     }
 
     /// Deletes an entity stored from the storage.

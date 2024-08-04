@@ -1,6 +1,7 @@
 //! This file provides general routes and handlers for CRUD operations regarding frontend specific configurations.
 
 use axum::{Json, Router};
+use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::routing::get;
 use toml::Value;
@@ -22,7 +23,8 @@ async fn get_config() -> impl IntoResponse {
 
 /// POST /:version/config.
 /// Save all interface configurations.
-async fn set_config(Json(input): Json<Value>) -> impl IntoResponse {
+async fn set_config(State(state): State<AppState>, Json(input): Json<Value>) -> impl IntoResponse {
     let config = Interface::set_config(input).unwrap();
+    state.socket.emit("config:get", config.clone()).unwrap();
     Json(config)
 }

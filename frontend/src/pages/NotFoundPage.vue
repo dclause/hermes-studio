@@ -38,7 +38,7 @@ const { t } = useI18n();
   "fr": {
     "description": "Mieux vaut",
     "link": "revenir en territoire connu",
-    "title": "Oops ... Nette page n'existe pas"
+    "title": "Oops ... Cette page n'existe pas"
   }
 }
 </i18n>

@@ -65,7 +65,7 @@ impl Logger {
     fn build(&self) -> Result<Option<Handle>> {
         let mut log_builder = log4rs::Config::builder();
         let mut hermes_logger = LogLogger::builder();
-        let mut root_builder = Root::builder();
+        let root_builder = Root::builder();
 
         // =======================================================================
         // Build a stderr logger.

@@ -5,6 +5,7 @@ use serde::Deserialize;
 
 use crate::api::AppState;
 
+mod boards;
 mod config;
 mod root;
 
@@ -23,6 +24,6 @@ pub(crate) fn build_rest_routes() -> Router<AppState> {
     Router::new()
         .nest("/", root::routes())
         .nest("/config", config::routes())
-    // .nest("/boards", boards::routes())
+        .nest("/boards", boards::routes())
     // .nest("/animations", animations::routes())
 }

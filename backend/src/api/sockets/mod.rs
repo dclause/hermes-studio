@@ -1,12 +1,10 @@
 //! This module contains all the code related to the SocketIO events handling.
 
-use log::info;
 use serde::Serialize;
 use socketioxide::extract::{AckSender, SocketRef};
-use socketioxide::layer::SocketIoLayer;
-use socketioxide::SocketIo;
 
 use crate::api::sockets::ack::Ack;
+use crate::api::sockets::boards::register_board_events;
 use crate::api::sockets::config::register_config_events;
 
 // use crate::api::sockets::animations::register_animation_events;
@@ -14,6 +12,7 @@ use crate::api::sockets::config::register_config_events;
 // use crate::api::sockets::devices::register_device_events;
 
 pub mod ack;
+mod boards;
 mod config;
 // mod animations;
 // mod boards;
@@ -32,21 +31,16 @@ pub fn broadcast_and_ack<T: Serialize>(
     ack.send(Ack::from(data)).ok();
 }
 
-pub(crate) fn build_socket_routes(
-    register_events: Vec<fn(socket: &SocketRef)>,
-) -> (SocketIoLayer, SocketIo) {
-    let (layer, io) = SocketIo::builder().build_layer();
-    io.ns("/ws", move |socket: SocketRef| {
-        info!("Socket.IO connected: {:?} {:?}", socket.ns(), socket.id);
+pub fn register_socket_events(
+    socket: SocketRef,
+    custom_register_callbacks: Vec<fn(socket: &SocketRef)>,
+) {
+    register_config_events(&socket);
+    register_board_events(&socket);
+    // register_device_events(&socket);
+    // register_animation_events(&socket);
 
-        register_config_events(&socket);
-        // register_board_events(&socket);
-        // register_device_events(&socket);
-        // register_animation_events(&socket);
-
-        for register_event in &register_events {
-            register_event(&socket);
-        }
-    });
-    (layer, io)
+    for custom_register in &custom_register_callbacks {
+        custom_register(&socket);
+    }
 }

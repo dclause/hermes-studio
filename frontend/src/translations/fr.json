@@ -9,5 +9,8 @@
     "add": "Créer {entity}",
     "edit": "Editer {entity}",
     "delete": "Supprimer {entity}"
+  },
+  "entities": {
+    "board": "Carte"
   }
 }

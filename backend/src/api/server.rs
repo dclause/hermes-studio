@@ -1,5 +1,10 @@
+use std::sync::Arc;
+
+use axum::extract::State;
 use axum::Router;
 use colorful::Colorful;
+use log::info;
+use parking_lot::RwLock;
 use socketioxide::extract::SocketRef;
 use socketioxide::SocketIo;
 use tower_http::cors::CorsLayer;
@@ -7,7 +12,7 @@ use tower_http::cors::CorsLayer;
 use crate::{tui_success, tui_warn};
 use crate::api::AppState;
 use crate::api::rest::build_rest_routes;
-use crate::api::sockets::build_socket_routes;
+use crate::api::sockets::register_socket_events;
 use crate::utils::config::Config;
 use crate::utils::database::Database;
 
@@ -54,22 +59,30 @@ impl Server {
     pub async fn start(self) -> anyhow::Result<()> {
         // Build the database.
         let path = self.config.db_folder;
-        let database = match Database::init_persistent(path.clone(), false, true) {
-            Ok(database) => {
-                tui_success!("Database ready - saving to", path.to_str().unwrap());
-                database
-            }
-            Err(err) => {
-                tui_warn!(
-                    "No persistent storage created - all information will be lost",
-                    err.to_string().split('\n').next().unwrap()
-                );
-                Database::init_volatile().unwrap()
-            }
-        };
+        let database = Arc::new(RwLock::new(
+            match Database::init_persistent(path.clone(), false, true) {
+                Ok(database) => {
+                    tui_success!("Database ready - saving to", path.to_str().unwrap());
+                    database
+                }
+                Err(err) => {
+                    tui_warn!(
+                        "No persistent storage created - all information will be lost",
+                        err.to_string().split('\n').next().unwrap()
+                    );
+                    Database::init_volatile().unwrap()
+                }
+            },
+        ));
 
         // Build the socket API server.
-        let (socket_layer, socket) = build_socket_routes(self.custom_sockets);
+        let (socket_layer, socket_io) = SocketIo::builder()
+            .with_state(database.clone())
+            .build_layer();
+        socket_io.ns("/ws", move |socket: SocketRef| {
+            info!("Socket.IO connected: {:?} {:?}", socket.ns(), socket.id);
+            register_socket_events(socket, self.custom_sockets)
+        });
 
         // Build the REST API server.
         let mut routes = build_rest_routes();
@@ -80,7 +93,10 @@ impl Server {
         let app = Router::from(routes)
             .layer(socket_layer)
             .layer(CorsLayer::permissive())
-            .with_state(AppState { database, socket });
+            .with_state(AppState {
+                database,
+                socket: socket_io,
+            });
 
         let listener = tokio::net::TcpListener::bind((self.config.host, self.config.port)).await?;
         tui_success!(

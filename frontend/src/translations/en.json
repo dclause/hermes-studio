@@ -9,5 +9,8 @@
     "add": "Add {entity}",
     "edit": "Edit {entity}",
     "delete": "Delete {entity}"
+  },
+  "entities:": {
+    "board": "Board"
   }
 }

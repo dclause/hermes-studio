@@ -1,5 +1,4 @@
 use std::any::{Any, type_name};
-use std::fmt::Debug;
 
 use dyn_clone::DynClone;
 
@@ -8,8 +7,9 @@ use crate::utils::entity::private_entity::EntityToAny;
 pub type EntityType = String;
 pub type Id = usize;
 
+/// The [`Entity`] trait allows a structure to be stored in the database.
 #[typetag::serde(tag = "type")]
-pub trait Entity: DynClone + Debug + Any + Send + Sync + EntityToAny {
+pub trait Entity: DynClone + Any + Send + Sync + EntityToAny {
     /// Exposes the entity id.
     fn get_id(&self) -> Id;
 
@@ -40,4 +40,21 @@ pub(crate) mod private_entity {
             self
         }
     }
+}
+
+/// Helper macro to implement an [`Entity`] for a given structure.
+#[macro_export]
+macro_rules! impl_entity {
+    ($struct_name:ident) => {
+        #[typetag::serde]
+        impl Entity for $struct_name {
+            fn get_id(&self) -> Id {
+                self.id
+            }
+
+            fn set_id(&mut self, id: Id) {
+                self.id = id
+            }
+        }
+    };
 }

@@ -40,14 +40,14 @@ const { t } = useI18n();
     "title": "Oops ... the connection was lost",
     "description": "This is ground control to robot... please respond !",
     "helper_line1": "Please make sure your backend is properly up and running",
-    "helper_line2": "as well as your {0}",
+    "helper_line2": "as well as your {0}.",
     "link": "connection settings"
   },
   "fr": {
     "title": "Oops ... la connexion a été interrompue",
     "description": "Contrôle au sol à robot... répondez !",
     "helper_line1": "Merci de vérifier que le backend soit correctement lancé",
-    "helper_line2": "ainsi que vos {0}",
+    "helper_line2": "ainsi que vos {0}.",
     "link": "paramètres de connexion"
   }
 }
