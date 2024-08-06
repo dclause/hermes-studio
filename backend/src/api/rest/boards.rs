@@ -24,7 +24,7 @@ async fn handler_boards_list(State(state): State<AppState>) -> impl IntoResponse
 /// POST /:version/boards.
 /// Create a new board.
 async fn handler_create_board(
-    State(mut state): State<AppState>,
+    State(state): State<AppState>,
     Json(payload): Json<CreateBoard>,
 ) -> impl IntoResponse {
     let board: Board = payload.into();

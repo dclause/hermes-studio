@@ -1,10 +1,14 @@
 use serde::Deserialize;
 
-use crate::hardware::board::Board;
+use crate::hardware::board::{Board, BoardType};
+
+// ########################################
+// API data exchange.
 
 #[derive(Deserialize, Debug)]
 pub struct CreateBoard {
-    pub(crate) name: String,
+    pub name: String,
+    pub model: BoardType,
 }
 
 impl Into<Board> for CreateBoard {
@@ -13,6 +17,8 @@ impl Into<Board> for CreateBoard {
             id: 0,
             name: self.name,
             inner: Default::default(),
+            connected: false,
+            model: Default::default(),
         }
     }
 }

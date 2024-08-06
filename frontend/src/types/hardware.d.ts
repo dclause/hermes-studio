@@ -26,12 +26,6 @@ export declare interface Device {
   [x: string]: unknown;
 }
 
-export declare interface BoardConfig {
-  type: string;
-
-  [x: string]: unknown;
-}
-
 export declare interface Protocol {
   type: string;
 
@@ -43,10 +37,13 @@ export declare type BoardId = Branded<number, 'BoardId'>;
 export declare interface Board {
   id: BoardId;
   name: string;
-  // connected: boolean;
-  // config: BoardConfig;
-  // protocol: Protocol;
-  // devices: Record<HardwareId, Device>;
+  connected: boolean;
+  protocol: Protocol;
+  model:
+    | string
+    | {
+        [x: string]: unknown;
+      };
 }
 
 export declare type StateId = Branded<number, 'StateId'>;

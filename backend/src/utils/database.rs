@@ -15,10 +15,14 @@ use std::fs::OpenOptions;
 use std::io::Write;
 use std::ops::Deref;
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 
 use anyhow::{anyhow, bail, Result};
+use parking_lot::RwLock;
 
 use crate::utils::entity::{Entity, EntityType, Id};
+
+pub type ArcDb = Arc<RwLock<Database>>;
 
 /// Storage structure: stores all data accessible via the API.
 #[derive(Clone)]
@@ -90,24 +94,10 @@ impl Database {
     /// If no destination was given when the storage was created
     /// (using `Storage::from(...)`) an `Err` is raised.
     pub fn dump(&self) -> Result<()> {
-        match &self.destination {
-            None => bail!("Volatile storage cannot dump to file."),
-            Some(destination) => {
-                let entities = &self.entities;
-
-                for (entity_type, entities_of_type) in entities.iter() {
-                    let serialized_entities = serde_json::to_string_pretty(entities_of_type)?;
-
-                    let entity_filepath = destination.join(format!("{}.json", entity_type));
-                    let mut file = OpenOptions::new()
-                        .write(true)
-                        .truncate(true)
-                        .create(true)
-                        .open(entity_filepath)?;
-                    file.write_all(serialized_entities.as_ref())?;
-                }
-            }
-        };
+        let entities = &self.entities;
+        for (entity_type, _) in entities.iter() {
+            self.save_to_file(entity_type)?;
+        }
 
         Ok(())
     }
@@ -120,18 +110,30 @@ impl Database {
 
             for file in files {
                 let file = file?.path();
-                let entity_type: EntityType =
-                    file.file_stem().unwrap().to_str().unwrap().to_string();
+
+                // Skip non json files.
+                if file.extension().is_none() || file.extension().unwrap() != "json" {
+                    continue;
+                }
+
+                let entity_type: EntityType = file
+                    .file_stem()
+                    .unwrap()
+                    .to_str()
+                    .unwrap()
+                    .strip_suffix('s')
+                    .unwrap()
+                    .to_string();
 
                 // Deserialize data from the current entity_type file in the storage folder.
                 let data = std::fs::read_to_string(file)?;
-                let entities = serde_json::from_str::<HashMap<Id, Box<dyn Entity>>>(data.as_str())?;
+                let mut entities =
+                    serde_json::from_str::<HashMap<Id, Box<dyn Entity>>>(data.as_str())?;
 
                 // Call the post_load hook on each loaded entities.
-                // @todo do we need postload ?
-                // for (_, entity) in entities.iter_mut() {
-                //     entity.post_load();
-                // }
+                for (_, entity) in entities.iter_mut() {
+                    entity.post_load();
+                }
 
                 // Update the storage to save the provided entity
                 self.entities.insert(entity_type, entities);
@@ -208,7 +210,7 @@ impl Database {
     }
 
     /// Stores or Updates an entity stored in the storage.
-    fn set<T: Entity + 'static + Clone>(&mut self, mut entity: T) -> Result<T> {
+    pub(crate) fn set<T: Entity + 'static + Clone>(&mut self, mut entity: T) -> Result<T> {
         let entity_type = T::get_entity_type();
         let entities = self
             .entities
@@ -227,20 +229,7 @@ impl Database {
         // Optionally, triggers autosave if enabled:
         // this will save the entities of the current type to its dump file.
         if self.autosave {
-            let path = self
-                .destination
-                .as_ref()
-                .ok_or_else(|| anyhow!("Destination folder undefined."))?;
-
-            let serialized_entities = serde_json::to_string_pretty(entities)?;
-
-            let entity_filepath = path.join(format!("{}.json", entity_type));
-            let mut file = OpenOptions::new()
-                .write(true)
-                .truncate(true)
-                .create(true)
-                .open(entity_filepath)?;
-            file.write_all(serialized_entities.as_ref())?;
+            self.save_to_file(&entity_type)?;
         }
 
         Ok(entity)
@@ -299,23 +288,34 @@ impl Database {
         // Optionally, triggers autosave if enabled:
         // this will save the entities of the current type to its dump file.
         if entity.is_some() && self.autosave {
-            let path = self
-                .destination
-                .as_ref()
-                .ok_or_else(|| anyhow!("Destination folder undefined."))?;
-
-            let serialized_entities = serde_json::to_string_pretty(entities)?;
-
-            let entity_filepath = path.join(format!("{}.json", entity_type));
-            let mut file = OpenOptions::new()
-                .write(true)
-                .truncate(true)
-                .create(true)
-                .open(entity_filepath)?;
-            file.write_all(serialized_entities.as_ref())?;
+            self.save_to_file(&entity_type)?;
         }
 
         Ok(entity)
+    }
+
+    fn save_to_file(&self, entity_type: &EntityType) -> Result<()> {
+        let path = self
+            .destination
+            .as_ref()
+            .ok_or_else(|| anyhow!("Destination folder undefined."))?;
+
+        let entities = self
+            .entities
+            .get(entity_type)
+            .ok_or_else(|| anyhow!("Entity type undefined."))?;
+
+        let serialized_entities = serde_json::to_string_pretty(&entities)?;
+
+        let entity_filepath = path.join(format!("{}s.json", entity_type));
+        let mut file = OpenOptions::new()
+            .write(true)
+            .truncate(true)
+            .create(true)
+            .open(entity_filepath)?;
+        file.write_all(serialized_entities.as_ref())?;
+
+        Ok(())
     }
 }
 

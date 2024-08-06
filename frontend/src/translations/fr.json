@@ -6,9 +6,9 @@
     "cancel": "Annuler",
     "leave": "Quitter",
     "save": "Enregistrer",
-    "add": "Créer {entity}",
-    "edit": "Editer {entity}",
-    "delete": "Supprimer {entity}"
+    "add": "Créer '{entity}'",
+    "edit": "Editer '{entity}'",
+    "delete": "Supprimer '{entity}'"
   },
   "entities": {
     "board": "Carte"

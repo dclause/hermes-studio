@@ -1,26 +1,22 @@
 use anyhow::{anyhow, bail};
-use axum::{debug_handler, Json};
 use log::debug;
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use socketioxide::extract::{AckSender, Data, SocketRef, State, TryData};
 
-use crate::api::{AppState, ArcDb};
 use crate::api::payloads::board::CreateBoard;
 use crate::api::sockets::ack::Ack;
 use crate::api::sockets::broadcast_and_ack;
+use crate::hardware::board::ArduinoType::MEGA;
 use crate::hardware::board::Board;
-use crate::utils::database::Database;
+use crate::hardware::board::BoardType::Arduino;
+use crate::utils::database::ArcDb;
+use crate::utils::entity::{Entity, Id};
 
 pub fn register_board_events(socket: &SocketRef) {
-    socket.on(
-        "board:list",
-        |socket: SocketRef, database: State<ArcDb>, ack: AckSender| {
-            debug!("Event received: [board:list]");
-            let boards = database.read().list::<Board>();
-            ack.send(Ack::from(boards)).ok();
-        },
-    );
+    socket.on("board:list", |database: State<ArcDb>, ack: AckSender| {
+        debug!("Event received: [board:list]");
+        let boards = database.read().list::<Board>();
+        ack.send(Ack::from(boards)).ok();
+    });
     //
     // socket.on(
     //     "board:mutate",
@@ -48,36 +44,30 @@ pub fn register_board_events(socket: &SocketRef) {
     //     },
     // );
     //
-    // socket.on(
-    //     "board:open",
-    //     |socket: SocketRef, Data(id): Data<Id>, ack: AckSender| {
-    //         debug!("Event received: [board:open]: board:{}", id);
-    //         let board = Board::get(&id).and_then(|board| match board {
-    //             None => bail!("Board not found"),
-    //             Some(mut board) => {
-    //                 board.open()?;
-    //                 board.save()
-    //             }
-    //         });
-    //         broadcast_and_ack("board:updated", board, socket, ack);
-    //     },
-    // );
-    //
-    // socket.on(
-    //     "board:close",
-    //     |socket: SocketRef, Data(id): Data<Id>, ack: AckSender| {
-    //         debug!("Event received: [board:close]: board:{}", id);
-    //         let board = Board::get(&id).and_then(|board| match board {
-    //             None => bail!("Board not found"),
-    //             Some(mut board) => {
-    //                 board.close()?;
-    //                 board.save()
-    //             }
-    //         });
-    //         broadcast_and_ack("board:updated", board, socket, ack);
-    //     },
-    // );
-    //
+    socket.on(
+        "board:open",
+        |socket: SocketRef, State(database): State<ArcDb>, Data(id): Data<Id>, ack: AckSender| {
+            debug!("Event received: [board:open]: board:{}", id);
+            let board = Board::get(&database, &id).and_then(|board| match board {
+                None => bail!("Board not found"),
+                Some(board) => board.open()?.save(&database),
+            });
+            broadcast_and_ack("board:updated", board, socket, ack);
+        },
+    );
+
+    socket.on(
+        "board:close",
+        |socket: SocketRef, State(database): State<ArcDb>, Data(id): Data<Id>, ack: AckSender| {
+            debug!("Event received: [board:close]: board:{}", id);
+            let board = Board::get(&database, &id).and_then(|board| match board {
+                None => bail!("Board not found"),
+                Some(board) => board.close()?.save(&database),
+            });
+            broadcast_and_ack("board:updated", board, socket, ack);
+        },
+    );
+
     socket.on(
         "board:add",
         |socket: SocketRef,

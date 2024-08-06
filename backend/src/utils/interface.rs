@@ -14,7 +14,7 @@ impl Interface {
     }
     pub fn set_config(config: Toml) -> Result<Toml> {
         let config_path = Path::new("./configs").join("interface.toml");
-        let config_as_string = toml::to_string(&config).unwrap();
+        let config_as_string = toml::to_string_pretty(&config).unwrap();
         std::fs::write(config_path, config_as_string).unwrap();
         Ok(config)
     }

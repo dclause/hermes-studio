@@ -1,7 +1,9 @@
 use std::any::{Any, type_name};
 
+use anyhow::Result;
 use dyn_clone::DynClone;
 
+use crate::utils::database::ArcDb;
 use crate::utils::entity::private_entity::EntityToAny;
 
 pub type EntityType = String;
@@ -17,12 +19,37 @@ pub trait Entity: DynClone + Any + Send + Sync + EntityToAny {
     /// /!\ You should never use this.
     fn set_id(&mut self, id: Id);
 
+    /// (internal)
+    /// Workaround: We would need custom implementation of serialize/deserialize for storage.
+    /// In the absence of a found solution at the moment, this method is used to post-process the deserialized of entities.
+    /// @todo find a better solution
+    /// @todo remove when https://github.com/serde-rs/serde/issues/642
+    fn post_load(&mut self) {
+        // Do nothing by default
+    }
+
     /// Retrieves the entity type.
     fn get_entity_type() -> EntityType
     where
         Self: Sized,
     {
         type_name::<Self>().split("::").last().unwrap().to_string()
+    }
+
+    /// Find entity by Id.
+    fn get(database: &ArcDb, id: &Id) -> Result<Option<Self>>
+    where
+        Self: Sized + Clone,
+    {
+        database.read().get::<Self>(id)
+    }
+
+    /// Saves the entity into the storage.
+    fn save(self, database: &ArcDb) -> Result<Self>
+    where
+        Self: Sized + Clone,
+    {
+        database.write().set(self)
     }
 }
 // Makes a Box<dyn DynClone> clone (used for Database cloning).
@@ -45,7 +72,7 @@ pub(crate) mod private_entity {
 /// Helper macro to implement an [`Entity`] for a given structure.
 #[macro_export]
 macro_rules! impl_entity {
-    ($struct_name:ident) => {
+    ($struct_name:ident $(, { $($additional_impl:item)* })?) => {
         #[typetag::serde]
         impl Entity for $struct_name {
             fn get_id(&self) -> Id {
@@ -55,6 +82,11 @@ macro_rules! impl_entity {
             fn set_id(&mut self, id: Id) {
                 self.id = id
             }
+
+            // Apply additional methods if provided
+            $(
+                $($additional_impl)*
+            )?
         }
     };
 }

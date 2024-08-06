@@ -25,7 +25,6 @@
     "@eslint/js": "^9.8.0",
     "@intlify/unplugin-vue-i18n": "^4.0.0",
     "@mdi/font": "^7.4.47",
-    "@tsconfig/node20": "^20.1.4",
     "@types/eslint__js": "^8.42.3",
     "@types/node": "^22.1.0",
     "@vitejs/plugin-vue": "^5.1.2",

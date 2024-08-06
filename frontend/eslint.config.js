@@ -1,4 +1,5 @@
 import js from '@eslint/js';
+import pluginPromise from 'eslint-plugin-promise';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import vue from 'eslint-plugin-vue';
 import ts from 'typescript-eslint';
@@ -64,4 +65,7 @@ export default [
       'simple-import-sort/exports': 'error',
     },
   },
+
+  // Promise
+  pluginPromise.configs['flat/recommended'],
 ];

@@ -47,7 +47,7 @@
     </template>
 
     <template #[`item.status`]="{ index }">
-      <!--      <board-connection-switch v-model="items[index]" />-->
+      <board-connection-switch v-model="items[index]" />
     </template>
     <template #[`item.name`]="{ item }">
       <app-link :to="{ name: 'board.show', params: { bid: item.id } }">
@@ -55,9 +55,10 @@
       </app-link>
     </template>
     <template #[`item.type`]="{ item }">
-      <!--      {{ item.config.type }}-->
+      {{ item.model }}
     </template>
     <template #[`item.protocol`]="{ item }">
+      {{ item.protocol }}
       <!--      <component-->
       <!--        :is="useProtocolComponent(item.protocol.type)"-->
       <!--        :prefix="$t('hardware.components.board.protocol')"-->

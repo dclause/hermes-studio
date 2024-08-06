@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use axum::extract::State;
 use axum::Router;
 use colorful::Colorful;
 use log::info;

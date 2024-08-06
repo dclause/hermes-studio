@@ -18,13 +18,33 @@
 
 <script lang="ts" setup>
 import type { NavigationItem } from '@/types/menus';
+import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import router from '@/plugins/router';
 
-const mainMenuLinks: NavigationItem[] = [];
-
+const { t } = useI18n();
 const route = useRoute();
 const isRouteActive = (link: NavigationItem) => {
   return router.resolve(link.to ?? link.href ?? '').fullPath === route.fullPath;
 };
+
+const mainMenuLinks: NavigationItem[] = [
+  {
+    to: { name: 'board.list' },
+    id: 'board.list',
+    label: t('board.list'),
+    icon: 'mdi-connection',
+  },
+];
 </script>
+
+<i18n>
+{
+  "en": {
+    "board.list": "Hardware configuration"
+  },
+  "fr": {
+    "board.list": "Configuration matérielle"
+  }
+}
+</i18n>
