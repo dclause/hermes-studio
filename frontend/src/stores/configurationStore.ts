@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia';
 import { type Socket } from 'socket.io-client';
 import { WritableComputedRef } from 'vue';
-import { useEmitter } from '@/composables/emitter';
-import { emit } from '@/composables/socket';
-import { useToasterStore } from '@/stores/toasts';
+import { useEmitter } from '@/composables/emitterComposables';
+import { emit } from '@/composables/socketComposables';
+import { useToasterStore } from '@/stores/toastStore';
 import { SocketAck } from '@/types/socket';
 
 const STORAGE_KEY = 'hermes-locale';

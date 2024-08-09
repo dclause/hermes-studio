@@ -51,8 +51,8 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { Rule } from '@/composables/form';
-import { useConnectionStore } from '@/stores/connection';
+import { Rule } from '@/composables/formComposables';
+import { useConnectionStore } from '@/stores/connectionStore';
 
 const { t } = useI18n();
 const socket = useConnectionStore();

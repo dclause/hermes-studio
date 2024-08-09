@@ -5,7 +5,9 @@ export default [
   {
     name: 'index',
     path: '/',
-    component: IndexPage,
+    components: {
+      default: IndexPage,
+    },
     meta: { serverless: true },
   },
   {
@@ -18,7 +20,9 @@ export default [
   },
   {
     path: '/:pathMatch(.*)*',
-    component: NotFoundPage,
+    components: {
+      default: NotFoundPage,
+    },
     meta: { serverless: true },
   },
 ];

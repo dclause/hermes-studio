@@ -3,9 +3,8 @@ use hermes_five::Board as InnerBoard;
 use serde::{Deserialize, Serialize};
 
 use crate::impl_entity;
+use crate::utils::database::Database;
 use crate::utils::entity::{Entity, Id};
-
-type ShallowBoard = Board;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Board {
@@ -18,9 +17,10 @@ pub struct Board {
 }
 
 impl_entity!(Board, {
-    fn post_load(&mut self) {
+    fn post_load(&mut self, _: &Database) -> Result<()> {
         // Reset connection state on load.
         self.connected = false;
+        Ok(())
     }
 });
 

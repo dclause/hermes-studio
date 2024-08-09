@@ -1,7 +1,7 @@
 import type { CallbackType } from '@/types/socket';
 import { defineStore, storeToRefs } from 'pinia';
 import { io, type Socket } from 'socket.io-client';
-import { useEmitter } from '@/composables/emitter';
+import { useEmitter } from '@/composables/emitterComposables';
 
 const STORAGE_KEY = 'hermes-backend';
 const storedUrl = sessionStorage.getItem(STORAGE_KEY);
@@ -20,6 +20,7 @@ emitter.on('socket:connected', (socket: Socket) => {
   });
   socket.on('disconnect', () => {
     store.isConnected = false;
+    emitter.emit('socket:disconnected');
   });
 });
 
@@ -46,9 +47,9 @@ export const useConnectionStore = defineStore({
 
       setTimeout(() => {
         if (this.socket.disconnected) {
-          // emitter.emit('socket:disconnected');
+          emitter.emit('socket:disconnected');
         }
-      }, 500);
+      }, 5000);
 
       // Clear all socket bindings (only necessary for hot reload)
       this.socket.off();

@@ -1,5 +1,5 @@
-import { useConnectionStore } from '@/stores/connection';
-import { useToasterStore } from '@/stores/toasts';
+import { useConnectionStore } from '@/stores/connectionStore';
+import { useToasterStore } from '@/stores/toastStore';
 import { SocketAck } from '@/types/socket';
 
 declare type AckCallback = (ack: SocketAck) => void;

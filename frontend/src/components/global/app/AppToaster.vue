@@ -26,7 +26,7 @@
 
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia';
-import { useToasterStore } from '@/stores/toasts';
+import { useToasterStore } from '@/stores/toastStore';
 
 const toasterStore = useToasterStore();
 const { toasts } = storeToRefs(toasterStore);

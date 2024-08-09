@@ -1,9 +1,9 @@
 // Register socket events.
+import type { Board, BoardId, Protocol } from '@/types/boards';
 import { defineStore } from 'pinia';
 import { Socket } from 'socket.io-client';
-import { useEmitter } from '@/composables/emitter';
-import { emit } from '@/composables/socket';
-import { Board, BoardId, Protocol } from '@/types/hardware';
+import { useEmitter } from '@/composables/emitterComposables';
+import { emit } from '@/composables/socketComposables';
 import { SocketAck } from '@/types/socket';
 
 const emitter = useEmitter();
@@ -35,7 +35,7 @@ export const useBoardStore = defineStore({
   id: 'boards',
   state: () => ({
     loading: false,
-    boards: [] as Record<BoardId, Board>,
+    boards: {} as Record<BoardId, Board>,
   }),
   actions: {
     refresh() {
@@ -51,10 +51,10 @@ export const useBoardStore = defineStore({
     /**
      * Creates a new default board (without saving).
      */
-    create(): Board {
+    default(): Board {
       return {
         id: 0 as BoardId,
-        name: 'foobar',
+        name: 'New board',
         model: 'Unknown',
         protocol: {
           type: 'SerialProtocol',

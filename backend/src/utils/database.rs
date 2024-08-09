@@ -132,7 +132,7 @@ impl Database {
 
                 // Call the post_load hook on each loaded entities.
                 for (_, entity) in entities.iter_mut() {
-                    entity.post_load();
+                    entity.post_load(&self)?;
                 }
 
                 // Update the storage to save the provided entity
@@ -177,6 +177,24 @@ impl Database {
 
         Ok(entities)
     }
+
+    // pub fn list<T: Entity + Clone + 'static>(&self) -> Result<HashMap<Id, T>> {
+    //     let entity_type = T::get_entity_type();
+    //     let entities = self
+    //         .entities
+    //         .get(&entity_type)
+    //         .map_or(HashMap::new(), |entities| {
+    //             entities
+    //                 .iter()
+    //                 .map(|(id, entity)| {
+    //                     let entity = entity.deref().as_any().downcast_ref::<T>();
+    //                     (*id, entity.unwrap().clone())
+    //                 })
+    //                 .collect()
+    //         });
+    //
+    //     Ok(entities)
+    // }
 
     /// Retrieves an entity stored in the storage.
     ///

@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useLoader } from '@/composables/loader';
+import { useLoader } from '@/composables/loaderComposables';
 
 const { isLoading, currentProgress } = useLoader();
 </script>

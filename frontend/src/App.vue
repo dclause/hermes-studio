@@ -22,7 +22,7 @@
 
 <script lang="ts" setup>
 import { useRoute } from 'vue-router';
-import { useConnectionStore } from '@/stores/connection';
+import { useConnectionStore } from '@/stores/connectionStore';
 
 const route = useRoute();
 const store = useConnectionStore();

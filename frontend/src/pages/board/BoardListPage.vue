@@ -55,15 +55,10 @@
       </app-link>
     </template>
     <template #[`item.type`]="{ item }">
-      {{ item.model }}
+      <board-model :model="item.model" />
     </template>
     <template #[`item.protocol`]="{ item }">
-      {{ item.protocol }}
-      <!--      <component-->
-      <!--        :is="useProtocolComponent(item.protocol.type)"-->
-      <!--        :prefix="$t('hardware.components.board.protocol')"-->
-      <!--        :protocol="item.protocol"-->
-      <!--      />-->
+      <protocol :protocol="item.protocol" />
     </template>
 
     <template #[`item.actions`]="{ item }">
@@ -111,11 +106,11 @@
 </template>
 
 <script lang="ts" setup>
-import type { Board } from '@/types/hardware';
+import type { Board } from '@/types/boards';
 import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useBoardStore } from '@/stores/boards';
+import { useBoardStore } from '@/stores/boardStore';
 
 const { t } = useI18n();
 
@@ -146,26 +141,26 @@ const headers = [
   {
     title: 'status',
     key: 'status',
-    headerProps: { class: 'text-center d-sm-table-cell' },
+    headerProps: { class: 'text-center d-sm-table-cell font-weight-bold' },
     cellProps: { class: 'text-center d-sm-table-cell' },
   },
-  { title: 'name', key: 'name', headerProps: { class: '' } },
+  { title: 'name', key: 'name', headerProps: { class: 'font-weight-bold' } },
   {
     title: 'type',
     key: 'type',
-    headerProps: { class: 'd-none d-md-table-cell' },
+    headerProps: { class: 'd-none d-md-table-cell font-weight-bold' },
     cellProps: { class: 'd-none d-md-table-cell' },
   },
   {
     title: 'protocol',
     key: 'protocol',
-    headerProps: { class: 'd-none d-sm-table-cell' },
+    headerProps: { class: 'd-none d-sm-table-cell font-weight-bold' },
     cellProps: { class: 'd-none d-sm-table-cell' },
   },
   {
     title: 'actions',
     key: 'actions',
-    headerProps: { class: 'text-center' },
+    headerProps: { class: 'text-center font-weight-bold' },
     cellProps: { class: 'text-center' },
   },
 ];

@@ -3,7 +3,7 @@
     <template #activator="{ props }">
       <v-btn :class="{ blink: status === 'pending' }" :icon="`mdi-lan-${status}`" v-bind="props" />
     </template>
-    <span>{{ t('server') }}: {{ t(`status.${status}`) }}</span>
+    <span>{{ t('server') }}: {{ $t(`connexion.${status}`) }}</span>
   </v-tooltip>
 </template>
 
@@ -11,7 +11,7 @@
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useConnectionStore } from '@/stores/connection';
+import { useConnectionStore } from '@/stores/connectionStore';
 
 const { t } = useI18n();
 const store = useConnectionStore();
@@ -44,22 +44,10 @@ const status = computed((): string => {
 <i18n>
 {
   "en": {
-    "server": "Server",
-    "status": {
-      "check": "connected",
-      "disconnect": "disconnected",
-      "offline": "offline",
-      "pending": "connecting..."
-    }
+    "server": "Server"
   },
   "fr": {
-    "server": "Serveur",
-    "status": {
-      "check": "connecté",
-      "disconnect": "déconnecté",
-      "offline": "hors ligne",
-      "pending": "connexion..."
-    }
+    "server": "Serveur"
   }
 }
 </i18n>

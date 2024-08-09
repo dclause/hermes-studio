@@ -3,14 +3,14 @@ use std::any::{Any, type_name};
 use anyhow::Result;
 use dyn_clone::DynClone;
 
-use crate::utils::database::ArcDb;
+use crate::utils::database::{ArcDb, Database};
 use crate::utils::entity::private_entity::EntityToAny;
 
 pub type EntityType = String;
 pub type Id = usize;
 
 /// The [`Entity`] trait allows a structure to be stored in the database.
-#[typetag::serde(tag = "type")]
+#[typetag::serde(tag = "entity")]
 pub trait Entity: DynClone + Any + Send + Sync + EntityToAny {
     /// Exposes the entity id.
     fn get_id(&self) -> Id;
@@ -19,21 +19,21 @@ pub trait Entity: DynClone + Any + Send + Sync + EntityToAny {
     /// /!\ You should never use this.
     fn set_id(&mut self, id: Id);
 
-    /// (internal)
-    /// Workaround: We would need custom implementation of serialize/deserialize for storage.
-    /// In the absence of a found solution at the moment, this method is used to post-process the deserialized of entities.
-    /// @todo find a better solution
-    /// @todo remove when https://github.com/serde-rs/serde/issues/642
-    fn post_load(&mut self) {
-        // Do nothing by default
-    }
-
     /// Retrieves the entity type.
     fn get_entity_type() -> EntityType
     where
         Self: Sized,
     {
         type_name::<Self>().split("::").last().unwrap().to_string()
+    }
+
+    /// (internal)
+    /// Workaround: We would need custom implementation of serialize/deserialize for storage.
+    /// In the absence of a found solution at the moment, this method is used to post-process the deserialized of entities.
+    /// @todo find a better solution
+    /// @todo remove when https://github.com/serde-rs/serde/issues/642
+    fn post_load(&mut self, _: &Database) -> Result<()> {
+        Ok(())
     }
 
     /// Find entity by Id.

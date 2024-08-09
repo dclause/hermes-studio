@@ -66,10 +66,10 @@ import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
-import { Rule } from '@/composables/form';
-import { useBoardStore } from '@/stores/boards';
-import { useToasterStore } from '@/stores/toasts';
-import { Board } from '@/types/hardware';
+import { Rule } from '@/composables/formComposables';
+import { useBoardStore } from '@/stores/boardStore';
+import { useToasterStore } from '@/stores/toastStore';
+import { Board } from '@/types/boards';
 import { SocketAck } from '@/types/socket';
 
 const { t } = useI18n();
@@ -80,7 +80,7 @@ const boardStore = useBoardStore();
 const { loading } = storeToRefs(boardStore);
 
 const isFormValidated = ref<boolean>(false);
-const board = boardStore.create();
+const board = boardStore.default();
 
 const onSubmit = () => {
   if (isFormValidated.value) {

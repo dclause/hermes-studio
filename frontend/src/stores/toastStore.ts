@@ -1,5 +1,6 @@
 import type { Toast, ToastStatus } from '@/types/toast';
 import { defineStore } from 'pinia';
+import { useEmitter } from '@/composables/emitterComposables';
 
 const defaultTimeout = 2000;
 
@@ -7,6 +8,15 @@ declare interface ToastPayload {
   text: string;
   timeout?: number;
 }
+
+// Register socket events.
+const emitter = useEmitter();
+emitter.on('socket:connected', () => {
+  useToasterStore().success('Server connected.');
+});
+emitter.on('socket:disconnected', () => {
+  useToasterStore().error('Server connection failed.');
+});
 
 export const useToasterStore = defineStore('toaster', {
   state: () => ({

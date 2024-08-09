@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useConfigStore } from '@/stores/configuration';
+import { useConfigStore } from '@/stores/configurationStore';
 
 const { t, locale: i18n } = useI18n();
 const languages = [

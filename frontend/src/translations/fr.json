@@ -10,7 +10,17 @@
     "edit": "Editer '{entity}'",
     "delete": "Supprimer '{entity}'"
   },
+  "connexion": {
+    "check": "connecté",
+    "disconnect": "hors ligne",
+    "pending": "connexion..."
+  },
   "entities": {
     "board": "Carte"
+  },
+  "command": {
+    "pin": "Pin",
+    "unknown": "Inconnu",
+    "none": "Aucune interface disponible pour cette commande."
   }
 }

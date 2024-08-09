@@ -14,9 +14,9 @@
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
-import { logError } from '@/composables/global';
-import { useBoardStore } from '@/stores/boards';
-import { Board } from '@/types/hardware';
+import { logError } from '@/composables/globalComposables';
+import { useBoardStore } from '@/stores/boardStore';
+import { Board } from '@/types/boards';
 import { SocketAck } from '@/types/socket';
 
 const boardStore = useBoardStore();

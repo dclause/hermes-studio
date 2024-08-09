@@ -1,4 +1,4 @@
-import BoardAddPage from '@/pages/board/BoardAddPage.vue';
+import BoardCreatePage from '@/pages/board/BoardCreatePage.vue';
 import BoardEditPage from '@/pages/board/BoardEditPage.vue';
 import BoardListPage from '@/pages/board/BoardListPage.vue';
 import BoardShowPage from '@/pages/board/BoardShowPage.vue';
@@ -12,7 +12,7 @@ export default [
   {
     name: 'board.new',
     path: '/board/new',
-    component: BoardAddPage,
+    component: BoardCreatePage,
   },
   {
     name: 'board.show',

@@ -10,7 +10,17 @@
     "edit": "Edit {entity}",
     "delete": "Delete {entity}"
   },
+  "connexion": {
+    "check": "connected",
+    "disconnect": "offline",
+    "pending": "connecting..."
+  },
   "entities:": {
     "board": "Board"
+  },
+  "command": {
+    "pin": "Pin",
+    "unknown": "Unknown",
+    "none": "No UI controller for this command."
   }
 }

@@ -4,7 +4,7 @@ import {
   NavigationGuardNext,
   RouteLocationNormalized,
 } from 'vue-router';
-import { startLoader, stopLoader } from '@/composables/loader';
+import { startLoader, stopLoader } from '@/composables/loaderComposables';
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
 import ServerlessLayout from '@/layouts/ServerlessLayout.vue';
 import { routes } from '@/routes';
