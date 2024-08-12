@@ -5,3 +5,5 @@ declare interface Brand<B> {
 }
 
 declare type Branded<T, B> = T & Brand<B>;
+
+declare type Range<T> = [T, T];

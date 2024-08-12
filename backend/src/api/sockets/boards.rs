@@ -39,7 +39,7 @@ pub fn register_board_events(socket: &SocketRef) {
             // our devices.
             let board = board.unwrap();
             let devices = database.read().list::<Device>().unwrap();
-            for (id, mut device) in devices {
+            for (_, mut device) in devices {
                 if device.bid == board.id {
                     device.inner.init(&board).unwrap();
                     device.save(&database).unwrap();
