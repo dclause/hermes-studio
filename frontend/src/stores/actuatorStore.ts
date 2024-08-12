@@ -30,6 +30,11 @@ emitter.on('socket:connected', (socket: Socket) => {
   socket.on('actuator:deleted', (id: DeviceId) => {
     delete deviceStore.actuators[id];
   });
+
+  // React to actuator mutate change: store it.
+  socket.on('actuator:mutated', (id: DeviceId, state: DeviceState) => {
+    deviceStore.actuators[id].state = state;
+  });
 });
 
 export const useDeviceStore = defineStore({

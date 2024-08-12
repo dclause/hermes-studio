@@ -23,6 +23,6 @@ impl_entity!(Device);
 #[typetag::serde(tag = "type")]
 pub trait DeviceType: DynClone + Debug + Send + Sync {
     fn init(&mut self, board: &Board) -> Result<()>;
-    fn set_state(&mut self, state: u16) -> Result<()>;
+    fn set_state(&mut self, state: u16) -> Result<u16>;
 }
 dyn_clone::clone_trait_object!(DeviceType);

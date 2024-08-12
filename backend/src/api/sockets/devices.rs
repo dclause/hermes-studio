@@ -4,6 +4,7 @@ use serde_json::Value;
 use socketioxide::extract::{AckSender, Data, SocketRef, State, TryData};
 
 use crate::api::sockets::ack::Ack;
+use crate::hardware::board::Board;
 use crate::hardware::device::Device;
 use crate::utils::database::ArcDb;
 use crate::utils::entity::{Entity, Id};
@@ -46,6 +47,20 @@ pub fn register_device_events(socket: &SocketRef) {
                     .broadcast()
                     .emit("actuator:mutated", (id, mutation.as_ref().unwrap()))
                     .ok();
+            } else {
+                let board = Board::get(&database, &id).and_then(|board| match board {
+                    None => bail!("Board not found"),
+                    Some(mut board) => {
+                        board.connected = false;
+                        Ok(board)
+                    }
+                });
+                // Update to all, including socket itself myself.
+                socket
+                    .broadcast()
+                    .emit("board:updated", board.as_ref().unwrap())
+                    .ok();
+                socket.emit("board:updated", board.as_ref().unwrap()).ok();
             }
             ack.send(Ack::from(mutation)).ok();
         },

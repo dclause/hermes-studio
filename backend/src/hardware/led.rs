@@ -28,11 +28,11 @@ impl DeviceType for Led {
         Ok(())
     }
 
-    fn set_state(&mut self, state: u16) -> anyhow::Result<()> {
+    fn set_state(&mut self, state: u16) -> anyhow::Result<u16> {
         match self.inner.as_mut() {
             None => bail!("Mutation on non initialized device"),
-            Some(led) => led._set_state(state)?,
+            Some(led) => led.set_state(state)?,
         }
-        Ok(())
+        Ok(state)
     }
 }

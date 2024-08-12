@@ -24,16 +24,20 @@ pub fn register_board_events(socket: &SocketRef) {
         "board:open",
         |socket: SocketRef, State(database): State<ArcDb>, Data(id): Data<Id>, ack: AckSender| {
             debug!("Event received: [board:open]: board:{}", id);
-            let board = Board::get(&database, &id)
-                .and_then(|board| match board {
-                    None => bail!("Board not found"),
-                    Some(board) => board.open(),
-                })
-                .unwrap();
+            let board = Board::get(&database, &id).and_then(|board| match board {
+                None => bail!("Board not found"),
+                Some(board) => board.open(),
+            });
+
+            // Stop here is opening failed.
+            if board.is_err() {
+                return broadcast_and_ack("board:updated", board, socket, ack);
+            }
 
             // Initialize properly the inner device value (because now that board is open(), the
             // handshake as given us the hardware board configuration, which let's us properly initialize
             // our devices.
+            let board = board.unwrap();
             let devices = database.read().list::<Device>().unwrap();
             for (id, mut device) in devices {
                 if device.bid == board.id {
