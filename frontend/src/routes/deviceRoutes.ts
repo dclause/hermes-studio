@@ -1,6 +1,6 @@
 import DeviceCreatePage from '@/pages/devices/DeviceCreatePage.vue';
+import DeviceEditPage from '@/pages/devices/DeviceEditPage.vue';
 import DeviceListPage from '@/pages/devices/DeviceListPage.vue';
-import NotFoundPage from '@/pages/NotFoundPage.vue';
 
 export default [
   {
@@ -14,13 +14,8 @@ export default [
     component: DeviceCreatePage,
   },
   {
-    name: 'device.show',
-    path: '/device/:bid',
-    component: NotFoundPage,
-  },
-  {
     name: 'device.edit',
     path: '/device/:id/edit',
-    component: NotFoundPage,
+    component: DeviceEditPage,
   },
 ];

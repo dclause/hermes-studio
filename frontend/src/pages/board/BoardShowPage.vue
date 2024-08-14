@@ -58,7 +58,7 @@
             :key="device.id"
             class="d-flex flex-1-1-100 align-center my-2"
           >
-            <actuator v-model="devices[id] as Actuator" />
+            <component :is="useDeviceComponent(device.type)" v-model="devices[id]" />
             <v-btn
               icon="mdi-pencil"
               size="small"
@@ -94,10 +94,11 @@
 </template>
 <script lang="ts" setup>
 import type { BoardId } from '@/types/boards';
-import type { Actuator, Device } from '@/types/devices';
+import type { Device } from '@/types/devices';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n'; // Retrieve the board.
 import { useRoute } from 'vue-router'; // import { useDeviceComponent } from '@/composables/hardware';
+import { useDeviceComponent } from '@/composables/deviceComposables';
 import { useBoardStore } from '@/stores/boardStore';
 import { useDeviceStore } from '@/stores/deviceStore';
 

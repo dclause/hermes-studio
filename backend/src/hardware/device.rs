@@ -11,7 +11,7 @@ use crate::utils::database::Database;
 use crate::utils::entity::Entity;
 use crate::utils::entity::Id;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Device {
     pub id: Id,
     pub bid: Id,

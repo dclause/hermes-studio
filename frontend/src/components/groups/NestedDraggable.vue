@@ -23,7 +23,11 @@
           <v-icon icon="mdi-cursor-move" />
         </div>
         <div v-if="element.device" class="d-flex flex-1-1-100 align-center">
-          <actuator v-if="devices[element.device]" v-model="devices[element.device]" />
+          <component
+            :is="useDeviceComponent(devices[element.device].type)"
+            v-if="devices[element.device]"
+            v-model="devices[element.device] as Actuator"
+          />
           <v-btn
             icon="mdi-pencil"
             size="small"
@@ -67,12 +71,13 @@
 </template>
 
 <script setup lang="ts">
+import type { Actuator, Device } from '@/types/devices';
 import { storeToRefs } from 'pinia';
 import { MoveEvent } from 'sortablejs';
 import { ref } from 'vue';
 import draggable from 'vuedraggable';
+import { useDeviceComponent } from '@/composables/deviceComposables';
 import { useDeviceStore } from '@/stores/deviceStore';
-import { Device } from '@/types/devices';
 import { NestedGroup } from '@/types/groups';
 
 const deviceStore = useDeviceStore();

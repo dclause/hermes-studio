@@ -24,7 +24,7 @@ export declare interface Led extends Actuator {
 
 export declare interface Servo extends Actuator {
   pin: number;
-  servo_type: Standard | Continuous;
+  servo_type: 'Standard' | 'Continuous';
   range: Range<number>;
   pwm_range: Range<number>;
   degree_range: Range<number>;

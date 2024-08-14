@@ -1,6 +1,7 @@
 use anyhow::bail;
 use log::debug;
-use socketioxide::extract::{AckSender, Data, SocketRef, State};
+use serde_json::Error;
+use socketioxide::extract::{AckSender, Data, SocketRef, State, TryData};
 
 use crate::animation::groups::Group;
 use crate::api::sockets::{broadcast_and_ack, broadcast_to_all};
@@ -79,23 +80,33 @@ pub fn register_device_events(socket: &SocketRef) {
     //     },
     // );
     //
-    // socket.on(
-    //     "device:create",
-    //     |socket: SocketRef, Data(value): Data<Value>, ack: AckSender| {
-    //         debug!("Event received: [device:create]: {:?}", value);
-    //         let bid = value[0].as_u64().unwrap() as Id;
-    //         let device = serde_json::from_value::<Device>(value[1].clone()).unwrap();
-    //         let device = Board::get(&bid).and_then(|board| match board {
-    //             None => bail!("Board not found"),
-    //             Some(mut board) => {
-    //                 let device = board.with_device(device);
-    //                 board.save()?;
-    //                 Ok(device)
-    //             }
-    //         });
-    //         broadcast_and_ack("device:updated", device, socket, ack);
-    //     },
-    // );
+    socket.on(
+        "device:create",
+        |socket: SocketRef,
+         database: State<ArcDb>,
+         TryData(data): TryData<Device>,
+         ack: AckSender| {
+            debug!("Event received: [device:create]: {:?}", data);
+
+            if data.is_err() {
+                ack.send(Ack::from(data.map_err(anyhow::Error::msg))).ok();
+                return;
+            }
+
+            let mut new_device = data.unwrap();
+            let device = Board::get(&database, &new_device.bid).and_then(|board| match board {
+                None => new_device.save(&database),
+                Some(board) => {
+                    if board.connected {
+                        new_device.inner.init(&board)?;
+                    }
+                    new_device.save(&database)
+                }
+            });
+
+            broadcast_and_ack("device:updated", device, &socket, ack);
+        },
+    );
     //
     // socket.on(
     //     "device:update",

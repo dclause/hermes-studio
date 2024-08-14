@@ -6,7 +6,7 @@ import { DeviceType } from '@/composables/deviceComposables';
 import { useEmitter } from '@/composables/emitterComposables';
 import { emit } from '@/composables/socketComposables';
 import { useToasterStore } from '@/stores/toastStore';
-import { Actuator, Device, DeviceId, DeviceState } from '@/types/devices';
+import { Device, DeviceId, DeviceState } from '@/types/devices';
 import { SocketAck } from '@/types/socket';
 
 const emitter = useEmitter();
@@ -19,12 +19,12 @@ emitter.on('socket:connected', (socket: Socket) => {
   });
 
   // React to a new actuator created: store it.
-  socket.on('device:created', (actuator: Actuator) => {
+  socket.on('device:created', (actuator: Device) => {
     deviceStore.devices[actuator.id] = actuator;
   });
 
   // React to actuator change: store it.
-  socket.on('device:updated', (actuator: Actuator) => {
+  socket.on('device:updated', (actuator: Device) => {
     deviceStore.devices[actuator.id] = actuator;
   });
 
@@ -43,14 +43,14 @@ export const useDeviceStore = defineStore({
   id: 'devices',
   state: () => ({
     loading: false,
-    devices: {} as Record<DeviceId, Actuator>,
+    devices: {} as Record<DeviceId, Device>,
   }),
   actions: {
     refresh() {
       this.loading = true;
       emit('device:list', (ack: SocketAck) => {
         if (ack.success) {
-          this.devices = ack.success as Record<DeviceId, Actuator>;
+          this.devices = ack.success as Record<DeviceId, Device>;
         }
         this.loading = false;
       });
@@ -62,12 +62,14 @@ export const useDeviceStore = defineStore({
     },
 
     /** Creates a new default actuator (without saving). */
-    default(bid = null): Actuator {
+    default(bid = null): Device {
       return {
+        entity: 'Device',
         id: 0 as DeviceId,
-        name: 'New actuator',
+        name: 'New device',
         type: DeviceType.Unknown,
         bid,
+        pin: 13,
         state: 0,
         default: 0,
       };
@@ -81,7 +83,7 @@ export const useDeviceStore = defineStore({
       this.loading = true;
       return emit('device:create', device, (ack: SocketAck) => {
         if (ack.success) {
-          const createdDevice = ack.success as Actuator;
+          const createdDevice = ack.success as Device;
           this.devices[createdDevice.id] = createdDevice;
         }
         this.loading = false;
