@@ -33,7 +33,6 @@ const languages = [
 const configStore = useConfigStore();
 const locale = ref<string>(configStore.locale);
 const onChange = (locale: string) => {
-  console.log('OnChange');
   configStore.updateLanguage(i18n, locale);
 };
 </script>

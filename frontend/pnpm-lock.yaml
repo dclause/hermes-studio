@@ -26,6 +26,9 @@ importers:
       vue-router:
         specifier: ^4.3.3
         version: 4.4.2(vue@3.4.35(typescript@5.5.4))
+      vuedraggable:
+        specifier: ^4.1.0
+        version: 4.1.0(vue@3.4.35(typescript@5.5.4))
       vuetify:
         specifier: ^3.6.14
         version: 3.6.14(typescript@5.5.4)(vite-plugin-vuetify@2.0.3)(vue-i18n@9.13.1(vue@3.4.35(typescript@5.5.4)))(vue@3.4.35(typescript@5.5.4))
@@ -39,15 +42,15 @@ importers:
       '@mdi/font':
         specifier: ^7.4.47
         version: 7.4.47
-      '@tsconfig/node20':
-        specifier: ^20.1.4
-        version: 20.1.4
       '@types/eslint__js':
         specifier: ^8.42.3
         version: 8.42.3
       '@types/node':
         specifier: ^22.1.0
         version: 22.1.0
+      '@types/sortablejs':
+        specifier: ^1.15.8
+        version: 1.15.8
       '@vitejs/plugin-vue':
         specifier: ^5.1.2
         version: 5.1.2(vite@5.3.5(@types/node@22.1.0)(sass@1.77.8))(vue@3.4.35(typescript@5.5.4))
@@ -593,9 +596,6 @@ packages:
   '@socket.io/component-emitter@3.1.2':
     resolution: {integrity: sha512-9BCxFwvbGg/RsZK9tjXd8s4UcwR0MWeFQ1XEKIQVVvAGJyINdrqKMcTRyLoK8Rse1GjzLV9cwjWV1olXRWEXVA==}
 
-  '@tsconfig/node20@20.1.4':
-    resolution: {integrity: sha512-sqgsT69YFeLWf5NtJ4Xq/xAF8p4ZQHlmGW74Nu2tD4+g5fAsposc4ZfaaPixVu4y01BEiDCWLRDCvDM5JOsRxg==}
-
   '@types/eslint@9.6.0':
     resolution: {integrity: sha512-gi6WQJ7cHRgZxtkQEoyHMppPjq9Kxo5Tjn2prSKDSmZrCz8TZ3jSRCeTJm+WoM+oB0WG37bRqLzaaU3q7JypGg==}
 
@@ -610,6 +610,9 @@ packages:
 
   '@types/node@22.1.0':
     resolution: {integrity: sha512-AOmuRF0R2/5j1knA3c6G3HOk523Ga+l+ZXltX8SF1+5oqcXijjfTd8fY3XRZqSihEu9XhtQnKYLmkFaoxgsJHw==}
+
+  '@types/sortablejs@1.15.8':
+    resolution: {integrity: sha512-b79830lW+RZfwaztgs1aVPgbasJ8e7AXtZYHTELNXZPsERt4ymJdjV4OccDbHQAvHrCcFpbF78jkm0R6h/pZVg==}
 
   '@typescript-eslint/eslint-plugin@8.0.0':
     resolution: {integrity: sha512-STIZdwEQRXAHvNUS6ILDf5z3u95Gc8jzywunxSNqX00OooIemaaNIA0vEgynJlycL5AjabYLLrIyHd4iazyvtg==}
@@ -1524,6 +1527,9 @@ packages:
     resolution: {integrity: sha512-/GbIKmo8ioc+NIWIhwdecY0ge+qVBSMdgxGygevmdHj24bsfgtCmcUUcQ5ZzcylGFHsN3k4HB4Cgkl96KVnuew==}
     engines: {node: '>=10.0.0'}
 
+  sortablejs@1.14.0:
+    resolution: {integrity: sha512-pBXvQCs5/33fdN1/39pPL0NZF20LeRbLQ5jtnheIPN9JQAaufGjKdWduZn4U7wCtVuzKhmRkI0DFYHYRbB2H1w==}
+
   source-map-js@1.2.0:
     resolution: {integrity: sha512-itJW8lvSA0TXEphiRoawsCksnlf8SyvmFzIhltqAHluXd88pkCd+cXJVHTDwdCr0IzwptSm035IHQktUu1QUMg==}
     engines: {node: '>=0.10.0'}
@@ -1755,6 +1761,11 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
+
+  vuedraggable@4.1.0:
+    resolution: {integrity: sha512-FU5HCWBmsf20GpP3eudURW3WdWTKIbEIQxh9/8GE806hydR9qZqRRxRE3RjqX7PkuLuMQG/A7n3cfj9rCEchww==}
+    peerDependencies:
+      vue: ^3.0.1
 
   vuetify@3.6.14:
     resolution: {integrity: sha512-iSa3CgdTEt/7B0aGDmkBARe8rxDDycEYHu1zNtOf1Xpvs/Tv7Ql5yHGqM2XCY0h7SL8Dme39pJIovzg3q4JLbQ==}
@@ -2286,8 +2297,6 @@ snapshots:
 
   '@socket.io/component-emitter@3.1.2': {}
 
-  '@tsconfig/node20@20.1.4': {}
-
   '@types/eslint@9.6.0':
     dependencies:
       '@types/estree': 1.0.5
@@ -2304,6 +2313,8 @@ snapshots:
   '@types/node@22.1.0':
     dependencies:
       undici-types: 6.13.0
+
+  '@types/sortablejs@1.15.8': {}
 
   '@typescript-eslint/eslint-plugin@8.0.0(@typescript-eslint/parser@8.0.0(eslint@9.8.0)(typescript@5.5.4))(eslint@9.8.0)(typescript@5.5.4)':
     dependencies:
@@ -3299,6 +3310,8 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  sortablejs@1.14.0: {}
+
   source-map-js@1.2.0: {}
 
   source-map@0.6.1:
@@ -3526,6 +3539,11 @@ snapshots:
       '@vue/shared': 3.4.35
     optionalDependencies:
       typescript: 5.5.4
+
+  vuedraggable@4.1.0(vue@3.4.35(typescript@5.5.4)):
+    dependencies:
+      sortablejs: 1.14.0
+      vue: 3.4.35(typescript@5.5.4)
 
   vuetify@3.6.14(typescript@5.5.4)(vite-plugin-vuetify@2.0.3)(vue-i18n@9.13.1(vue@3.4.35(typescript@5.5.4)))(vue@3.4.35(typescript@5.5.4)):
     dependencies:

@@ -38,7 +38,7 @@ emitter.on('socket:connected', (socket: Socket) => {
 });
 
 export const useDeviceStore = defineStore({
-  id: 'actuators',
+  id: 'devices',
   state: () => ({
     loading: false,
     actuators: {} as Record<DeviceId, Actuator>,

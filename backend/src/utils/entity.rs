@@ -27,12 +27,15 @@ pub trait Entity: DynClone + Any + Send + Sync + EntityToAny {
         type_name::<Self>().split("::").last().unwrap().to_string()
     }
 
-    /// (internal)
-    /// Workaround: We would need custom implementation of serialize/deserialize for storage.
-    /// In the absence of a found solution at the moment, this method is used to post-process the deserialized of entities.
-    /// @todo find a better solution
-    /// @todo remove when https://github.com/serde-rs/serde/issues/642
     fn post_load(&mut self, _: &Database) -> Result<()> {
+        Ok(())
+    }
+
+    fn post_save(&mut self, _: &mut Database) -> Result<()> {
+        Ok(())
+    }
+
+    fn post_delete(&mut self, _: &mut Database) -> Result<()> {
         Ok(())
     }
 

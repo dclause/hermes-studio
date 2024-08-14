@@ -89,6 +89,10 @@ impl Database {
         Ok(storage)
     }
 
+    pub fn set_autosave(&mut self, autosave: bool) {
+        self.autosave = autosave;
+    }
+
     /// Dumps the storage content to the persistent storage if available.
     ///
     /// If no destination was given when the storage was created
@@ -250,6 +254,9 @@ impl Database {
             self.save_to_file(&entity_type)?;
         }
 
+        // Run post_save hook
+        entity.post_save(self)?;
+
         Ok(entity)
     }
 
@@ -306,13 +313,15 @@ impl Database {
         // Optionally, triggers autosave if enabled:
         // this will save the entities of the current type to its dump file.
         if entity.is_some() && self.autosave {
+            // Run post_delete hook.
+            entity.clone().unwrap().post_delete(self)?;
             self.save_to_file(&entity_type)?;
         }
 
         Ok(entity)
     }
 
-    fn save_to_file(&self, entity_type: &EntityType) -> Result<()> {
+    pub fn save_to_file(&self, entity_type: &EntityType) -> Result<()> {
         let path = self
             .destination
             .as_ref()

@@ -5,11 +5,9 @@
         <v-list-item
           :active="isRouteActive(link)"
           :to="link.to"
-          style="font-size: 1.2em"
+          :prepend-icon="link.icon"
           v-bind="props"
-        >
-          <v-icon :icon="link.icon" width="40" />
-        </v-list-item>
+        />
       </template>
       <span>{{ link.label }}</span>
     </v-tooltip>
@@ -33,7 +31,13 @@ const mainMenuLinks: NavigationItem[] = [
     to: { name: 'board.list' },
     id: 'board.list',
     label: t('board.list'),
-    icon: 'mdi-connection',
+    icon: 'mdi-cog-transfer',
+  },
+  {
+    to: { name: 'device.list' },
+    id: 'device.list',
+    label: t('device.list'),
+    icon: 'mdi-camera-control',
   },
 ];
 </script>
@@ -41,10 +45,12 @@ const mainMenuLinks: NavigationItem[] = [
 <i18n>
 {
   "en": {
-    "board.list": "Hardware configuration"
+    "board.list": "Hardware configuration",
+    "device.list": "Groups & Controls"
   },
   "fr": {
-    "board.list": "Configuration matérielle"
+    "board.list": "Configuration matérielle",
+    "device.list": "Groupes & Contrôles"
   }
 }
 </i18n>

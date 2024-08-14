@@ -4,6 +4,7 @@ use anyhow::Result;
 
 use crate::app::App;
 
+mod animation;
 mod api;
 mod app;
 mod hardware;
