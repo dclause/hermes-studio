@@ -30,11 +30,9 @@ export function useFlatToNested(groups: Record<GroupId, FlatGroup>): NestedGroup
   const map: Record<GroupId, NestedGroup> = {};
 
   // Sort FlatGroups and map it to NestedGroups.
-  Object.values(groups)
-    .sort((left, right) => left.order - right.order)
-    .forEach((group) => {
-      map[group.id] = { ...group, children: [] as NestedGroup[], level: 0 };
-    });
+  Object.values(groups).forEach((group) => {
+    map[group.id] = { ...group, children: [] as NestedGroup[], level: 0 };
+  });
 
   // Helper function to build the nested structure.
   function traverse(groupId: GroupId, level: number = 1): NestedGroup | null {
@@ -46,7 +44,8 @@ export function useFlatToNested(groups: Record<GroupId, FlatGroup>): NestedGroup
 
     nestedGroup.children = flatGroup.children
       .map((childId) => traverse(childId, level + 1))
-      .filter((group) => group) as NestedGroup[];
+      .filter((group) => group)
+      .sort((left, right) => left!.order - right!.order) as NestedGroup[];
     nestedGroup.level = level;
 
     return nestedGroup;
@@ -55,5 +54,6 @@ export function useFlatToNested(groups: Record<GroupId, FlatGroup>): NestedGroup
   // Loop over the groups and nest them.
   return Object.values(map)
     .map((group) => traverse(group.id))
-    .filter((group) => group) as NestedGroup[];
+    .filter((group) => group)
+    .sort((left, right) => left!.order - right!.order) as NestedGroup[];
 }

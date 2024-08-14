@@ -9,9 +9,9 @@
     item-key="id"
     animation="200"
     ghost-class="ghost"
-    :move="onMove"
-    @start="isDragging = true"
-    @end="isDragging = false"
+    :move="canMove"
+    @move="onMove"
+    @change="onChange"
   >
     <template #item="{ element }">
       <v-card
@@ -41,7 +41,7 @@
           />
           <v-btn icon="mdi-trash-can" size="small" variant="text" />
         </div>
-        <draggable-group v-if="!element.device" v-model="element.children" />
+        <draggable-group v-if="!element.device" v-model="element.children" :on-change="onChange" />
       </v-card>
     </template>
   </draggable>
@@ -56,14 +56,25 @@ import { useDeviceStore } from '@/stores/actuatorStore';
 import { NestedGroup } from '@/types/groups';
 
 const groups = defineModel<NestedGroup[]>({ required: true });
+const props = defineProps<{
+  onChange: () => void;
+}>();
+
 const { actuators } = storeToRefs(useDeviceStore());
 
 // Flag indicating the user is currently dragging (used to display dropzone).
 const isDragging = ref<boolean>(false);
 
 /** Do not allow 'disabled' element to be moved around. */
-const onMove = (event: MoveEvent) => {
+const canMove = (event: MoveEvent): boolean => {
   return event.related.className.indexOf('disabled') === -1;
+};
+const onMove = () => {
+  isDragging.value = true;
+};
+const onChange = () => {
+  isDragging.value = false;
+  props.onChange();
 };
 </script>
 

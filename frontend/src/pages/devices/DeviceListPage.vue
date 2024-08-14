@@ -1,5 +1,5 @@
 <template>
-  <draggable-group v-model="draggables" :disabled="loading" />
+  <draggable-group v-model="draggables" :disabled="loading" :on-change="onChange" />
 </template>
 
 <script lang="ts" setup>
@@ -11,18 +11,15 @@ import { NestedGroup } from '@/types/groups';
 
 const groupStore = useGroupStore();
 const { groups, loading } = storeToRefs(groupStore);
-const draggables = ref<NestedGroup[]>([]);
+const draggables = ref<NestedGroup[]>(useFlatToNested(groups.value));
 
-// When groups is loaded (only used in case of page refresh, hence the "once" watcher).
-watch(
-  groups,
-  (groups) => {
-    draggables.value = useFlatToNested(groups);
-  },
-  { once: true },
-);
-// When draggables updates: save to groups.
-watch(draggables, (draggables) => {
-  groupStore.save(useNestedToFlat(draggables));
+// When groups are updated (page load, or grouped saved, ...): rebuild draggables.
+watch(groups, (groups) => {
+  draggables.value = useFlatToNested(groups);
 });
+
+// Save the draggables when moved.
+const onChange = () => {
+  groupStore.save(useNestedToFlat(draggables.value));
+};
 </script>
