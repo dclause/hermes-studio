@@ -124,6 +124,7 @@ const onDelete = (item: NestedGroup | Device) => {
 .wrapper {
   display: grid;
   grid-template-columns: 40px auto;
+  overflow: visible;
 }
 
 .handler {

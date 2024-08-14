@@ -1,10 +1,10 @@
 import { Component } from 'vue';
-import DefaultActuator from '@/components/hardware/actuators/DefaultActuator.vue';
-import DefaultDeviceEdit from '@/components/hardware/actuators/edit/DefaultDeviceEdit.vue';
-import LedEdit from '@/components/hardware/actuators/edit/LedEdit.vue';
-import ServoEdit from '@/components/hardware/actuators/edit/StandardServoEdit.vue';
-import Led from '@/components/hardware/actuators/Led.vue';
-import Servo from '@/components/hardware/actuators/Servo.vue';
+import DefaultCommand from '@/components/hardware/devices/commands/DefaultCommand.vue';
+import LedCommand from '@/components/hardware/devices/commands/LedCommand.vue';
+import ServoCommand from '@/components/hardware/devices/commands/ServoCommand.vue';
+import DefaultDeviceEdit from '@/components/hardware/devices/edit/DefaultDeviceEdit.vue';
+import LedEdit from '@/components/hardware/devices/edit/LedEdit.vue';
+import ServoEdit from '@/components/hardware/devices/edit/StandardServoEdit.vue';
 
 export enum DeviceType {
   Unknown = '',
@@ -14,9 +14,9 @@ export enum DeviceType {
 
 export const useDeviceComponent = (type: DeviceType): Component | undefined => {
   const mapping = {
-    [DeviceType.Unknown]: DefaultActuator,
-    [DeviceType.Led]: Led,
-    [DeviceType.Servo]: Servo,
+    [DeviceType.Unknown]: DefaultCommand,
+    [DeviceType.Led]: LedCommand,
+    [DeviceType.Servo]: ServoCommand,
   };
   return mapping[type];
 };

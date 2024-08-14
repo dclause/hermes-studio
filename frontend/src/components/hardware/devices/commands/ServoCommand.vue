@@ -1,5 +1,5 @@
 <template>
-  <default-actuator v-model="device" class="command command-servo">
+  <default-command v-model="device" class="command-servo">
     <template #icon>
       <svg-servo class="ml-2 mr-3" width="30" />
     </template>
@@ -12,7 +12,7 @@
         :max="device.range[1]"
       />
     </template>
-  </default-actuator>
+  </default-command>
 </template>
 
 <script lang="ts" setup>

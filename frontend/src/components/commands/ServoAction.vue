@@ -1,9 +1,9 @@
 <template>
-  <generic-action v-model="state" class="command-servo" :device="device" :mode="mode">
+  <generic-action v-model="state" class="action-servo" :device="device" :mode="mode">
     <template #action>
       <v-slider
         v-model="state"
-        class="command-slider d-none ma-0"
+        class="action-slider d-none ma-0"
         color="primary"
         :disabled="loading"
         :loading="loading"
@@ -14,6 +14,7 @@
         thumb-size="20px"
         track-color="grey"
         track-size="8px"
+        :thumb-label="true"
         @end="onSlider"
       >
         <template #prepend>
@@ -23,10 +24,14 @@
         <template #append>
           <v-btn icon="mdi-plus" size="small" variant="text" @click="onIncrement" />
         </template>
+
+        <template #thumb-label="{ modelValue }">
+          <div>{{ modelValue }}°</div>
+        </template>
       </v-slider>
       <v-text-field
         v-model.number="state"
-        class="command-input flex-0-0"
+        class="action-input flex-0-0"
         density="compact"
         :disabled="loading"
         hide-details
@@ -102,16 +107,16 @@ const onDecrement = () => {
 };
 </script>
 
-<style lang="scss">
-.command-servo {
-  .command-slider {
+<style lang="scss" scoped>
+.action-servo {
+  .action-slider {
     @media (min-width: 960px) {
       display: grid !important;
     }
   }
 
-  .command-input {
-    width: 70px;
+  .action-input {
+    width: 90px;
 
     input,
     .v-field__input {

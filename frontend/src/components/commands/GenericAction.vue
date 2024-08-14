@@ -1,10 +1,10 @@
 <template>
-  <div class="d-flex flex-grow-1 align-center command">
+  <div class="d-flex flex-grow-1 align-center action">
     <div v-if="mode != HardwareMode.NONE && board && !board.connected" class="text-center">
       <em>{{ $t('connexion.disconnect') }}</em>
     </div>
     <slot v-else name="action">
-      <div class="font-italic text-error-lighten-1 command command-unknown">
+      <div class="font-italic text-error-lighten-1 action action-unknown">
         {{ $t('command.none') }}
       </div>
     </slot>

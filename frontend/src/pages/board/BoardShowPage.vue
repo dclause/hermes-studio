@@ -56,7 +56,7 @@
           <v-card
             v-for="(device, id) in devices"
             :key="device.id"
-            class="d-flex flex-1-1-100 align-center my-2"
+            class="wrapper d-flex flex-1-1-100 align-center my-2"
           >
             <component :is="useDeviceComponent(device.type)" v-model="devices[id]" />
             <v-btn
@@ -124,6 +124,12 @@ const onDelete = () => {
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.wrapper {
+  overflow: visible;
+}
+</style>
 
 <i18n>
 {

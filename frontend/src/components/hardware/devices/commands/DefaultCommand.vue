@@ -1,6 +1,6 @@
 <template>
   <!-- Compact variant -->
-  <div v-if="variant === 'compact'" class="d-flex flex-1-1-100 align-center mt-2 mb-2">
+  <div v-if="variant === 'compact'" class="d-flex flex-1-1-100 align-center mt-2 mb-2 command">
     <slot name="icon">
       <v-icon class="ml-2 mr-3" icon="mdi-progress-question" size="30" />
     </slot>

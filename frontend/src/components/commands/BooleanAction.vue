@@ -1,5 +1,5 @@
 <template>
-  <generic-action v-model="state" class="command-boolean" :device="device" :mode="mode">
+  <generic-action v-model="state" class="action-boolean" :device="device" :mode="mode">
     <template #action>
       <v-switch
         v-model="innerValue"

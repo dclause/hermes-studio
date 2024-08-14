@@ -1,18 +1,19 @@
 <template>
-  <default-actuator v-model="device" class="command command-led">
+  <default-command v-model="device" class="command-led">
     <template #icon>
       <svg-led class="ml-2 mr-3" width="30" />
     </template>
     <template #command>
       <boolean-action
         v-model="device.state"
+        class="ml-2"
         :mode="HardwareMode.REALTIME"
         :device="device"
         :true="device.intensity"
         :false="0"
       />
     </template>
-  </default-actuator>
+  </default-command>
 </template>
 
 <script lang="ts" setup>
