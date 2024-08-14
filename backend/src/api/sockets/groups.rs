@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, bail, Result};
 use log::debug;
-use socketioxide::extract::{AckSender, SocketRef, State, TryData};
+use socketioxide::extract::{AckSender, Data, SocketRef, State, TryData};
 
 use crate::animation::groups::Group;
 use crate::api::sockets::ack::Ack;
@@ -52,7 +52,7 @@ pub fn register_group_events(socket: &SocketRef) {
 
             // Resume autosave
             database.write().set_autosave(true);
-            broadcast_and_ack("groups:updated", groups, socket, ack);
+            broadcast_and_ack("groups:updated", groups, &socket, ack);
         },
     );
     //
@@ -70,15 +70,20 @@ pub fn register_group_events(socket: &SocketRef) {
     //     },
     // );
     //
-    // socket.on(
-    //     "group:delete",
-    //     |socket: SocketRef, TryData(id): TryData<Id>, ack: AckSender| {
-    //         debug!("Event received: [group:delete]: id:{:?}", id);
-    //         let group = Group::delete_by_id(id.unwrap()).and_then(|group| match group {
-    //             None => bail!("Group not found"),
-    //             Some(group) => Ok(group),
-    //         });
-    //         broadcast_and_ack("group:deleted", group, socket, ack);
-    //     },
-    // );
+    socket.on(
+        "group:delete",
+        |socket: SocketRef, database: State<ArcDb>, Data(id): Data<Id>, ack: AckSender| {
+            debug!("Event received: [group:delete]: id:{:?}", id);
+            let _ = database
+                .write()
+                .delete::<Group>(id)
+                .and_then(|group| match group {
+                    None => bail!("Group not found"),
+                    Some(group) => Ok(group),
+                });
+
+            let groups = database.read().list::<Group>();
+            broadcast_and_ack("groups:updated", groups, &socket, ack);
+        },
+    );
 }

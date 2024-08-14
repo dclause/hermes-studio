@@ -40,7 +40,9 @@ impl_entity!(Device, {
         Ok(())
     }
 
+    // Delete the associated group if any.
     fn post_delete(&mut self, database: &mut Database) -> Result<()> {
+        // 1. Delete the associated group if any.
         let group = database
             .list::<Group>()?
             .into_iter()
@@ -49,6 +51,7 @@ impl_entity!(Device, {
         if group.is_some() {
             database.delete::<Group>(group.unwrap().1.id)?;
         };
+
         Ok(())
     }
 });

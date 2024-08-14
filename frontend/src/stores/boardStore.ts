@@ -4,6 +4,7 @@ import { defineStore } from 'pinia';
 import { Socket } from 'socket.io-client';
 import { useEmitter } from '@/composables/emitterComposables';
 import { emit } from '@/composables/socketComposables';
+import { useToasterStore } from '@/stores/toastStore';
 import { SocketAck } from '@/types/socket';
 
 const emitter = useEmitter();
@@ -26,8 +27,8 @@ emitter.on('socket:connected', (socket: Socket) => {
   });
 
   // React to board deletion: remove it.
-  socket.on('board:deleted', (id: BoardId) => {
-    delete boardStore.boards[id];
+  socket.on('board:deleted', (board: Board) => {
+    delete boardStore.boards[board.id];
   });
 });
 
@@ -68,19 +69,37 @@ export const useBoardStore = defineStore({
      * Add a new board to the database.
      * @param board
      */
-    add(board: Board) {
+    create(board: Board) {
       this.loading = true;
-      return emit('board:add', board, (ack: SocketAck) => {
+      return emit('board:create', board, (ack: SocketAck) => {
         if (ack.success) {
           const createdBoard = ack.success as Board;
           this.boards[createdBoard.id] = createdBoard;
+          useToasterStore().success(
+            `Successfully created board '${createdBoard.name}' [${createdBoard.id}]`,
+          );
         }
         this.loading = false;
       });
     },
 
-    get(bid: BoardId): Board {
-      return this.boards[bid];
+    get(id: BoardId): Board {
+      return this.boards[id];
+    },
+
+    delete(id: BoardId) {
+      this.loading = true;
+      return emit('board:delete', id, (ack: SocketAck) => {
+        if (ack.success) {
+          const deletedBoard = ack.success as Board;
+          delete this.boards[deletedBoard.id];
+
+          useToasterStore().info(
+            `Board '${deletedBoard.name}' [${deletedBoard.id}] as been deleted`,
+          );
+        }
+        this.loading = false;
+      });
     },
 
     open(board: Board) {

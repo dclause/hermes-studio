@@ -44,7 +44,7 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
 import { HardwareMode, logError } from '@/composables/globalComposables';
-import { useDeviceStore } from '@/stores/actuatorStore';
+import { useDeviceStore } from '@/stores/deviceStore';
 import { DeviceState, Servo } from '@/types/devices';
 import { SocketAck } from '@/types/socket';
 

@@ -1,3 +1,4 @@
+import { Entity } from '@/types/core';
 import { Branded } from '@/types/hardware';
 
 export declare interface Protocol {
@@ -13,9 +14,7 @@ export declare type BoardModel =
       [x: string]: unknown;
     };
 
-export declare interface Board {
-  id: BoardId;
-  name: string;
+export declare interface Board extends Entity<BoardId> {
   connected: boolean;
   protocol: Protocol;
   model: BoardModel;

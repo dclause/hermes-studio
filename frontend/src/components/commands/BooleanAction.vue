@@ -29,7 +29,7 @@
 <script lang="ts" setup>
 import { computed, MaybeRef, ref } from 'vue';
 import { HardwareMode, logError } from '@/composables/globalComposables';
-import { useDeviceStore } from '@/stores/actuatorStore';
+import { useDeviceStore } from '@/stores/deviceStore';
 import { Actuator, DeviceState } from '@/types/devices';
 import { SocketAck } from '@/types/socket';
 

@@ -1,8 +1,8 @@
+import { Entity } from '@/types/core';
+
 export declare type GroupId = Branded<number, 'GroupId'>;
 
-export declare interface FlatGroup {
-  id: GroupId;
-  name?: string;
+export declare interface FlatGroup extends Entity<GroupId> {
   device?: number;
   order: number;
   children: GroupId[];

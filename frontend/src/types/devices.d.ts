@@ -1,18 +1,20 @@
 import type { BoardId } from '@/types/boards';
-import type { Branded, Range } from '@/types/core';
+import type { Branded, Entity, Range } from '@/types/core';
+import { DeviceType } from '@/composables/deviceComposables';
 
 export declare type DeviceId = Branded<number, 'DeviceId'>;
 export declare type DeviceState = number;
 
-export declare interface Actuator {
-  id: DeviceId;
-  name: string;
+export declare interface Device extends Entity<DeviceId> {
   type: DeviceType;
   bid: BoardId;
-  default: DeviceState;
-  state: DeviceState;
 
   [x: string]: unknown;
+}
+
+export declare interface Actuator extends Device {
+  default: DeviceState;
+  state: DeviceState;
 }
 
 export declare interface Led extends Actuator {

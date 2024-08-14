@@ -52,13 +52,13 @@
       </v-window-item>
 
       <v-window-item value="controls">
-        <v-card-text v-if="actuators.length">
-          <div
-            v-for="(device, id) in actuators"
+        <div v-if="devices.length">
+          <v-card
+            v-for="(device, id) in devices"
             :key="device.id"
-            class="d-flex flex-1-1-100 align-center"
+            class="d-flex flex-1-1-100 align-center my-2"
           >
-            <actuator v-model="actuators[id]" />
+            <actuator v-model="devices[id] as Actuator" />
             <v-btn
               icon="mdi-pencil"
               size="small"
@@ -68,14 +68,9 @@
               }"
               variant="text"
             />
-            <v-btn
-              icon="mdi-trash-can"
-              size="small"
-              variant="text"
-              @click="openConfirmDeletePopup(device)"
-            />
-          </div>
-        </v-card-text>
+            <v-btn icon="mdi-trash-can" size="small" variant="text" @click="toBeDeleted = device" />
+          </v-card>
+        </div>
         <v-card-text v-else class="pa-8 text-center">
           <em>{{ t('no_actions') }}</em>
         </v-card-text>
@@ -94,30 +89,17 @@
       </v-window-item>
     </v-window>
 
-    <v-dialog v-model="confirmPopup" width="auto">
-      <v-card>
-        <v-card-text> Are you sure to delete the device '{{ selectedDevice?.name }}'</v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn color="green-darken-1" variant="text" @click="cancelDelete">
-            {{ t('form.cancel') }}
-          </v-btn>
-          <v-btn color="green-darken-1" variant="text" @click="confirmDelete()">
-            {{ t('form.delete') }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <confirm-delete-dialog v-model="toBeDeleted" @confirm="onDelete" />
   </div>
 </template>
 <script lang="ts" setup>
 import type { BoardId } from '@/types/boards';
-import type { Actuator } from '@/types/devices';
+import type { Actuator, Device } from '@/types/devices';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n'; // Retrieve the board.
 import { useRoute } from 'vue-router'; // import { useDeviceComponent } from '@/composables/hardware';
-import { useDeviceStore } from '@/stores/actuatorStore';
 import { useBoardStore } from '@/stores/boardStore';
+import { useDeviceStore } from '@/stores/deviceStore';
 
 const { t } = useI18n();
 
@@ -128,33 +110,17 @@ const board = computed(() => boardStore.get(Number(route.params.bid) as BoardId)
 
 // Retrieve the associated devices.
 const deviceStore = useDeviceStore();
-const actuators = computed(() => deviceStore.list_by_board(board.value.id));
+const devices = computed(() => deviceStore.list_by_board(board.value.id));
 
-// const deviceComponents = Object.values(board.devices).reduce<Record<string, unknown>>(
-//   (acc, device) => {
-//     acc[device.config.type] = useDeviceComponent(device.config.type);
-//     return acc;
-//   },
-//   {},
-// );
+// Selected tab.
 const tab = ref('controls');
 
-// Delete device.
-const confirmPopup = ref<boolean>(false);
-const selectedDevice = ref<Actuator | null>(null);
-const openConfirmDeletePopup = (item: Actuator) => {
-  selectedDevice.value = item;
-  confirmPopup.value = true;
-};
-const cancelDelete = () => {
-  selectedDevice.value = null;
-  confirmPopup.value = false;
-};
-const confirmDelete = () => {
-  // if (toBeDelete.value) {
-  //   // boardStore.boards.delete(toBeDelete.value.id).catch(logError);
-  // }
-  cancelDelete();
+// Delete a group / device.
+const toBeDeleted = ref<Device | null>(null);
+const onDelete = () => {
+  if (toBeDeleted.value) {
+    deviceStore.delete(toBeDeleted.value.id);
+  }
 };
 </script>
 

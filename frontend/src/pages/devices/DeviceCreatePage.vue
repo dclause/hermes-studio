@@ -58,8 +58,8 @@ import { useRoute, useRouter } from 'vue-router';
 import { VForm } from 'vuetify/components';
 import { Rule } from '@/composables/formComposables';
 import { logError } from '@/composables/globalComposables';
-import { useDeviceStore } from '@/stores/actuatorStore';
 import { useBoardStore } from '@/stores/boardStore';
+import { useDeviceStore } from '@/stores/deviceStore';
 
 const route = useRoute();
 const bid = Number(route.params.bid) as BoardId;
@@ -89,7 +89,7 @@ const onSubmit = async () => {
   const { valid } = await form.value!.validate();
   if (valid) {
     deviceStore
-      .add(device.value)
+      .create(device.value)
       .then(async () => {
         return useRouter().push({ name: 'board.show', params: { bid } });
       })

@@ -6,9 +6,10 @@
     "cancel": "Annuler",
     "leave": "Quitter",
     "save": "Enregistrer",
-    "add": "Créer '{entity}'",
-    "edit": "Editer '{entity}'",
-    "delete": "Supprimer '{entity}'"
+    "create": "Créer",
+    "edit": "Editer",
+    "delete": "Supprimer",
+    "confirm": "Confirmer"
   },
   "connexion": {
     "check": "connecté",

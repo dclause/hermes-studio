@@ -1,6 +1,9 @@
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
+use crate::hardware::device::Device;
 use crate::impl_entity;
+use crate::utils::database::Database;
 use crate::utils::entity::Entity;
 use crate::utils::entity::Id;
 
@@ -14,4 +17,28 @@ pub struct Group {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub device: Option<Id>,
 }
-impl_entity!(Group);
+impl_entity!(Group, {
+    fn post_delete(&mut self, database: &mut Database) -> Result<()> {
+        // Delete the associated device if any.
+        if self.device.is_some() {
+            let device = database.get::<Device>(&self.device.unwrap())?;
+            if device.is_some() {
+                database.delete::<Device>(device.unwrap().id)?;
+            };
+        }
+
+        // Update the parent group if any.
+        let parent = database
+            .list::<Group>()?
+            .into_iter()
+            .find(|(_, group)| group.children.contains(&self.id));
+
+        if parent.is_some() {
+            let (_, mut parent) = parent.unwrap();
+            parent.children.retain(|id| id != &self.id);
+            database.update(parent)?;
+        };
+
+        Ok(())
+    }
+});

@@ -22,14 +22,8 @@
         <div class="handler">
           <v-icon icon="mdi-cursor-move" />
         </div>
-        <div class="d-flex flex-1-1-100 align-center">
-          <actuator v-if="element.device" v-model="actuators[element.device]" />
-          <div v-else class="d-flex flex-1-1-100 align-center mt-2 mb-2">
-            <v-icon class="ml-2 mr-3" icon="mdi-progress-question" size="30" />
-            <div class="group-label font-weight-bold">
-              {{ element.name }}
-            </div>
-          </div>
+        <div v-if="element.device" class="d-flex flex-1-1-100 align-center">
+          <actuator v-if="devices[element.device]" v-model="devices[element.device]" />
           <v-btn
             icon="mdi-pencil"
             size="small"
@@ -39,9 +33,34 @@
             }"
             variant="text"
           />
-          <v-btn icon="mdi-trash-can" size="small" variant="text" />
+          <v-btn
+            icon="mdi-trash-can"
+            size="small"
+            variant="text"
+            @click="emit('delete', devices[element.device])"
+          />
         </div>
-        <draggable-group v-if="!element.device" v-model="element.children" :on-change="onChange" />
+        <div v-else class="d-flex flex-1-1-100 align-center">
+          <div class="d-flex flex-1-1-100 align-center mt-2 mb-2">
+            <v-icon class="ml-2 mr-3" icon="mdi-select-group" size="30" />
+            <div class="group-label font-weight-bold">
+              {{ element.name }}
+            </div>
+          </div>
+          <v-btn icon="mdi-pencil" size="small" variant="text" @click="emit('edit', element)" />
+          <v-btn
+            icon="mdi-trash-can"
+            size="small"
+            variant="text"
+            @click="emit('delete', element)"
+          />
+        </div>
+        <nested-draggable
+          v-if="!element.device"
+          v-model="element.children"
+          @change="onChange"
+          @delete="onDelete"
+        />
       </v-card>
     </template>
   </draggable>
@@ -52,15 +71,19 @@ import { storeToRefs } from 'pinia';
 import { MoveEvent } from 'sortablejs';
 import { ref } from 'vue';
 import draggable from 'vuedraggable';
-import { useDeviceStore } from '@/stores/actuatorStore';
+import { useDeviceStore } from '@/stores/deviceStore';
+import { Device } from '@/types/devices';
 import { NestedGroup } from '@/types/groups';
 
-const groups = defineModel<NestedGroup[]>({ required: true });
-const props = defineProps<{
-  onChange: () => void;
-}>();
+const deviceStore = useDeviceStore();
+const { devices } = storeToRefs(deviceStore);
 
-const { actuators } = storeToRefs(useDeviceStore());
+const emit = defineEmits<{
+  change: [];
+  edit: [item: NestedGroup | Device];
+  delete: [item: NestedGroup | Device];
+}>();
+const groups = defineModel<NestedGroup[]>({ required: true });
 
 // Flag indicating the user is currently dragging (used to display dropzone).
 const isDragging = ref<boolean>(false);
@@ -74,7 +97,10 @@ const onMove = () => {
 };
 const onChange = () => {
   isDragging.value = false;
-  props.onChange();
+  emit('change');
+};
+const onDelete = (item: NestedGroup | Device) => {
+  emit('delete', item);
 };
 </script>
 

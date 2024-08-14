@@ -23,13 +23,25 @@ mod groups;
 pub fn broadcast_and_ack<T: Serialize>(
     event: &'static str,
     data: anyhow::Result<T>,
-    socket: SocketRef,
+    socket: &SocketRef,
     ack: AckSender,
 ) {
     if data.is_ok() {
         socket.broadcast().emit(event, data.as_ref().unwrap()).ok();
     }
     ack.send(Ack::from(data)).ok();
+}
+
+/// Helper function: broadcast some event/value to everyone.
+pub fn broadcast_to_all<T: Serialize>(
+    event: &'static str,
+    data: anyhow::Result<T>,
+    socket: &SocketRef,
+) {
+    if data.is_ok() {
+        socket.broadcast().emit(event, data.as_ref().unwrap()).ok();
+        socket.emit(event, data.as_ref().unwrap()).ok();
+    }
 }
 
 pub fn register_socket_events(

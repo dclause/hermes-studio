@@ -6,9 +6,10 @@
     "cancel": "Cancel",
     "leave": "Leave",
     "save": "Save",
-    "add": "Add {entity}",
-    "edit": "Edit {entity}",
-    "delete": "Delete {entity}"
+    "create": "Create",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirm": "Confirm"
   },
   "connexion": {
     "check": "connected",

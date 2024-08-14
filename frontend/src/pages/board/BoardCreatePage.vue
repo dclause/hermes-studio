@@ -43,7 +43,7 @@
         type="submit"
         variant="elevated"
       >
-        {{ t('form.add', { entity: t('entities.board').toLowerCase() }) }}
+        {{ $t('form.create') }}
       </v-btn>
       <v-btn
         block
@@ -55,7 +55,7 @@
         variant="elevated"
         @click="router.push('board.list')"
       >
-        {{ t('form.cancel') }}
+        {{ $t('form.cancel') }}
       </v-btn>
     </v-form>
   </v-card>
@@ -84,7 +84,7 @@ const board = boardStore.default();
 
 const onSubmit = () => {
   if (isFormValidated.value) {
-    boardStore.add(board).then((ack: SocketAck) => {
+    boardStore.create(board).then((ack: SocketAck) => {
       if (ack.success) {
         toaster.success(
           t('success', {

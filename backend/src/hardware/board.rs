@@ -2,8 +2,9 @@ use anyhow::Result;
 use hermes_five::Board as InnerBoard;
 use serde::{Deserialize, Serialize};
 
+use crate::hardware::device::Device;
 use crate::impl_entity;
-use crate::utils::database::Database;
+use crate::utils::database::{ArcDb, Database};
 use crate::utils::entity::{Entity, Id};
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -22,12 +23,34 @@ impl_entity!(Board, {
         self.connected = false;
         Ok(())
     }
+    // Delete all associated devices.
+    fn post_delete(&mut self, database: &mut Database) -> Result<()> {
+        let devices = database.list::<Device>()?;
+        for (_, device) in devices {
+            if device.bid == self.id {
+                database.delete::<Device>(device.id)?;
+            }
+        }
+        Ok(())
+    }
 });
 
 impl Board {
-    pub fn open(mut self) -> Result<Self> {
+    pub fn open(mut self, database: &ArcDb) -> Result<Self> {
         self.inner = self.inner.blocking_open()?;
         self.connected = self.inner.is_connected();
+
+        // Initialize properly the inner device value because now that board is open(), the
+        // handshake as given us the hardware board configuration, which lets us properly initialize
+        // our devices.
+        let devices = database.read().list::<Device>().unwrap();
+        for (_, mut device) in devices {
+            if device.bid == self.id {
+                device.inner.init(&self).unwrap();
+                device.save(&database).unwrap();
+            }
+        }
+
         Ok(self)
     }
     pub fn close(mut self) -> Result<Self> {

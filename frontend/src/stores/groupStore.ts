@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { type Socket } from 'socket.io-client';
 import { useEmitter } from '@/composables/emitterComposables';
 import { emit } from '@/composables/socketComposables';
+import { useToasterStore } from '@/stores/toastStore';
 import { FlatGroup, GroupId } from '@/types/groups';
 import { SocketAck } from '@/types/socket';
 
@@ -16,6 +17,10 @@ emitter.on('socket:connected', (socket: Socket) => {
 
   socket.on('groups:updated', (groups: Record<GroupId, FlatGroup>) => {
     groupStore.groups = groups;
+  });
+
+  socket.on('group:deleted', (group: FlatGroup) => {
+    delete groupStore.groups[group.id];
   });
 });
 
@@ -38,6 +43,20 @@ export const useGroupStore = defineStore({
       return emit('groups:update', groups, (ack: SocketAck) => {
         if (ack.success) {
           this.groups = ack.success as Record<GroupId, FlatGroup>;
+        }
+        this.loading = false;
+      });
+    },
+    delete(id: GroupId) {
+      this.loading = true;
+      return emit('group:delete', id, (ack: SocketAck) => {
+        if (ack.success) {
+          const deletedGroup = ack.success as FlatGroup;
+          delete this.groups[deletedGroup.id];
+
+          useToasterStore().info(
+            `Group '${deletedGroup.name}' [${deletedGroup.id}] as been deleted`,
+          );
         }
         this.loading = false;
       });

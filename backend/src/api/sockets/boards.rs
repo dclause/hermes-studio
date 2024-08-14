@@ -2,9 +2,10 @@ use anyhow::{anyhow, bail};
 use log::debug;
 use socketioxide::extract::{AckSender, Data, SocketRef, State, TryData};
 
+use crate::animation::groups::Group;
 use crate::api::payloads::board::CreateBoard;
+use crate::api::sockets::{broadcast_and_ack, broadcast_to_all};
 use crate::api::sockets::ack::Ack;
-use crate::api::sockets::broadcast_and_ack;
 use crate::hardware::board::Board;
 use crate::hardware::device::Device;
 use crate::utils::database::ArcDb;
@@ -26,28 +27,9 @@ pub fn register_board_events(socket: &SocketRef) {
             debug!("Event received: [board:open]: board:{}", id);
             let board = Board::get(&database, &id).and_then(|board| match board {
                 None => bail!("Board not found"),
-                Some(board) => board.open(),
+                Some(board) => board.open(&database)?.save(&database),
             });
-
-            // Stop here is opening failed.
-            if board.is_err() {
-                return broadcast_and_ack("board:updated", board, socket, ack);
-            }
-
-            // Initialize properly the inner device value (because now that board is open(), the
-            // handshake as given us the hardware board configuration, which let's us properly initialize
-            // our devices.
-            let board = board.unwrap();
-            let devices = database.read().list::<Device>().unwrap();
-            for (_, mut device) in devices {
-                if device.bid == board.id {
-                    device.inner.init(&board).unwrap();
-                    device.save(&database).unwrap();
-                }
-            }
-
-            let board = board.save(&database);
-            broadcast_and_ack("board:updated", board, socket, ack);
+            broadcast_and_ack("board:updated", board, &socket, ack);
         },
     );
 
@@ -59,12 +41,12 @@ pub fn register_board_events(socket: &SocketRef) {
                 None => bail!("Board not found"),
                 Some(board) => board.close()?.save(&database),
             });
-            broadcast_and_ack("board:updated", board, socket, ack);
+            broadcast_and_ack("board:updated", board, &socket, ack);
         },
     );
 
     socket.on(
-        "board:add",
+        "board:create",
         |socket: SocketRef,
          TryData(new_board): TryData<CreateBoard>,
          database: State<ArcDb>,
@@ -79,7 +61,7 @@ pub fn register_board_events(socket: &SocketRef) {
                 Err(error) => Err(anyhow!("Invalid board: {}", error)),
             };
 
-            broadcast_and_ack("board:updated", board, socket, ack);
+            broadcast_and_ack("board:updated", board, &socket, ack);
         },
     );
     //
@@ -96,16 +78,24 @@ pub fn register_board_events(socket: &SocketRef) {
     //         broadcast_and_ack("board:updated", board, socket, ack);
     //     },
     // );
-    //
-    // socket.on(
-    //     "board:delete",
-    //     |socket: SocketRef, TryData(id): TryData<Id>, ack: AckSender| {
-    //         debug!("Event received: [board:delete]: id:{:?}", id);
-    //         let board = Board::delete_by_id(id.unwrap()).and_then(|board| match board {
-    //             None => bail!("Board not found"),
-    //             Some(board) => Ok(board),
-    //         });
-    //         broadcast_and_ack("board:deleted", board, socket, ack);
-    //     },
-    // );
+
+    socket.on(
+        "board:delete",
+        |socket: SocketRef, database: State<ArcDb>, Data(id): Data<Id>, ack: AckSender| {
+            debug!("Event received: [board:delete]: id:{:?}", id);
+            let board = database
+                .write()
+                .delete::<Board>(id)
+                .and_then(|board| match board {
+                    None => bail!("Board not found"),
+                    Some(board) => Ok(board),
+                });
+
+            let devices = database.read().list::<Device>();
+            broadcast_to_all("devices:updated", devices, &socket);
+            let groups = database.read().list::<Group>();
+            broadcast_to_all("groups:updated", groups, &socket);
+            broadcast_and_ack("board:deleted", board, &socket, ack);
+        },
+    );
 }

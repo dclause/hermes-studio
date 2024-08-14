@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex justify-space-between align-center mb-4">
     <h1 class="text-h5 text-md-h4">
-      <v-icon icon="mdi-connection" />
+      <v-icon icon="mdi-cog-transfer" />
       {{ t('title') }}
     </h1>
     <v-btn color="primary" :icon="$vuetify.display.xs === true" :to="{ name: 'board.new' }">
@@ -73,7 +73,7 @@
         icon="mdi-trash-can"
         size="small"
         variant="text"
-        @click="openConfirmDeletePopup(item)"
+        @click="toBeDeleted = item"
       />
     </template>
 
@@ -89,20 +89,7 @@
     <!--    </template>-->
   </v-data-table>
 
-  <v-dialog v-model="confirmPopup" width="auto">
-    <v-card>
-      <v-card-text> Are you sure to delete the board '{{ selectedBoard?.name }}'</v-card-text>
-      <v-card-actions>
-        <v-spacer />
-        <v-btn color="green-darken-1" variant="text" @click="cancelDelete">
-          {{ t('form.cancel') }}
-        </v-btn>
-        <v-btn color="green-darken-1" variant="text" @click="confirmDelete()">
-          {{ t('form.delete') }}
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+  <confirm-delete-dialog v-model="toBeDeleted" @confirm="onDelete" />
 </template>
 
 <script lang="ts" setup>
@@ -118,22 +105,12 @@ const boardStore = useBoardStore();
 const { loading, boards } = storeToRefs(boardStore);
 const items = computed<Board[]>(() => Object.values(boards.value));
 
-// Delete board.
-const confirmPopup = ref<boolean>(false);
-const selectedBoard = ref<Board | null>(null);
-const openConfirmDeletePopup = (item: Board) => {
-  selectedBoard.value = item;
-  confirmPopup.value = true;
-};
-const cancelDelete = () => {
-  selectedBoard.value = null;
-  confirmPopup.value = false;
-};
-const confirmDelete = () => {
-  // if (toBeDelete.value) {
-  //   // boardStore.boards.delete(toBeDelete.value.id).catch(logError);
-  // }
-  cancelDelete();
+// Delete a board.
+const toBeDeleted = ref<Board | null>(null);
+const onDelete = () => {
+  if (toBeDeleted.value) {
+    boardStore.delete(toBeDeleted.value.id);
+  }
 };
 
 // Board list headers and data.
