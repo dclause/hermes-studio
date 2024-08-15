@@ -7,7 +7,7 @@ use parking_lot::RwLock;
 use socketioxide::extract::SocketRef;
 use socketioxide::SocketIo;
 use tower_http::cors::CorsLayer;
-use tower_http::services::ServeDir;
+use tower_http::services::{ServeDir, ServeFile};
 
 use crate::{tui_success, tui_warn};
 use crate::api::AppState;
@@ -99,7 +99,11 @@ impl Server {
         let app = Router::new()
             .nest("/api", api_routes)
             // @todo add a --no-ui option ?
-            .nest_service("/", ServeDir::new("./website"))
+            .nest_service(
+                "/",
+                ServeDir::new("./website")
+                    .not_found_service(ServeFile::new("./website/index.html")),
+            )
             .layer(socket_layer)
             .layer(CorsLayer::permissive())
             .with_state(AppState {
