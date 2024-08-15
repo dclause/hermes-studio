@@ -1,0 +1,26 @@
+name: Build BACKEND
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Run BACKEND cargo build
+        working-directory: ./backend
+        run: cargo build --verbose

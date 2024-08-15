@@ -1,0 +1,28 @@
+name: Test BACKEND
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Run BACKEND all tests
+        working-directory: ./backend
+        run: cargo test --workspace --all-features --verbose --color=always
+        env:
+          RUST_BACKTRACE: 1
