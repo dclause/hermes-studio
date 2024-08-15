@@ -2,6 +2,31 @@
   <v-card class="mx-auto pa-4" variant="elevated" width="600">
     <v-form ref="form" :disabled="loading" :loading="loading" @submit.prevent="onSubmit">
       <v-text-field v-model="device.name" label="Name" required :rules="[Rule.REQUIRED]" />
+
+      <v-row>
+        <v-col class="align-self-center" cols="12" md="6">
+          <v-select
+            v-model="device.bid"
+            :items="boardItems"
+            label="Board"
+            required
+            :rules="[Rule.REQUIRED]"
+            item-title="name"
+            item-value="id"
+            :disabled="isEdit"
+          />
+        </v-col>
+        <v-col class="align-self-center" cols="12" md="6">
+          <v-select
+            v-model="device.type"
+            :items="Object.keys(DeviceType).filter((type) => type !== 'Unknown')"
+            label="Device type"
+            required
+            :rules="[Rule.REQUIRED, (value: DeviceType) => value != DeviceType.Unknown]"
+            :disabled="isEdit"
+          />
+        </v-col>
+      </v-row>
       <component :is="editComponent" v-model="device" />
 
       <!-- Submit -->
@@ -17,7 +42,7 @@
             type="submit"
             variant="elevated"
           >
-            {{ $t('form.edit') }}
+            {{ $t('form.create') }}
           </v-btn>
         </v-col>
         <v-col class="align-self-center" cols="12" md="6">
@@ -40,30 +65,32 @@
 </template>
 
 <script lang="ts" setup>
+import type { BoardId } from '@/types/boards';
 import type { Device, DeviceId } from '@/types/devices';
 import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { VForm } from 'vuetify/components';
-import { useDeviceEditComponent } from '@/composables/deviceComposables';
+import { DeviceType, useDeviceEditComponent } from '@/composables/deviceComposables';
 import { Rule } from '@/composables/formComposables';
 import { logError } from '@/composables/globalComposables';
+import { useBoardStore } from '@/stores/boardStore';
 import { useDeviceStore } from '@/stores/deviceStore';
-import { BoardId } from '@/types/boards';
 
 const route = useRoute();
 const router = useRouter();
-const id = Number(route.params.id) as DeviceId;
+const bid = Number(route.query['board']) as BoardId;
+const isEdit = route.name === 'device.edit';
 
 // Create new device.
 const deviceStore = useDeviceStore();
-const { devices } = storeToRefs(deviceStore);
-const device = computed<Device>({
-  get: () => devices.value[id],
-  set: (value: Device) => {
-    devices.value[id] = value;
-  },
-});
+const device = ref<Device>(
+  isEdit ? deviceStore.devices[route.params.id as DeviceId] : deviceStore.default(),
+);
+
+// Build the board selection.
+const { boards } = storeToRefs(useBoardStore());
+const boardItems = computed(() => Object.values(boards.value));
 
 // Create new form.
 const form = ref<VForm>();
@@ -72,22 +99,20 @@ const form = ref<VForm>();
 const editComponent = computed(() => useDeviceEditComponent(device.value.type));
 
 // Save the newly created device.
-const bid = computed<BoardId>(() => device.value?.bid);
 const { loading } = storeToRefs(deviceStore);
 const onSubmit = async () => {
   const { valid } = await form.value!.validate();
   if (valid) {
+    debugger;
     deviceStore
       .create(device.value)
-      .then(() => {
-        return router.push({ name: 'board.show', params: { bid: bid.value } });
-      })
+      .then(() => router.push({ name: 'board.show', params: { bid } }))
       .catch(logError);
   }
 };
 
 // Cancel: return to previous page
 const onCancel = () => {
-  return useRouter().go(-1);
+  return router.push({ name: 'board.show', params: { bid } });
 };
 </script>

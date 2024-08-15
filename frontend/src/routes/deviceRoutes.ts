@@ -1,4 +1,3 @@
-import DeviceCreatePage from '@/pages/devices/DeviceCreatePage.vue';
 import DeviceEditPage from '@/pages/devices/DeviceEditPage.vue';
 import DeviceListPage from '@/pages/devices/DeviceListPage.vue';
 
@@ -10,8 +9,8 @@ export default [
   },
   {
     name: 'device.new',
-    path: '/device/new/:bid?',
-    component: DeviceCreatePage,
+    path: '/device/new',
+    component: DeviceEditPage,
   },
   {
     name: 'device.edit',

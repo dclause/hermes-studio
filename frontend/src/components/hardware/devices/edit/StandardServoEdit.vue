@@ -84,12 +84,12 @@ import { Servo } from '@/types/devices';
 
 const { t } = useI18n();
 
-// Servo device and default values.
 const device = defineModel<Servo>({ required: true });
-device.value.servo_type = 'Standard';
-device.value.range = [0, 180];
-device.value.degree_range = [0, 180];
-device.value.pwm_range = [600, 2400];
+// Init default values if not.
+device.value.servo_type = device.value.servo_type ?? 'Standard';
+device.value.range = device.value.range ?? [0, 180];
+device.value.degree_range = device.value.degree_range ?? [0, 180];
+device.value.pwm_range = device.value.pwm_range ?? [600, 2400];
 </script>
 
 <i18n>
