@@ -8,7 +8,7 @@
       <v-btn
         color="primary"
         :icon="$vuetify.display.xs === true"
-        :to="{ name: 'device.new', params: { bid: board.id } }"
+        :to="{ name: 'device.new', query: { board: board.id } }"
       >
         <v-icon>mdi-plus</v-icon>
         <span class="d-none d-sm-block">{{ t('new_device') }}</span>

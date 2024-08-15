@@ -58,7 +58,8 @@ export const useDeviceStore = defineStore({
 
     /** List all devices for given board */
     list_by_board(bid: BoardId): Device[] {
-      return Object.values(this.devices).filter((device) => (device.board = bid));
+      debugger;
+      return Object.values(this.devices).filter((device) => device.bid === bid);
     },
 
     /** Creates a new default actuator (without saving). */
