@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Path to this script (do not move the script)
+readonly SCRIPT_DIR=$(dirname "$0")
+
+# Define the output directory
+readonly DIST_DIR="${SCRIPT_DIR}/../dist"
+
+# Create the dist directory if it doesn't exist
+mkdir -p "$DIST_DIR"
+
+# Empty the dist directory if it already exists
+rm -rf "$DIST_DIR"/* "$DIST_DIR"/.[!.]* "$DIST_DIR"/..?*
+
+# Path to this script (do not move the script)
+readonly SCRIPT_DIR=$(dirname $0)
+
+# Build the backend
+echo "Building BACKEND..."
+"${SCRIPT_DIR}/build-backend" $1
+
+# Build the frontend
+echo "Building FRONTEND..."
+"${SCRIPT_DIR}/build-frontend"

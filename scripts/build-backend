@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# Builds the backend into `dist` folder.
+# Usage: "./build-backend arch" where 'arch' is the destination architecture.
+# Check https://github.com/cross-rs/cross?tab=readme-ov-file#supported-targets
+# |     aarch64-unknown-linux-gnu         |     RaspberryPI OS 64bits     |
+# |     armv7-unknown-linux-gnueabihf     |     RaspberryPI OS 32bits     |
+
+set -o errexit
+set -o pipefail
+set -o xtrace
+
+# Path to this script (do not move the script)
+readonly SCRIPT_DIR=$(dirname "$0")
+
+# Define the output directory
+readonly DIST_DIR="${SCRIPT_DIR}/../dist"
+
+# Create the dist directory if it doesn't exist
+mkdir -p "$DIST_DIR"
+
+# Function to copy executables to the dist directory
+move_executables() {
+    local SOURCE_DIR=$1
+    local TARGET_DIR=$2
+    local FILE_PATTERN="hermes-studio*"
+
+    # Ensure executables have correct permissions
+    chmod +x "$SOURCE_DIR"/*
+
+    # Find and copy executables with the pattern to the target directory
+    find "$SOURCE_DIR" -maxdepth 1 -type f -name "$FILE_PATTERN" | while IFS= read -r file; do
+        if [ -x "$file" ] || file "$file" | grep -q "executable"; then
+            cp "$file" "$TARGET_DIR"
+        fi
+    done
+}
+
+# Check if a target_arch parameter is provided
+if [ -z "${1:-}" ]; then
+    # No parameter provided, use `cargo build`
+    echo "No target_arch provided. Using cargo build."
+    echo "Supported targets: https://github.com/cross-rs/cross?tab=readme-ov-file#supported-targets"
+    cargo build --manifest-path "${SCRIPT_DIR}/../backend/Cargo.toml" --release
+
+    # Move only the executable files to the dist directory
+    move_executables "${SCRIPT_DIR}/../backend/target/release" "$DIST_DIR"
+else
+    # Parameter provided, use `cross build` with the specified target_arch
+    readonly TARGET_ARCH=$1
+    echo "Target architecture provided: $TARGET_ARCH. Using cross build."
+
+    # https://github.com/cross-rs/cross
+    # Install the `cross-rs` rust cross compiler toolchain:
+    if ! command -v cross >/dev/null; then
+        cargo install cross --git https://github.com/cross-rs/cross
+    fi
+
+    # Build the project.
+    cross build --manifest-path "${SCRIPT_DIR}/../backend/Cargo.toml" --release --target "$TARGET_ARCH"
+
+    # Move only the executable files to the dist directory
+    echo "Find & move executables"
+    move_executables "${SCRIPT_DIR}/../backend/target/${TARGET_ARCH}/release" "$DIST_DIR"
+fi
+
+echo "Compilation done. Project has been move into: $DIST_DIR"

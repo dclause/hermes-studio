@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# The purpose of this file is to provide an easy deployment script.
+# - sends Hermes-Studio program to the destination platform
+# - reload the hermes.service associated
+
+set -o errexit
+set -o nounset
+set -o pipefail
+set -o xtrace
+
+# Change target host to your own.
+readonly TARGET_HOST=pi@inmoov.local                                # /!\ Change with your own
+readonly TARGET_PATH=/home/pi/Desktop/hermes-studio                 # /!\ Change with your own
+
+# Path to this script (do not move the script)
+readonly SCRIPT_DIR=$(dirname $0)
+
+# Define the output directory
+readonly BUILD_PATH="${SCRIPT_DIR}/../dist"
+
+# Uncomment to copy SSH public key to the robot.
+#ssh-copy-id -i ~/.ssh/id_rsa.pub ${TARGET_HOST}
+
+# Stop the service.
+ssh -t ${TARGET_HOST} "sudo systemctl stop hermes.service"
+
+# Send the dist folder to the robot.
+echo "Start copy"
+scp -r ${BUILD_PATH}/* "${TARGET_HOST}:${TARGET_PATH}/"
+
+# Send useful scripts to the robot.
+scp "${SCRIPT_DIR}/find-ports" "${TARGET_HOST}:${TARGET_PATH}/find-ports"
+scp "${SCRIPT_DIR}/firmware.hex" "${TARGET_HOST}:${TARGET_PATH}/firmware.hex"
+scp "${SCRIPT_DIR}/hermes.service" "${TARGET_HOST}:${TARGET_PATH}/hermes.service"
+scp "${SCRIPT_DIR}/upload-firmware" "${TARGET_HOST}:${TARGET_PATH}/upload-firmware"
+
+# Add execution permission.
+ssh -t "$TARGET_HOST" chmod 777 "$TARGET_PATH"
+ssh -t "$TARGET_HOST" chmod -R +x "$TARGET_PATH"
+
+# Update the service
+echo "Updating the service"
+ssh -t "$TARGET_HOST" sudo cp "${TARGET_PATH}/hermes.service" "/lib/systemd/system/hermes.service"
+ssh -t "$TARGET_HOST" sudo systemctl daemon-reload
+
+# Update the firmware
+echo "Updating the firmware"
+ssh -t "$TARGET_HOST" "${TARGET_PATH}/upload-firmware"
+
+# Rerun the service.
+ssh -t ${TARGET_HOST} sudo systemctl restart hermes.service

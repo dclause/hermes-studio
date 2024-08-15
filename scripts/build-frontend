@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# The purpose of this file is to provide an easy deployment script.
+# - builds Hermes-Studio website UI
+# - builds Hermes-Studio website UI to destination folder
+
+set -o errexit
+set -o nounset
+set -o pipefail
+set -o xtrace
+
+# Path to this script (do not move the script)
+readonly SCRIPT_DIR=$(dirname "$0")
+
+# Define the output directory
+readonly DIST_DIR="${SCRIPT_DIR}/../dist"
+
+# Create the dist directory if it doesn't exist
+mkdir -p "$DIST_DIR"
+
+
+# Function to install pnpm on Unix-based systems
+install_pnpm_unix() {
+    echo "Installing pnpm on Unix-based system..."
+
+    # Install `pnpm` using the recommended method
+    curl -fsSL https://get.pnpm.io/install.sh | sh
+
+    # Optionally, add `pnpm` to PATH if it's not already there
+    export PATH="$HOME/.local/share/pnpm:$PATH"
+
+    # Check installation
+    pnpm --version
+}
+
+# Function to install pnpm on Windows
+install_pnpm_windows() {
+    echo "Installing pnpm on Windows..."
+
+    # Download and install pnpm using PowerShell
+    powershell -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://get.pnpm.io/install.ps1'))"
+
+    # Check installation
+    pnpm --version
+}
+
+# Check if pnpm is installed, try to install it otherwise.
+if ! command -v pnpm >/dev/null; then
+  case "$(uname -s)" in
+      Linux*)     install_pnpm_unix;;
+      Darwin*)    install_pnpm_unix;;
+      CYGWIN*|MINGW32*|MSYS*|MINGW*)  install_pnpm_windows;;
+      *)          echo "Unsupported OS: $(uname -s)"; exit 1;;
+  esac
+fi
+
+# Build the project.
+pnpm -C "${SCRIPT_DIR}/../frontend" run build
+
+# Copy the result into dist folder
+cp -r "${SCRIPT_DIR}/../frontend/dist" "${DIST_DIR}/website"
+
+echo "Build done. Project has been move into: $DIST_DIR"

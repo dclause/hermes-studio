@@ -1,0 +1,21 @@
+# /!\ Change the path in Service -> ExecStart to your own.
+# Move this file to /lib/systemd/system/hermes.service for starting hermes as a service.
+# > Discover the service:   sudo systemctl daemon-reload
+# > Enable the service:     sudo systemctl enable hermes.service
+# > Start the service:      sudo systemctl start hermes.service
+# > Stop the service:       sudo systemctl stop hermes.service
+# > Check the service:      sudo systemctl status hermes.service
+# > Check logs:             journalctl --unit=hermes.service
+
+[Unit]
+Description=HERMES
+After=multi-user.target
+
+[Service]
+WorkingDirectory=/home/pi/Desktop/hermes-studio
+ExecStart=/home/pi/Desktop/hermes-studio/hermes-studio --open --debug --logfile
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target
