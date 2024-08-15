@@ -1,6 +1,5 @@
 use anyhow::bail;
 use log::debug;
-use serde_json::Error;
 use socketioxide::extract::{AckSender, Data, SocketRef, State, TryData};
 
 use crate::animation::groups::Group;

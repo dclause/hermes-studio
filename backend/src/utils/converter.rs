@@ -1,6 +1,7 @@
 use serde_json::Value as Json;
 use toml::{Table, Value as Toml};
 
+#[allow(dead_code)]
 pub fn toml_to_json(toml: Toml) -> Json {
     match toml {
         Toml::String(s) => Json::String(s),

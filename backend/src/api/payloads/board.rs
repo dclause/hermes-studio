@@ -8,6 +8,7 @@ use crate::hardware::board::{Board, BoardType};
 #[derive(Deserialize, Debug)]
 pub struct CreateBoard {
     pub name: String,
+    #[allow(dead_code)]
     pub model: BoardType,
 }
 

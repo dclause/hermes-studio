@@ -45,7 +45,7 @@ pub struct CliArgs {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     host: Option<IpAddr>,
 
-    /// Server port [default=5000]..
+    /// Server port [default=4000]..
     #[arg(long, global(true))]
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     port: Option<u16>,

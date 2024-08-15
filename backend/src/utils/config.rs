@@ -1,6 +1,6 @@
 //! This file contains code relative to configuration within the application.
 use std::net::IpAddr;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use anyhow::Result;
 use figment::Figment;
@@ -20,13 +20,15 @@ pub struct Config {
     /// Activates logs to file if set to TRUE.
     pub logfile: bool,
     /// Customizes the path to log file.
-    pub logpath: String,
+    pub logpath: PathBuf,
     /// Host to expose the application.
     pub host: IpAddr,
     /// Port to expose the application.
     pub port: u16,
     /// The database path.
-    pub db_folder: PathBuf,
+    pub database_path: PathBuf,
+    /// The website path.
+    pub website_path: PathBuf,
 }
 
 impl Default for Config {
@@ -35,10 +37,11 @@ impl Default for Config {
             loglevel: Level::Error,
             console: false,
             logfile: false,
-            logpath: String::from("/logs/debug.log"),
+            logpath: PathBuf::from("./logs/debug.log"),
             host: IpAddr::from([0, 0, 0, 0]),
             port: 4000,
-            db_folder: PathBuf::from("./database"),
+            database_path: PathBuf::from("./database"),
+            website_path: PathBuf::from("../dist/website"),
         }
     }
 }
@@ -53,7 +56,7 @@ impl Config {
     ///  - default configuration
     pub fn from(args: CliArgs) -> Result<Config> {
         // TOML file path.
-        let config_path = Path::new("./configs").join("config.toml");
+        let config_path = PathBuf::from("./configs").join("config.toml");
 
         let config: Config = Figment::new()
             .merge(Serialized::defaults(Config::default()))

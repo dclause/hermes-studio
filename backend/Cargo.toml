@@ -10,7 +10,7 @@ license = "MIT"
 
 [dependencies]
 # @todo use published crate
-hermes-five = { branch = "develop", git = "https://github.com/dclause/hermes-five", features = ["serde"] }
+hermes-five = { path = "../../hermes-five/hermes-five", features = ["serde"] }
 anyhow = "1.0.86"
 # @todo remove "macro" feature: usefull to get #[debug_handler] (https://docs.rs/axum/latest/axum/attr.debug_handler.html)
 axum = { version = "0.7.5", default-features = false, features = ["form", "http1", "json", "matched-path", "original-uri", "query", "tokio", "macros"] }
@@ -25,7 +25,7 @@ serde = { version = "1.0.204", features = ["derive"] }
 socketioxide = { version = "0.14.0", features = ["state", "extensions"] }
 tokio = "1.39.2"
 toml = "0.8.19"
-tower-http = { version = "0.5.2", features = ["cors"] }
+tower-http = { version = "0.5.2", features = ["cors", "fs"] }
 typetag = "0.2.17"
 serde_json = "1.0.121"
 dyn-clone = "1.0.17"

@@ -8,6 +8,7 @@ mod animation;
 mod api;
 mod app;
 mod hardware;
+mod server;
 mod utils;
 
 /// Entry point for the project.

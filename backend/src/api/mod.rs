@@ -8,11 +8,10 @@ use crate::utils::database::ArcDb;
 
 mod payloads;
 pub mod rest;
-pub mod server;
 pub mod sockets;
 
 #[derive(Clone)]
 pub struct AppState {
-    database: ArcDb,
-    socket: SocketIo,
+    pub database: ArcDb,
+    pub socket: SocketIo,
 }

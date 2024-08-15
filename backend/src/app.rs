@@ -3,7 +3,7 @@ use clap::Parser;
 use colorful::Colorful;
 
 use crate::{tui_error, tui_info, tui_opening};
-use crate::api::server::Server;
+use crate::server::Server;
 use crate::utils::cli::CliArgs;
 use crate::utils::config::Config;
 use crate::utils::logger::Logger;

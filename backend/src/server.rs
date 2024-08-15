@@ -7,6 +7,7 @@ use parking_lot::RwLock;
 use socketioxide::extract::SocketRef;
 use socketioxide::SocketIo;
 use tower_http::cors::CorsLayer;
+use tower_http::services::ServeDir;
 
 use crate::{tui_success, tui_warn};
 use crate::api::AppState;
@@ -32,6 +33,7 @@ impl Server {
     }
 
     /// Adds custom routes to the server.
+    #[allow(dead_code)]
     pub fn with_custom_routes(self, custom_router: Router<AppState>) -> Self {
         let mut custom_routers = self.custom_routers;
         custom_routers.push(custom_router);
@@ -44,6 +46,7 @@ impl Server {
     }
 
     /// Adds custom sockets events to the server.
+    #[allow(dead_code)]
     pub fn with_custom_socket_events(self, register_events: fn(socket: &SocketRef)) -> Self {
         let mut custom_sockets = self.custom_sockets;
         custom_sockets.push(register_events);
@@ -57,7 +60,7 @@ impl Server {
     /// Starts the server.
     pub async fn start(self) -> anyhow::Result<()> {
         // Build the database.
-        let path = self.config.db_folder;
+        let path = self.config.database_path;
         let database = Arc::new(RwLock::new(
             match Database::init_persistent(path.clone(), false, true) {
                 Ok(database) => {
@@ -67,7 +70,11 @@ impl Server {
                 Err(err) => {
                     tui_warn!(
                         "No persistent storage created - all information will be lost",
-                        err.to_string().split('\n').next().unwrap()
+                        format!(
+                            "{}, {:?}",
+                            err.to_string().split('\n').next().unwrap(),
+                            path
+                        )
                     );
                     Database::init_volatile().unwrap()
                 }
@@ -84,12 +91,15 @@ impl Server {
         });
 
         // Build the REST API server.
-        let mut routes = build_rest_routes();
+        let mut api_routes = build_rest_routes();
         for custom_router in self.custom_routers {
-            routes = routes.merge(custom_router);
+            api_routes = api_routes.merge(custom_router);
         }
 
-        let app = Router::from(routes)
+        let app = Router::new()
+            .nest("/api", api_routes)
+            // @todo add a --no-ui option ?
+            .nest_service("/", ServeDir::new("./website"))
             .layer(socket_layer)
             .layer(CorsLayer::permissive())
             .with_state(AppState {

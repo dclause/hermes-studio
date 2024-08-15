@@ -11,6 +11,7 @@ mod root;
 
 /// Generic pagination query parameters to be reused when needed across endpoints.
 /// Ex. {offset: 3, limit: 3} will return 3 elements, number 3 to 5: [1,2,X,X,X,6,7,...]
+#[allow(dead_code)]
 #[derive(Debug, Deserialize, Default)]
 pub struct Pagination {
     /// Number of elements to skip in the response.

@@ -171,6 +171,7 @@ impl Encode for HermesEncoder {
 #[cfg(test)]
 mod tests {
     use std::fs::{File, remove_file};
+    use std::path::PathBuf;
 
     use log::Level;
 
@@ -185,7 +186,7 @@ mod tests {
         config.console = true;
         config.loglevel = Level::Trace;
         config.logfile = true;
-        config.logpath = String::from(log_path);
+        config.logpath = PathBuf::from(log_path);
         let logger = Logger::from(config).init();
         assert!(logger.is_ok());
         assert!(logger.unwrap().is_some());
@@ -202,7 +203,7 @@ mod tests {
         config.console = false;
         config.loglevel = Level::Trace;
         config.logfile = false;
-        config.logpath = String::from(log_path);
+        config.logpath = PathBuf::from(log_path);
         let logger = Logger::from(config).init();
         assert!(logger.is_ok());
         assert!(logger.unwrap().is_none());
@@ -213,7 +214,7 @@ mod tests {
     fn test_failing_logger() {
         let mut config = Config::default();
         config.logfile = true;
-        config.logpath = String::from(".");
+        config.logpath = PathBuf::from(".");
         let logger = Logger::from(config).init();
         assert!(logger.is_err());
     }
