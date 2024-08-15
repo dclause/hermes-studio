@@ -42,7 +42,7 @@
             type="submit"
             variant="elevated"
           >
-            {{ $t('form.create') }}
+            {{ $t(isEdit ? 'form.save' : 'form.create') }}
           </v-btn>
         </v-col>
         <v-col class="align-self-center" cols="12" md="6">
@@ -79,13 +79,13 @@ import { useDeviceStore } from '@/stores/deviceStore';
 
 const route = useRoute();
 const router = useRouter();
-const bid = Number(route.query['board']) as BoardId;
+const bid = route.query['board'] ? (Number(route.query['board']) as BoardId) : null;
 const isEdit = route.name === 'device.edit';
 
 // Create new device.
 const deviceStore = useDeviceStore();
 const device = ref<Device>(
-  isEdit ? deviceStore.devices[route.params.id as DeviceId] : deviceStore.default(),
+  isEdit ? deviceStore.devices[Number(route.params.id) as DeviceId] : deviceStore.default(),
 );
 
 // Build the board selection.
@@ -103,16 +103,19 @@ const { loading } = storeToRefs(deviceStore);
 const onSubmit = async () => {
   const { valid } = await form.value!.validate();
   if (valid) {
-    debugger;
     deviceStore
       .create(device.value)
-      .then(() => router.push({ name: 'board.show', params: { bid } }))
+      .then(() => router.push({ name: 'board.show', params: { bid: device.value.bid } }))
       .catch(logError);
   }
 };
 
 // Cancel: return to previous page
 const onCancel = () => {
-  return router.push({ name: 'board.show', params: { bid } });
+  const redirection_bid = bid ?? device.value.bid;
+  if (redirection_bid) {
+    return router.push({ name: 'board.show', params: { bid: redirection_bid } });
+  }
+  return router.push({ name: 'device.list' });
 };
 </script>

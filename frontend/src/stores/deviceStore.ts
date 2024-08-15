@@ -58,7 +58,6 @@ export const useDeviceStore = defineStore({
 
     /** List all devices for given board */
     list_by_board(bid: BoardId): Device[] {
-      debugger;
       return Object.values(this.devices).filter((device) => device.bid === bid);
     },
 
