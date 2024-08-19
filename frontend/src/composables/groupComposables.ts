@@ -39,7 +39,7 @@ export function useFlatToNested(groups: Record<GroupId, FlatGroup>): NestedGroup
     const nestedGroup: NestedGroup = map[groupId];
     const flatGroup: FlatGroup = groups[groupId];
     if (nestedGroup.level) {
-      return null;
+      return nestedGroup;
     }
 
     nestedGroup.children = flatGroup.children

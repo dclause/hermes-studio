@@ -138,9 +138,13 @@ const onDelete = (item: NestedGroup | Device) => {
 </style>
 
 <style lang="scss">
-.is-dragging .v-drag-area {
+.v-drag-area {
   min-height: 1em;
-  border: 1px dashed;
+  border: 1px transparent dashed;
   margin: 0 10px 10px 10px;
+}
+
+.is-dragging .v-drag-area {
+  border-color: var(--v-border-color);
 }
 </style>
