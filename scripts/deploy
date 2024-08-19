@@ -27,17 +27,16 @@ ssh -t ${TARGET_HOST} "sudo systemctl stop hermes.service"
 
 # Send the dist folder to the robot.
 echo "Start copy"
-scp -r ${BUILD_PATH}/* "${TARGET_HOST}:${TARGET_PATH}/"
+scp -r "${BUILD_PATH}/*" "${TARGET_HOST}:${TARGET_PATH}/"
 
 # Send useful scripts to the robot.
 scp "${SCRIPT_DIR}/find-ports" "${TARGET_HOST}:${TARGET_PATH}/find-ports"
-scp "${SCRIPT_DIR}/firmware.hex" "${TARGET_HOST}:${TARGET_PATH}/firmware.hex"
+scp -r "${SCRIPT_DIR}/firmwares/*" "${TARGET_HOST}:${TARGET_PATH}/firmwares/"
 scp "${SCRIPT_DIR}/hermes.service" "${TARGET_HOST}:${TARGET_PATH}/hermes.service"
 scp "${SCRIPT_DIR}/upload-firmware" "${TARGET_HOST}:${TARGET_PATH}/upload-firmware"
 
 # Add execution permission.
-ssh -t "$TARGET_HOST" chmod 777 "$TARGET_PATH"
-ssh -t "$TARGET_HOST" chmod -R +x "$TARGET_PATH"
+ssh -t "$TARGET_HOST" sudo chmod -R 777 "$TARGET_PATH"
 
 # Update the service
 echo "Updating the service"

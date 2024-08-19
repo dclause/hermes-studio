@@ -19,8 +19,8 @@ sudo systemctl stop hermes.service
 # Upload hex files to Arduino with avrdude
 if command -v avrdude &> /dev/null
 then
-    avrdude -p m2560 -c stk500v2 -P /dev/ttyACM0 -b 115200 -D -U flash:w:/home/pi/Desktop/hermes-studio/firmware.hex
-    avrdude -p m2560 -c stk500v2 -P /dev/ttyACM1 -b 115200 -D -U flash:w:/home/pi/Desktop/hermes-studio/firmware.hex
+    avrdude -p m2560 -c stk500v2 -P /dev/ttyACM0 -b 115200 -D -U flash:w:/home/pi/Desktop/hermes-studio/firmwares/firmware.hex
+    avrdude -p m2560 -c stk500v2 -P /dev/ttyACM1 -b 115200 -D -U flash:w:/home/pi/Desktop/hermes-studio/firmwares/firmware.hex
 else
     echo "avrdude is not installed and could not be installed automatically. Please install it manually."
     exit 1
