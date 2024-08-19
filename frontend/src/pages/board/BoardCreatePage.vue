@@ -67,6 +67,7 @@ import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { Rule } from '@/composables/formComposables';
+import { logError } from '@/composables/globalComposables';
 import { useBoardStore } from '@/stores/boardStore';
 import { useToasterStore } from '@/stores/toastStore';
 import { Board } from '@/types/boards';
@@ -84,17 +85,20 @@ const board = boardStore.default();
 
 const onSubmit = () => {
   if (isFormValidated.value) {
-    boardStore.create(board).then((ack: SocketAck) => {
-      if (ack.success) {
-        toaster.success(
-          t('success', {
-            name: (ack.success as Board).name,
-            id: (ack.success as Board).id,
-          }),
-        );
-      }
-      return router.push({ name: 'board.list' });
-    });
+    boardStore
+      .create(board)
+      .then((ack: SocketAck) => {
+        if (ack.success) {
+          toaster.success(
+            t('success', {
+              name: (ack.success as Board).name,
+              id: (ack.success as Board).id,
+            }),
+          );
+        }
+        return router.push({ name: 'board.list' });
+      })
+      .catch(logError);
   }
 };
 </script>

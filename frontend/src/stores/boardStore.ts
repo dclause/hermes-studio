@@ -2,13 +2,14 @@
 import type { Board, BoardId, Protocol } from '@/types/boards';
 import { defineStore } from 'pinia';
 import { Socket } from 'socket.io-client';
-import { useEmitter } from '@/composables/emitterComposables';
-import { emit } from '@/composables/socketComposables';
+import { useSocketIO } from '@/composables/socketComposables';
 import { useToasterStore } from '@/stores/toastStore';
 import { SocketAck } from '@/types/socket';
 
-const emitter = useEmitter();
-emitter.on('socket:connected', (socket: Socket) => {
+const { socketEmit, socketRegister } = useSocketIO();
+
+// Register socket events.
+socketRegister((socket: Socket) => {
   const boardStore = useBoardStore();
 
   // React to socket being connected: get the board list.
@@ -30,18 +31,23 @@ emitter.on('socket:connected', (socket: Socket) => {
   socket.on('board:deleted', (board: Board) => {
     delete boardStore.boards[board.id];
   });
+
+  return new Promise((resolve) => {
+    socket.emit('getSchema', resolve);
+  });
 });
 
 export const useBoardStore = defineStore({
   id: 'boards',
   state: () => ({
+    connected: true,
     loading: false,
     boards: {} as Record<BoardId, Board>,
   }),
   actions: {
     refresh() {
       this.loading = true;
-      emit('board:list', (ack: SocketAck) => {
+      socketEmit('board:list', (ack: SocketAck) => {
         if (ack.success) {
           this.boards = ack.success as Record<BoardId, Board>;
         }
@@ -71,7 +77,7 @@ export const useBoardStore = defineStore({
      */
     create(board: Board) {
       this.loading = true;
-      return emit('board:create', board, (ack: SocketAck) => {
+      return socketEmit('board:create', board, (ack: SocketAck) => {
         if (ack.success) {
           const createdBoard = ack.success as Board;
           this.boards[createdBoard.id] = createdBoard;
@@ -89,7 +95,7 @@ export const useBoardStore = defineStore({
 
     delete(id: BoardId) {
       this.loading = true;
-      return emit('board:delete', id, (ack: SocketAck) => {
+      return socketEmit('board:delete', id, (ack: SocketAck) => {
         if (ack.success) {
           const deletedBoard = ack.success as Board;
           delete this.boards[deletedBoard.id];
@@ -103,10 +109,10 @@ export const useBoardStore = defineStore({
     },
 
     open(board: Board) {
-      return emit('board:open', board.id);
+      return socketEmit('board:open', board.id);
     },
     close(board: Board) {
-      return emit('board:close', board.id);
+      return socketEmit('board:close', board.id);
     },
   },
 });

@@ -1,18 +1,17 @@
 import { defineStore } from 'pinia';
-import { type Socket } from 'socket.io-client';
+import { Socket } from 'socket.io-client';
 import { WritableComputedRef } from 'vue';
-import { useEmitter } from '@/composables/emitterComposables';
-import { emit } from '@/composables/socketComposables';
+import { useSocketIO } from '@/composables/socketComposables';
 import { useToasterStore } from '@/stores/toastStore';
 import { SocketAck } from '@/types/socket';
 
 const STORAGE_KEY = 'hermes-locale';
 const storedLanguage = sessionStorage.getItem(STORAGE_KEY);
 const toaster = useToasterStore();
+const { socketEmit, socketRegister } = useSocketIO();
 
 // Register socket events.
-const emitter = useEmitter();
-emitter.on('socket:connected', (socket: Socket) => {
+socketRegister((socket: Socket) => {
   const store = useConfigStore();
   socket.on('connect', () => {
     store.refresh();
@@ -27,7 +26,7 @@ export const useConfigStore = defineStore({
   }),
   actions: {
     refresh() {
-      emit('config:get', (ack: SocketAck) => {
+      socketEmit('config:get', (ack: SocketAck) => {
         if (ack.success) {
           this.$patch(ack.success);
         }
@@ -37,7 +36,7 @@ export const useConfigStore = defineStore({
       this.locale = locale;
       i18n.value = locale;
       sessionStorage.setItem(STORAGE_KEY, locale);
-      emit('config:set', this.$state, (ack: SocketAck) => {
+      socketEmit('config:set', this.$state, (ack: SocketAck) => {
         if (ack.success) {
           this.$patch(ack.success);
           toaster.success('Configuration saved');

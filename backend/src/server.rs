@@ -87,7 +87,7 @@ impl Server {
             .build_layer();
         socket_io.ns("/ws", move |socket: SocketRef| {
             info!("Socket.IO connected: {:?} {:?}", socket.ns(), socket.id);
-            register_socket_events(socket, self.custom_sockets)
+            register_socket_events(socket, self.custom_sockets);
         });
 
         // Build the REST API server.

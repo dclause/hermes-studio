@@ -21,10 +21,14 @@
 </template>
 
 <script lang="ts" setup>
+import { onBeforeMount } from 'vue';
 import { useRoute } from 'vue-router';
 import { useConnectionStore } from '@/stores/connectionStore';
 
 const route = useRoute();
 const store = useConnectionStore();
-store.open();
+
+onBeforeMount(() => {
+  store.open();
+});
 </script>

@@ -3,14 +3,15 @@ import type { BoardId } from '@/types/boards';
 import { defineStore } from 'pinia';
 import { Socket } from 'socket.io-client';
 import { DeviceType } from '@/composables/deviceComposables';
-import { useEmitter } from '@/composables/emitterComposables';
-import { emit } from '@/composables/socketComposables';
+import { useSocketIO } from '@/composables/socketComposables';
 import { useToasterStore } from '@/stores/toastStore';
 import { Device, DeviceId, DeviceState } from '@/types/devices';
 import { SocketAck } from '@/types/socket';
 
-const emitter = useEmitter();
-emitter.on('socket:connected', (socket: Socket) => {
+const { socketEmit, socketRegister } = useSocketIO();
+
+// Register socket events.
+socketRegister((socket: Socket) => {
   const deviceStore = useDeviceStore();
 
   // React to socket being connected: get the actuator list.
@@ -48,7 +49,7 @@ export const useDeviceStore = defineStore({
   actions: {
     refresh() {
       this.loading = true;
-      emit('device:list', (ack: SocketAck) => {
+      socketEmit('device:list', (ack: SocketAck) => {
         if (ack.success) {
           this.devices = ack.success as Record<DeviceId, Device>;
         }
@@ -81,7 +82,7 @@ export const useDeviceStore = defineStore({
      */
     create(device: Device) {
       this.loading = true;
-      return emit('device:create', device, (ack: SocketAck) => {
+      return socketEmit('device:create', device, (ack: SocketAck) => {
         if (ack.success) {
           const createdDevice = ack.success as Device;
           this.devices[createdDevice.id] = createdDevice;
@@ -96,7 +97,7 @@ export const useDeviceStore = defineStore({
 
     delete(id: DeviceId) {
       this.loading = true;
-      return emit('device:delete', id, (ack: SocketAck) => {
+      return socketEmit('device:delete', id, (ack: SocketAck) => {
         if (ack.success) {
           const deletedDevice = ack.success as Device;
           delete this.devices[deletedDevice.id];
@@ -110,7 +111,7 @@ export const useDeviceStore = defineStore({
     },
 
     mutate(id: DeviceId, state: DeviceState) {
-      return emit('device:mutate', id, state);
+      return socketEmit('device:mutate', id, state);
     },
   },
 });

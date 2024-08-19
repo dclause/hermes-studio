@@ -1,14 +1,14 @@
 import { defineStore } from 'pinia';
 import { type Socket } from 'socket.io-client';
-import { useEmitter } from '@/composables/emitterComposables';
-import { emit } from '@/composables/socketComposables';
+import { useSocketIO } from '@/composables/socketComposables';
 import { useToasterStore } from '@/stores/toastStore';
 import { FlatGroup, GroupId } from '@/types/groups';
 import { SocketAck } from '@/types/socket';
 
+const { socketEmit, socketRegister } = useSocketIO();
+
 // Register socket events.
-const emitter = useEmitter();
-emitter.on('socket:connected', (socket: Socket) => {
+socketRegister((socket: Socket) => {
   const groupStore = useGroupStore();
 
   socket.on('connect', () => {
@@ -32,7 +32,7 @@ export const useGroupStore = defineStore({
   }),
   actions: {
     refresh() {
-      emit('group:list', (ack: SocketAck) => {
+      socketEmit('group:list', (ack: SocketAck) => {
         if (ack.success) {
           this.groups = ack.success as Record<GroupId, FlatGroup>;
         }
@@ -40,7 +40,7 @@ export const useGroupStore = defineStore({
     },
     save(groups: Record<GroupId, FlatGroup>) {
       this.loading = true;
-      return emit('groups:update', groups, (ack: SocketAck) => {
+      return socketEmit('groups:update', groups, (ack: SocketAck) => {
         if (ack.success) {
           this.groups = ack.success as Record<GroupId, FlatGroup>;
         }
@@ -49,7 +49,7 @@ export const useGroupStore = defineStore({
     },
     delete(id: GroupId) {
       this.loading = true;
-      return emit('group:delete', id, (ack: SocketAck) => {
+      return socketEmit('group:delete', id, (ack: SocketAck) => {
         if (ack.success) {
           const deletedGroup = ack.success as FlatGroup;
           delete this.groups[deletedGroup.id];

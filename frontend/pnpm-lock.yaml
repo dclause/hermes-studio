@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      mitt:
-        specifier: ^3.0.1
-        version: 3.0.1
       pinia:
         specifier: ^2.2.0
         version: 2.2.0(typescript@5.5.4)(vue@3.4.35(typescript@5.5.4))
