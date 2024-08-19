@@ -64,23 +64,34 @@ impl Logger {
 
     fn build(&self) -> Result<Option<Handle>> {
         let mut log_builder = log4rs::Config::builder();
-        let mut hermes_logger = LogLogger::builder();
-        let root_builder = Root::builder();
+        // Root logger: will log nothing.
+        let root_logger = Root::builder();
+        // Hermes-Studio logger: will log on stderr and console appender according to configuration.
+        let mut hermes_studio_logger = LogLogger::builder();
+        // Hermes-Five logger: will log on stderr and console appender according to configuration.
+        let mut hermes_five_logger = LogLogger::builder();
 
         // =======================================================================
-        // Build a stderr logger.
+        // Build and use a stderr log appender: log in the console.
         if self.config.console {
-            let stderr = ConsoleAppender::builder()
-                .encoder(Box::new(HermesEncoder::default().with_ansi(true)))
-                .target(Target::Stderr)
-                .build();
-            log_builder =
-                log_builder.appender(Appender::builder().build("stderr", Box::new(stderr)));
-            hermes_logger = hermes_logger.appender("stderr");
+            log_builder = log_builder.appender(
+                Appender::builder().build(
+                    "stderr",
+                    Box::new(
+                        ConsoleAppender::builder()
+                            .encoder(Box::new(HermesEncoder::default().with_ansi(true)))
+                            .target(Target::Stderr)
+                            .build(),
+                    ),
+                ),
+            );
+            // Use this in our custom loggers.
+            hermes_studio_logger = hermes_studio_logger.appender("stderr");
+            hermes_five_logger = hermes_five_logger.appender("stderr");
         }
 
         // =======================================================================
-        // Build a logfile logger.
+        // Build and use a logfile appender: log in file.
         if self.config.logfile {
             let log_path = Path::new(&self.config.logpath);
             let trigger = Box::new(SizeTrigger::new(2 * 1024 * 1024)); // 2MB
@@ -96,27 +107,44 @@ impl Logger {
                 )?,
             );
             let compound_policy = Box::new(CompoundPolicy::new(trigger, roller));
-            let logfile = RollingFileAppender::builder()
-                .encoder(Box::new(HermesEncoder::default().with_ansi(false)))
-                .build(log_path, compound_policy)?;
-            log_builder =
-                log_builder.appender(Appender::builder().build("logfile", Box::new(logfile)));
-            hermes_logger = hermes_logger.appender("logfile");
+            log_builder = log_builder.appender(
+                Appender::builder().build(
+                    "logfile",
+                    Box::new(
+                        RollingFileAppender::builder()
+                            .encoder(Box::new(HermesEncoder::default().with_ansi(false)))
+                            .build(log_path, compound_policy)?,
+                    ),
+                ),
+            );
+            // Use this in our custom loggers.
+            hermes_studio_logger = hermes_studio_logger.appender("logfile");
+            hermes_five_logger = hermes_five_logger.appender("logfile");
         }
 
         // =======================================================================
-        // Set logging level for 'hermes-studio' and disable logging for other crates.
-        let hermes_logger = hermes_logger
-            .additive(true)
-            .build("hermes_studio", self.config.loglevel.to_level_filter());
-        log_builder = log_builder.logger(hermes_logger);
+        // Set logging level for 'hermes-studio' and use it.
+        log_builder = log_builder.logger(
+            hermes_studio_logger
+                .additive(true)
+                .build("hermes_studio", self.config.loglevel.to_level_filter()),
+        );
+
+        // =======================================================================
+        // Set logging level for 'hermes-five' and use it.
+        log_builder = log_builder.logger(
+            hermes_five_logger
+                .additive(true)
+                .build("hermes_five", self.config.loglevel.to_level_filter()),
+        );
 
         // =======================================================================
         if !self.config.console && !self.config.logfile {
             return Ok(None);
         }
 
-        let logger = log_builder.build(root_builder.build(LevelFilter::Off))?;
+        // Disable logs for all other crates.
+        let logger = log_builder.build(root_logger.build(LevelFilter::Off))?;
         let guard = log4rs::init_config(logger)?;
         Ok(Some(guard))
     }
