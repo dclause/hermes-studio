@@ -43,7 +43,7 @@ impl Board {
         // Initialize properly the inner device value because now that board is open(), the
         // handshake as given us the hardware board configuration, which lets us properly initialize
         // our devices.
-        let devices = database.read().list::<Device>().unwrap();
+        let devices = database.write().list::<Device>().unwrap();
         for (_, mut device) in devices {
             if device.bid == self.id {
                 device.inner.init(&self).unwrap();

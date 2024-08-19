@@ -12,8 +12,7 @@ license = "MIT"
 # @todo use published crate
 hermes-five = { path = "../../hermes-five/hermes-five", features = ["serde"] }
 anyhow = "1.0.86"
-# @todo remove "macro" feature: usefull to get #[debug_handler] (https://docs.rs/axum/latest/axum/attr.debug_handler.html)
-axum = { version = "0.7.5", default-features = false, features = ["form", "http1", "json", "matched-path", "original-uri", "query", "tokio", "macros"] }
+axum = { version = "0.7.5", default-features = false, features = ["form", "http1", "json", "matched-path", "original-uri", "query", "tokio"] }
 clap = { version = "4.5.11", features = ["derive", "env"] }
 chrono = "0.4.38"
 colorful = "0.3.2"
