@@ -10,8 +10,8 @@ set -o pipefail
 set -o xtrace
 
 # Change target host to your own.
-readonly TARGET_HOST=pi@inmoov.local                                # /!\ Change with your own
-readonly TARGET_PATH=/home/pi/Desktop/hermes-studio                 # /!\ Change with your own
+readonly TARGET_HOST=inmoov@192.168.1.146                               # /!\ Change with your own
+readonly TARGET_PATH=/home/inmoov/Desktop/hermes-studio                 # /!\ Change with your own
 
 # Path to this script (do not move the script)
 readonly SCRIPT_DIR=$(dirname $0)
@@ -23,15 +23,18 @@ readonly BUILD_PATH="${SCRIPT_DIR}/../dist"
 #ssh-copy-id -i ~/.ssh/id_rsa.pub ${TARGET_HOST}
 
 # Stop the service.
-ssh -t ${TARGET_HOST} "sudo systemctl stop hermes.service"
+if ssh -t "${TARGET_HOST}" "sudo systemctl stop hermes.service"; then
+  # nothing
+  echo "Stopped hermes service"
+fi
 
 # Send the dist folder to the robot.
 echo "Start copy"
-scp -r "${BUILD_PATH}/*" "${TARGET_HOST}:${TARGET_PATH}/"
+scp -r ${BUILD_PATH}/* "${TARGET_HOST}:${TARGET_PATH}/"
 
 # Send useful scripts to the robot.
 scp "${SCRIPT_DIR}/find-ports" "${TARGET_HOST}:${TARGET_PATH}/find-ports"
-scp -r "${SCRIPT_DIR}/firmwares/*" "${TARGET_HOST}:${TARGET_PATH}/firmwares/"
+scp -r ${SCRIPT_DIR}/firmwares/* "${TARGET_HOST}:${TARGET_PATH}/firmwares/"
 scp "${SCRIPT_DIR}/hermes.service" "${TARGET_HOST}:${TARGET_PATH}/hermes.service"
 scp "${SCRIPT_DIR}/upload-firmware" "${TARGET_HOST}:${TARGET_PATH}/upload-firmware"
 
@@ -48,4 +51,4 @@ echo "Updating the firmware"
 ssh -t "$TARGET_HOST" "${TARGET_PATH}/upload-firmware"
 
 # Rerun the service.
-ssh -t ${TARGET_HOST} sudo systemctl restart hermes.service
+ssh -t "${TARGET_HOST}" sudo systemctl restart hermes.service

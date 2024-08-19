@@ -38,6 +38,30 @@ export const useGroupStore = defineStore({
         }
       });
     },
+
+    default(): FlatGroup {
+      return {
+        id: 0 as GroupId,
+        name: 'New group',
+        children: [],
+        order: Object.values(this.groups).length,
+      };
+    },
+
+    create(group: FlatGroup) {
+      this.loading = true;
+      return socketEmit('group:create', group, (ack: SocketAck) => {
+        if (ack.success) {
+          const createdGroup = ack.success as FlatGroup;
+          this.groups[createdGroup.id] = createdGroup;
+          useToasterStore().success(
+            `Successfully created group '${createdGroup.name}' [${createdGroup.id}]`,
+          );
+        }
+        this.loading = false;
+      });
+    },
+
     save(groups: Record<GroupId, FlatGroup>) {
       this.loading = true;
       return socketEmit('groups:update', groups, (ack: SocketAck) => {

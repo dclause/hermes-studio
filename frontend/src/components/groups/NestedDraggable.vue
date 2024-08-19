@@ -85,7 +85,7 @@ const { devices } = storeToRefs(deviceStore);
 
 const emit = defineEmits<{
   change: [];
-  edit: [item: NestedGroup | Device];
+  edit: [item: NestedGroup];
   delete: [item: NestedGroup | Device];
 }>();
 const groups = defineModel<NestedGroup[]>({ required: true });

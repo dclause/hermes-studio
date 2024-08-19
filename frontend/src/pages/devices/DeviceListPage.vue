@@ -4,12 +4,7 @@
       <v-icon icon="mdi-camera-control" />
       {{ t('title') }}
     </h1>
-    <v-btn
-      class="mr-5"
-      color="primary"
-      :icon="$vuetify.display.xs === true"
-      :to="{ name: 'device.new' }"
-    >
+    <v-btn class="mr-5" color="primary" :icon="$vuetify.display.xs === true" @click="onCreateGroup">
       <v-icon>mdi-plus</v-icon>
       <span class="d-none d-sm-block">{{ t('new_group') }}</span>
     </v-btn>
@@ -23,10 +18,12 @@
     v-model="draggables"
     :disabled="loading"
     @change="onChange"
+    @edit="onEditRequest"
     @delete="onDeleteRequest"
   />
 
   <confirm-delete-dialog v-model="toBeDeleted" @confirm="onConfirmDelete" />
+  <create-group-dialog v-model="toBeCreated" @confirm="onConfirmCreate" />
 </template>
 
 <script lang="ts" setup>
@@ -37,7 +34,7 @@ import { useFlatToNested, useNestedToFlat } from '@/composables/groupComposables
 import { useDeviceStore } from '@/stores/deviceStore';
 import { useGroupStore } from '@/stores/groupStore';
 import { Device } from '@/types/devices';
-import { NestedGroup } from '@/types/groups';
+import { FlatGroup, NestedGroup } from '@/types/groups';
 
 const { t } = useI18n();
 const groupStore = useGroupStore();
@@ -71,6 +68,16 @@ const onConfirmDelete = () => {
     } else {
       groupStore.delete(toBeDeleted.value.id);
     }
+  }
+};
+
+// Create a group.
+const toBeCreated = ref<FlatGroup | null>(null);
+const onEditRequest = (item: NestedGroup) => (toBeCreated.value = { ...item });
+const onCreateGroup = () => (toBeCreated.value = groupStore.default());
+const onConfirmCreate = () => {
+  if (toBeCreated.value) {
+    groupStore.create(toBeCreated.value);
   }
 };
 </script>
