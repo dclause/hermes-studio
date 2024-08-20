@@ -12,6 +12,7 @@
 </template>
 
 <script lang="ts" setup>
+import { computed } from 'vue';
 import { HardwareMode } from '@/composables/globalComposables';
 import { useBoardStore } from '@/stores/boardStore';
 import { Actuator } from '@/types/devices';
@@ -22,5 +23,5 @@ const props = defineProps<{
 }>();
 
 // Get the associated board.
-const board = useBoardStore().get(props.device.bid);
+const board = computed(() => useBoardStore().get(props.device.bid));
 </script>

@@ -3,6 +3,7 @@ import type { Board, BoardId, Protocol } from '@/types/boards';
 import { defineStore } from 'pinia';
 import { Socket } from 'socket.io-client';
 import { useSocketIO } from '@/composables/socketComposables';
+import { useDeviceStore } from '@/stores/deviceStore';
 import { useToasterStore } from '@/stores/toastStore';
 import { SocketAck } from '@/types/socket';
 
@@ -40,7 +41,6 @@ socketRegister((socket: Socket) => {
 export const useBoardStore = defineStore({
   id: 'boards',
   state: () => ({
-    connected: true,
     loading: false,
     boards: {} as Record<BoardId, Board>,
   }),
@@ -99,7 +99,6 @@ export const useBoardStore = defineStore({
         if (ack.success) {
           const deletedBoard = ack.success as Board;
           delete this.boards[deletedBoard.id];
-
           useToasterStore().info(
             `Board '${deletedBoard.name}' [${deletedBoard.id}] as been deleted`,
           );
@@ -109,10 +108,21 @@ export const useBoardStore = defineStore({
     },
 
     open(board: Board) {
-      return socketEmit('board:open', board.id);
+      return socketEmit('board:open', board.id, (ack: SocketAck) => {
+        if (ack.success) {
+          useDeviceStore().refresh();
+          const board = ack.success as Board;
+          this.boards[board.id] = board;
+        }
+      });
     },
     close(board: Board) {
-      return socketEmit('board:close', board.id);
+      return socketEmit('board:close', board.id, (ack: SocketAck) => {
+        if (ack.success) {
+          const board = ack.success as Board;
+          this.boards[board.id] = board;
+        }
+      });
     },
   },
 });

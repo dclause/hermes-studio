@@ -47,6 +47,7 @@ const loading = ref<boolean>(false);
 /**
  * Mutates the state with validation from the server.
  * If the mutation goes wrong: returns the state value to previous.
+ * @todo: remove previous value when set_state accepts any state
  */
 const innerValue = computed<boolean>({
   get() {

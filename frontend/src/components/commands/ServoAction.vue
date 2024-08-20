@@ -51,7 +51,6 @@ import { computed, ref } from 'vue';
 import { HardwareMode, logError } from '@/composables/globalComposables';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { DeviceState, Servo } from '@/types/devices';
-import { SocketAck } from '@/types/socket';
 
 const state = defineModel<DeviceState>({ required: true });
 const props = defineProps<{
@@ -66,31 +65,24 @@ const loading = ref<boolean>(false);
 
 /**
  * Mutates the state with validation from the server.
- * If the mutation goes wrong: returns the state value to previous.
  */
 const innerValue = computed<number>({
   get() {
     return state.value;
   },
   set(value) {
-    previousValue = innerValue.value;
     if (props.mode === HardwareMode.REALTIME) {
       loading.value = true;
       deviceStore
         .mutate(props.device.id, value)
-        .then((ack: SocketAck) => {
-          if (ack.error) {
-            state.value = previousValue;
-          }
+        .then(() => {
           loading.value = false;
           return null;
         })
         .catch(logError);
     }
-    state.value = value;
   },
 });
-let previousValue = innerValue.value;
 
 const onSlider = (value: number) => {
   innerValue.value = value;

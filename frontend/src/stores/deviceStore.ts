@@ -19,6 +19,10 @@ socketRegister((socket: Socket) => {
     deviceStore.refresh();
   });
 
+  socket.on('device:list', (devices: Record<DeviceId, Device>) => {
+    deviceStore.devices = devices;
+  });
+
   // React to a new actuator created: store it.
   socket.on('device:created', (actuator: Device) => {
     deviceStore.devices[actuator.id] = actuator;

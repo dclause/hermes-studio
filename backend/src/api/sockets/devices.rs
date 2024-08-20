@@ -62,27 +62,10 @@ pub fn register_device_events(socket: &SocketRef) {
         },
     );
 
-    // // Build a device of a given type.
-    // // This device is not saved.
-    // // @todo: remove !!
-    // socket.on(
-    //     "device:build",
-    //     |socket: SocketRef, Data(value): Data<String>, ack: AckSender| {
-    //         debug!("Event received: [device:generate]: {:?}", value);
-    //         // @todo: make that discoverable via a factory with hardware registration (roadmap: plugins)
-    //         let instance = match value.as_str() {
-    //             "LedDevice" => Ok(LedDevice::default_instance()),
-    //             "ServoDevice" => Ok(ServoDevice::default_instance()),
-    //             _ => Err(anyhow!("Unknown structure type")),
-    //         };
-    //         broadcast_and_ack("device:updated", instance, socket, ack);
-    //     },
-    // );
-    //
     socket.on(
         "device:create",
         |socket: SocketRef,
-         database: State<ArcDb>,
+         State(database): State<ArcDb>,
          TryData(data): TryData<Device>,
          ack: AckSender| {
             debug!("Event received: [device:create]: {:?}", data);
@@ -97,7 +80,7 @@ pub fn register_device_events(socket: &SocketRef) {
                 None => new_device.save(&database),
                 Some(board) => {
                     if board.connected {
-                        new_device.inner.init(&board)?;
+                        new_device.inner.reset(&board)?;
                     }
                     new_device.save(&database)
                 }

@@ -1,38 +1,16 @@
 use std::fmt::Debug;
+use std::ops::{Deref, DerefMut};
 
-use anyhow::bail;
 use hermes_five::devices::Actuator;
 use serde::{Deserialize, Serialize};
 
 use crate::hardware::board::Board;
 use crate::hardware::device::DeviceType;
+use crate::impl_device;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Led {
-    #[serde(skip)]
-    pub inner: Option<hermes_five::devices::Led>,
-
-    // ########################################
-    pub pin: u16,
-    pub state: u16,
-    pub default: u16,
-    // ########################################
-    intensity: u16,
-    // ########################################
-}
-
-#[typetag::serde]
-impl DeviceType for Led {
-    fn init(&mut self, board: &Board) -> anyhow::Result<()> {
-        self.inner = Some(hermes_five::devices::Led::new(&board.inner, self.pin)?);
+impl_device!(Led, {
+    fn reset(&mut self, board: &Board) -> anyhow::Result<()> {
+        self.inner = hermes_five::devices::Led::new(&board.inner, self.get_pin())?;
         Ok(())
     }
-
-    fn set_state(&mut self, state: u16) -> anyhow::Result<u16> {
-        match self.inner.as_mut() {
-            None => bail!("Mutation on non initialized device"),
-            Some(led) => led.set_state(state)?,
-        };
-        Ok(state)
-    }
-}
+});
