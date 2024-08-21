@@ -31,14 +31,12 @@ import { storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useFlatToNested, useNestedToFlat } from '@/composables/groupComposables';
-import { useDeviceStore } from '@/stores/deviceStore';
 import { useGroupStore } from '@/stores/groupStore';
 import { Device } from '@/types/devices';
 import { FlatGroup, NestedGroup } from '@/types/groups';
 
 const { t } = useI18n();
 const groupStore = useGroupStore();
-const deviceStore = useDeviceStore();
 
 const { groups, loading } = storeToRefs(groupStore);
 const draggables = ref<NestedGroup[]>(useFlatToNested(groups.value));
@@ -62,12 +60,7 @@ const toBeDeleted = ref<NestedGroup | Device | null>(null);
 const onDeleteRequest = (item: NestedGroup | Device) => (toBeDeleted.value = item);
 const onConfirmDelete = () => {
   if (toBeDeleted.value) {
-    // Trick to detect a Device: it has a 'bid' attribute.
-    if ('bid' in toBeDeleted.value) {
-      deviceStore.delete(toBeDeleted.value.id);
-    } else {
-      groupStore.delete(toBeDeleted.value.id);
-    }
+    groupStore.delete(toBeDeleted.value.id);
   }
 };
 

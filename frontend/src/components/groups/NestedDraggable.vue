@@ -14,57 +14,54 @@
     @change="onChange"
   >
     <template #item="{ element }">
+      <div v-if="element.device">
+        <component
+          :is="useDeviceComponent(devices[element.device].type)"
+          v-if="devices[element.device]"
+          v-model="devices[element.device] as Actuator"
+          :disabled="element.disabled"
+          :class="{ disabled: element.disabled }"
+          class="my-2 px-3"
+        >
+          <template #prefix>
+            <div class="handler">
+              <v-icon icon="mdi-cursor-move" />
+            </div>
+          </template>
+        </component>
+      </div>
       <v-card
-        class="wrapper my-2 py-1 px-3"
+        v-else
+        class="wrapper my-2 px-3"
         :disabled="element.disabled"
         :class="{ disabled: element.disabled }"
       >
         <div class="handler">
           <v-icon icon="mdi-cursor-move" />
         </div>
-        <div v-if="element.device" class="d-flex flex-1-1-100 align-center">
-          <component
-            :is="useDeviceComponent(devices[element.device].type)"
-            v-if="devices[element.device]"
-            v-model="devices[element.device] as Actuator"
-          />
-          <v-btn
-            icon="mdi-pencil"
-            size="small"
-            :to="{
-              name: 'device.edit',
-              params: { id: element.id },
-            }"
-            variant="text"
-          />
-          <v-btn
-            icon="mdi-trash-can"
-            size="small"
-            variant="text"
-            @click="emit('delete', devices[element.device])"
-          />
-        </div>
-        <div v-else class="d-flex flex-1-1-100 align-center">
-          <div class="d-flex flex-1-1-100 align-center mt-2 mb-2">
-            <v-icon class="ml-2 mr-3" icon="mdi-select-group" size="30" />
-            <div class="group-label font-weight-bold">
-              {{ element.name }}
+        <div>
+          <div class="d-flex flex-1-1-100 align-center">
+            <div class="d-flex flex-1-1-100 align-center my-2">
+              <v-icon class="ml-2 mr-3" icon="mdi-select-group" size="30" />
+              <div class="group-label font-weight-bold">
+                {{ element.name }}
+              </div>
             </div>
+            <v-btn icon="mdi-pencil" size="small" variant="text" @click="emit('edit', element)" />
+            <v-btn
+              icon="mdi-trash-can"
+              size="small"
+              variant="text"
+              @click="emit('delete', element)"
+            />
           </div>
-          <v-btn icon="mdi-pencil" size="small" variant="text" @click="emit('edit', element)" />
-          <v-btn
-            icon="mdi-trash-can"
-            size="small"
-            variant="text"
-            @click="emit('delete', element)"
+          <nested-draggable
+            v-if="!element.device"
+            v-model="element.children"
+            @change="onChange"
+            @delete="onDelete"
           />
         </div>
-        <nested-draggable
-          v-if="!element.device"
-          v-model="element.children"
-          @change="onChange"
-          @delete="onDelete"
-        />
       </v-card>
     </template>
   </draggable>
@@ -124,9 +121,14 @@ const onDelete = (item: NestedGroup | Device) => {
 .wrapper {
   display: grid;
   grid-template-columns: 40px auto;
-  overflow: visible;
+  overflow: auto;
+  @media (min-width: 460px) {
+    overflow: auto;
+  }
 }
+</style>
 
+<style lang="scss">
 .handler {
   grid-column: 1;
   grid-row: 1 / 5;
@@ -135,9 +137,7 @@ const onDelete = (item: NestedGroup | Device) => {
   align-items: center;
   cursor: move;
 }
-</style>
 
-<style lang="scss">
 .v-drag-area {
   min-height: 1em;
   border: 1px transparent dashed;

@@ -102,7 +102,7 @@ const onDecrement = () => {
 <style lang="scss" scoped>
 .action-servo {
   .action-slider {
-    @media (min-width: 960px) {
+    @media (min-width: 850px) {
       display: grid !important;
     }
   }

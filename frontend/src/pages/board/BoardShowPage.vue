@@ -18,7 +18,7 @@
       <board-model :model="board.model" />
     </div>
 
-    <v-tabs v-model="tab" background-color="transparent" color="black" slider-color="primary">
+    <v-tabs v-model="tab" bg-color="transparent" color="black" slider-color="primary">
       <v-tab value="info">
         {{ t('tab.info') }}
       </v-tab>
@@ -33,8 +33,8 @@
       </v-tab>
     </v-tabs>
 
-    <v-window v-model="tab">
-      <v-window-item value="info">
+    <v-tabs-window v-model="tab">
+      <v-tabs-window-item value="info">
         <v-card-text>
           <div>
             <span class="font-weight-bold">{{ t('type') }}</span>
@@ -49,47 +49,37 @@
             <protocol class="d-inline-block" :protocol="board.protocol" />
           </div>
         </v-card-text>
-      </v-window-item>
+      </v-tabs-window-item>
 
-      <v-window-item value="controls">
+      <v-tabs-window-item value="controls">
         <div v-if="devices.length">
-          <v-card
+          <component
+            :is="useDeviceComponent(device.type)"
             v-for="(device, id) in devices"
             :key="device.id"
-            class="wrapper d-flex flex-1-1-100 align-center my-2"
-          >
-            <component :is="useDeviceComponent(device.type)" v-model="devices[id]" />
-            <v-btn
-              icon="mdi-pencil"
-              size="small"
-              :to="{
-                name: 'device.edit',
-                params: { id: device.id },
-              }"
-              variant="text"
-            />
-            <v-btn icon="mdi-trash-can" size="small" variant="text" @click="toBeDeleted = device" />
-          </v-card>
+            v-model="devices[id]"
+            @delete="onRequestDelete"
+          />
         </div>
         <v-card-text v-else class="pa-8 text-center">
           <em>{{ t('no_actions') }}</em>
         </v-card-text>
-      </v-window-item>
+      </v-tabs-window-item>
 
-      <v-window-item value="inputs">
+      <v-tabs-window-item value="inputs">
         <v-card-text class="pa-8 text-center">
           <em>{{ t('no_inputs') }}</em>
         </v-card-text>
-      </v-window-item>
+      </v-tabs-window-item>
 
-      <v-window-item value="history">
+      <v-tabs-window-item value="history">
         <v-card-text class="pa-8 text-center">
           @todo
         </v-card-text>
-      </v-window-item>
-    </v-window>
+      </v-tabs-window-item>
+    </v-tabs-window>
 
-    <confirm-delete-dialog v-model="toBeDeleted" @confirm="onDelete" />
+    <confirm-delete-dialog v-model="toBeDeleted" @confirm="onConfirmDelete" />
   </div>
 </template>
 <script lang="ts" setup>
@@ -118,7 +108,10 @@ const tab = ref('controls');
 
 // Delete a group / device.
 const toBeDeleted = ref<Device | null>(null);
-const onDelete = () => {
+const onRequestDelete = (item: Device) => {
+  toBeDeleted.value = item;
+};
+const onConfirmDelete = () => {
   if (toBeDeleted.value) {
     deviceStore.delete(toBeDeleted.value.id);
   }

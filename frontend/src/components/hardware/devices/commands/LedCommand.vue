@@ -1,5 +1,8 @@
 <template>
   <default-command v-model="device" class="command-led">
+    <template #prefix>
+      <slot name="prefix" />
+    </template>
     <template #icon>
       <svg-led class="ml-2 mr-3" width="30" />
     </template>

@@ -73,7 +73,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { VForm } from 'vuetify/components';
 import { DeviceType, useDeviceEditComponent } from '@/composables/deviceComposables';
 import { Rule } from '@/composables/formComposables';
-import { logError } from '@/composables/globalComposables';
+import { logError, redirect } from '@/composables/globalComposables';
 import { useBoardStore } from '@/stores/boardStore';
 import { useDeviceStore } from '@/stores/deviceStore';
 
@@ -105,17 +105,13 @@ const onSubmit = async () => {
   if (valid) {
     deviceStore
       .create(device.value)
-      .then(() => router.push({ name: 'board.show', params: { bid: device.value.bid } }))
+      .then(() => redirect())
       .catch(logError);
   }
 };
 
 // Cancel: return to previous page
 const onCancel = () => {
-  const redirection_bid = bid ?? device.value.bid;
-  if (redirection_bid) {
-    return router.push({ name: 'board.show', params: { bid: redirection_bid } });
-  }
-  return router.push({ name: 'device.list' });
+  return redirect();
 };
 </script>

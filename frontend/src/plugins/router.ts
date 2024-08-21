@@ -16,18 +16,18 @@ const router = createRouter({
 
 /** Before each route: start the loader and load the appropriate layout (depending on connection status). */
 router.beforeEach(
-  (to: RouteLocationNormalized, _: RouteLocationNormalized, next: NavigationGuardNext) => {
+  (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
     startLoader();
 
     if (to.meta.serverless || to.meta.layout === 'ServerlessLayout') {
       // Use the serverless Layout.
       to.meta.layoutComponent = ServerlessLayout;
-      next();
-      return;
+    } else {
+      to.meta.layoutComponent = DefaultLayout;
     }
 
-    to.meta.layoutComponent = DefaultLayout;
     next();
+    return;
   },
 );
 
