@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mx-auto pa-4" variant="elevated" width="400">
+  <v-card class="mx-auto pa-4" variant="elevated" max-width="400" width="100%">
     <v-form
       v-model="isFormValidated"
       :disabled="loading"
@@ -33,36 +33,40 @@
       <!--      />-->
 
       <!-- Submit -->
-      <v-btn
-        block
-        class="mt-2"
-        color="primary"
-        :disabled="loading"
-        :loading="loading"
-        size="large"
-        type="submit"
-        variant="elevated"
-      >
-        {{ $t('form.create') }}
-      </v-btn>
-      <v-btn
-        block
-        class="mt-2"
-        color="secondary"
-        :disabled="loading"
-        :loading="loading"
-        size="large"
-        variant="elevated"
-        @click="router.push('board.list')"
-      >
-        {{ $t('form.cancel') }}
-      </v-btn>
+      <v-row>
+        <v-col class="align-self-center" cols="12" sm="6">
+          <v-btn
+            block
+            class="mt-2"
+            color="primary"
+            :disabled="loading"
+            :loading="loading"
+            size="large"
+            type="submit"
+            variant="elevated"
+          >
+            {{ $t('form.create') }}
+          </v-btn>
+        </v-col>
+        <v-col class="align-self-center" cols="12" sm="6">
+          <v-btn
+            block
+            class="mt-2"
+            :disabled="loading"
+            :loading="loading"
+            size="large"
+            variant="text"
+            @click="router.push('board.list')"
+          >
+            {{ $t('form.cancel') }}
+          </v-btn>
+        </v-col>
+      </v-row>
     </v-form>
   </v-card>
 </template>
 
 <script lang="ts" setup>
-import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
@@ -78,13 +82,14 @@ const router = useRouter();
 
 const toaster = useToasterStore();
 const boardStore = useBoardStore();
-const { loading } = storeToRefs(boardStore);
 
 const isFormValidated = ref<boolean>(false);
 const board = boardStore.default();
 
+const loading = ref<boolean>(false);
 const onSubmit = () => {
   if (isFormValidated.value) {
+    loading.value = true;
     boardStore
       .create(board)
       .then((ack: SocketAck) => {
@@ -99,6 +104,7 @@ const onSubmit = () => {
         return router.push({ name: 'board.list' });
       })
       .catch(logError);
+    loading.value = false;
   }
 };
 </script>

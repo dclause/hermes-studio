@@ -4,17 +4,17 @@
       <v-icon icon="mdi-camera-control" />
       {{ t('title') }}
     </h1>
-    <v-btn class="mr-5" color="primary" :icon="$vuetify.display.xs === true" @click="onCreateGroup">
+    <v-btn color="primary" :icon="$vuetify.display.xs === true" class="mr-5" @click="onCreateGroup">
       <v-icon>mdi-plus</v-icon>
       <span class="d-none d-sm-block">{{ t('new_group') }}</span>
     </v-btn>
-    <v-btn :icon="$vuetify.display.xs === true" :to="{ name: 'device.new' }">
+    <v-btn color="secondary" :icon="$vuetify.display.xs === true" :to="{ name: 'device.new' }">
       <v-icon>mdi-plus</v-icon>
       <span class="d-none d-sm-block">{{ t('new_device') }}</span>
     </v-btn>
   </div>
 
-  <nested-draggable
+  <nested-draggable-group
     v-model="draggables"
     :disabled="loading"
     @change="onChange"
@@ -31,12 +31,14 @@ import { storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useFlatToNested, useNestedToFlat } from '@/composables/groupComposables';
+import { useDeviceStore } from '@/stores/deviceStore';
 import { useGroupStore } from '@/stores/groupStore';
 import { Device } from '@/types/devices';
 import { FlatGroup, NestedGroup } from '@/types/groups';
 
 const { t } = useI18n();
 const groupStore = useGroupStore();
+const deviceStore = useDeviceStore();
 
 const { groups, loading } = storeToRefs(groupStore);
 const draggables = ref<NestedGroup[]>(useFlatToNested(groups.value));
@@ -60,7 +62,12 @@ const toBeDeleted = ref<NestedGroup | Device | null>(null);
 const onDeleteRequest = (item: NestedGroup | Device) => (toBeDeleted.value = item);
 const onConfirmDelete = () => {
   if (toBeDeleted.value) {
-    groupStore.delete(toBeDeleted.value.id);
+    // Trick to detect type of toBeDeleted.
+    if ('bid' in toBeDeleted.value) {
+      deviceStore.delete(toBeDeleted.value.id);
+    } else {
+      groupStore.delete(toBeDeleted.value.id);
+    }
   }
 };
 

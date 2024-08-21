@@ -1,10 +1,10 @@
 <template>
-  <v-card class="mx-auto pa-4" variant="elevated" width="600">
+  <v-card class="mx-auto pa-4" variant="elevated" max-width="600" width="100%">
     <v-form ref="form" :disabled="loading" :loading="loading" @submit.prevent="onSubmit">
       <v-text-field v-model="device.name" label="Name" required :rules="[Rule.REQUIRED]" />
 
       <v-row>
-        <v-col class="align-self-center" cols="12" md="6">
+        <v-col class="align-self-center" cols="12" sm="6">
           <v-select
             v-model="device.bid"
             :items="boardItems"
@@ -16,7 +16,7 @@
             :disabled="isEdit"
           />
         </v-col>
-        <v-col class="align-self-center" cols="12" md="6">
+        <v-col class="align-self-center" cols="12" sm="6">
           <v-select
             v-model="device.type"
             :items="Object.keys(DeviceType).filter((type) => type !== 'Unknown')"
@@ -31,7 +31,7 @@
 
       <!-- Submit -->
       <v-row>
-        <v-col class="align-self-center" cols="12" md="6">
+        <v-col class="align-self-center" cols="12" sm="6">
           <v-btn
             block
             class="mt-2"
@@ -45,15 +45,14 @@
             {{ $t(isEdit ? 'form.save' : 'form.create') }}
           </v-btn>
         </v-col>
-        <v-col class="align-self-center" cols="12" md="6">
+        <v-col class="align-self-center" cols="12" sm="6">
           <v-btn
             block
             class="mt-2"
-            color="surface-light"
             :disabled="loading"
             :loading="loading"
             size="large"
-            variant="elevated"
+            variant="text"
             @click="onCancel"
           >
             {{ $t('form.cancel') }}
@@ -69,16 +68,16 @@ import type { BoardId } from '@/types/boards';
 import type { Device, DeviceId } from '@/types/devices';
 import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { VForm } from 'vuetify/components';
 import { DeviceType, useDeviceEditComponent } from '@/composables/deviceComposables';
 import { Rule } from '@/composables/formComposables';
-import { logError, redirect } from '@/composables/globalComposables';
+import { logError, useRedirect } from '@/composables/globalComposables';
 import { useBoardStore } from '@/stores/boardStore';
 import { useDeviceStore } from '@/stores/deviceStore';
 
 const route = useRoute();
-const router = useRouter();
+const { redirect } = useRedirect();
 const bid = route.query['board'] ? (Number(route.query['board']) as BoardId) : null;
 const isEdit = route.name === 'device.edit';
 
@@ -99,14 +98,21 @@ const form = ref<VForm>();
 const editComponent = computed(() => useDeviceEditComponent(device.value.type));
 
 // Save the newly created device.
-const { loading } = storeToRefs(deviceStore);
+const loading = ref<boolean>(false);
 const onSubmit = async () => {
   const { valid } = await form.value!.validate();
   if (valid) {
-    deviceStore
-      .create(device.value)
-      .then(() => redirect())
-      .catch(logError);
+    loading.value = true;
+    isEdit
+      ? deviceStore
+          .update(device.value)
+          .then(() => redirect())
+          .catch(logError)
+      : deviceStore
+          .create(device.value)
+          .then(() => redirect())
+          .catch(logError);
+    loading.value = false;
   }
 };
 

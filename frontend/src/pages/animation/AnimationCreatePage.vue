@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mx-auto pa-4" variant="elevated" width="600">
+  <v-card class="mx-auto pa-4" variant="elevated" max-width="600" width="100%">
     <v-form ref="form" :disabled="loading" :loading="loading" @submit.prevent="onSubmit">
       <v-text-field v-model="animation.name" label="Name" required :rules="[Rule.REQUIRED]" />
 
@@ -7,7 +7,7 @@
 
       <!-- Submit -->
       <v-row>
-        <v-col class="align-self-center" cols="12" md="6">
+        <v-col class="align-self-center" cols="12" sm="6">
           <v-btn
             block
             class="mt-2"
@@ -21,15 +21,14 @@
             {{ $t('form.create') }}
           </v-btn>
         </v-col>
-        <v-col class="align-self-center" cols="12" md="6">
+        <v-col class="align-self-center" cols="12" sm="6">
           <v-btn
             block
             class="mt-2"
-            color="surface-light"
             :disabled="loading"
             :loading="loading"
             size="large"
-            variant="elevated"
+            variant="text"
             @click="onCancel"
           >
             {{ $t('form.cancel') }}
@@ -41,7 +40,6 @@
 </template>
 <script setup lang="ts">
 import type { Animation } from '@/types/animation';
-import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { VForm } from 'vuetify/components';
@@ -60,10 +58,11 @@ const animation = ref(animationStore.default());
 const form = ref<VForm>();
 
 // Save the newly created device.
-const { loading } = storeToRefs(animationStore);
+const loading = ref<boolean>(false);
 const onSubmit = async () => {
   const { valid } = await form.value!.validate();
   if (valid) {
+    loading.value = true;
     animationStore
       .create(animation.value)
       .then((ack: SocketAck) => {
@@ -77,6 +76,7 @@ const onSubmit = async () => {
         return;
       })
       .catch(logError);
+    loading.value = false;
   }
 };
 

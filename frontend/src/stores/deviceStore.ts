@@ -80,16 +80,29 @@ export const useDeviceStore = defineStore({
       };
     },
 
-    /**
-     * Add a new actuator to the database.
-     * @param device
-     */
     create(device: Device) {
       this.loading = true;
       return socketEmit('device:create', device, (ack: SocketAck) => {
         if (ack.success) {
           const createdDevice = ack.success as Device;
           this.devices[createdDevice.id] = createdDevice;
+          useToasterStore().success(
+            `Successfully created device '${createdDevice.name}' [${createdDevice.id}]`,
+          );
+        }
+        this.loading = false;
+      });
+    },
+
+    update(device: Device) {
+      this.loading = true;
+      return socketEmit('device:update', device, (ack: SocketAck) => {
+        if (ack.success) {
+          const updatedDevice = ack.success as Device;
+          this.devices[updatedDevice.id] = updatedDevice;
+          useToasterStore().success(
+            `Successfully update device '${updatedDevice.name}' [${updatedDevice.id}]`,
+          );
         }
         this.loading = false;
       });

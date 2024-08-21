@@ -12,6 +12,7 @@
     :move="canMove"
     @move="onMove"
     @change="onChange"
+    @delete="onDelete"
   >
     <template #item="{ element }">
       <div v-if="element.device">
@@ -22,6 +23,7 @@
           :disabled="element.disabled"
           :class="{ disabled: element.disabled }"
           class="my-2 px-3"
+          @delete="onDelete"
         >
           <template #prefix>
             <div class="handler">
@@ -55,7 +57,7 @@
               @click="emit('delete', element)"
             />
           </div>
-          <nested-draggable
+          <nested-draggable-group
             v-if="!element.device"
             v-model="element.children"
             @change="onChange"

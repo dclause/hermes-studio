@@ -27,33 +27,44 @@ export function useNestedToFlat(groups: NestedGroup[]): Record<GroupId, FlatGrou
 
 // Flat to Nested Conversion
 export function useFlatToNested(groups: Record<GroupId, FlatGroup>): NestedGroup[] {
-  const map: Record<GroupId, NestedGroup> = {};
+  const nestedGroups: Record<GroupId, NestedGroup> = {};
 
-  // Sort FlatGroups and map it to NestedGroups.
+  // Create equivalent NestedGroup for all FlatGroup.
   Object.values(groups).forEach((group) => {
-    map[group.id] = { ...group, children: [] as NestedGroup[], level: 0 };
+    nestedGroups[group.id] = { ...group, children: [] as NestedGroup[], level: 0 };
   });
 
   // Helper function to build the nested structure.
   function traverse(groupId: GroupId, level: number = 1): NestedGroup | null {
-    const nestedGroup: NestedGroup = map[groupId];
-    const flatGroup: FlatGroup = groups[groupId];
-    if (nestedGroup.level) {
-      return nestedGroup;
+    const nestedGroup: NestedGroup = nestedGroups[groupId];
+    if (!nestedGroup) {
+      return null;
     }
 
-    nestedGroup.children = flatGroup.children
+    nestedGroup.level = level;
+
+    // Recursively attach (and sort) child groups.
+    nestedGroup.children = groups[groupId].children
       .map((childId) => traverse(childId, level + 1))
       .filter((group) => group)
       .sort((left, right) => left!.order - right!.order) as NestedGroup[];
-    nestedGroup.level = level;
 
     return nestedGroup;
   }
 
-  // Loop over the groups and nest them.
-  return Object.values(map)
-    .map((group) => traverse(group.id))
-    .filter((group) => group)
-    .sort((left, right) => left!.order - right!.order) as NestedGroup[];
+  // Step 3: Find all root groups (those that are not a child of any other group)
+  const roots: NestedGroup[] = [];
+  const childIds = new Set<GroupId>(Object.values(groups).flatMap((group) => group.children));
+
+  Object.values(groups).reduce((roots, group) => {
+    if (!childIds.has(group.id)) {
+      const root = traverse(group.id);
+      if (root) {
+        roots.push(root);
+      }
+    }
+    return roots;
+  }, roots);
+
+  return roots.sort((left, right) => left.order - right.order) as NestedGroup[];
 }

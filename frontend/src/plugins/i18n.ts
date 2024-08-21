@@ -6,7 +6,6 @@ import { en as vuetifyEn, fr as vuetifyFr } from 'vuetify/locale';
 export default createI18n({
   globalInjection: true,
   legacy: false,
-  allowComposition: true,
   locale: navigator.language.split('-')[0],
   fallbackLocale: 'en',
   messages: {

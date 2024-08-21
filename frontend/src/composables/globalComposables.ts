@@ -10,11 +10,17 @@ export function logError(error: Error) {
   console.error(error);
 }
 
-export function redirect() {
+export function useRedirect() {
   const route = useRoute();
-  const redirection = route.query.destination as string;
-  if (redirection) {
-    return useRouter().push({ path: redirection });
-  }
-  return useRouter().push({ name: 'device.list' });
+  const router = useRouter();
+
+  return {
+    redirect: () => {
+      const redirection = route.query.destination as string;
+      if (redirection) {
+        return router.push({ path: redirection });
+      }
+      return router.push({ name: 'device.list' });
+    },
+  };
 }

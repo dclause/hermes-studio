@@ -6,11 +6,11 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn color="green-darken-1" variant="text" @click="cancelAction">
-          {{ cancel ?? $t('form.cancel') }}
-        </v-btn>
-        <v-btn color="green-darken-1" variant="text" @click="confirmAction">
+        <v-btn variant="elevated" color="primary" @click="confirmAction">
           {{ confirm ?? $t('form.confirm') }}
+        </v-btn>
+        <v-btn @click="cancelAction">
+          {{ cancel ?? $t('form.cancel') }}
         </v-btn>
       </v-card-actions>
     </v-card>

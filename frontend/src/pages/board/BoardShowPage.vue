@@ -52,14 +52,8 @@
       </v-tabs-window-item>
 
       <v-tabs-window-item value="controls">
-        <div v-if="devices.length">
-          <component
-            :is="useDeviceComponent(device.type)"
-            v-for="(device, id) in devices"
-            :key="device.id"
-            v-model="devices[id]"
-            @delete="onRequestDelete"
-          />
+        <div v-if="nestedGroups.length">
+          <nested-group v-model="nestedGroups" @delete="onRequestDelete" />
         </div>
         <v-card-text v-else class="pa-8 text-center">
           <em>{{ t('no_actions') }}</em>
@@ -85,12 +79,14 @@
 <script lang="ts" setup>
 import type { BoardId } from '@/types/boards';
 import type { Device } from '@/types/devices';
+import type { FlatGroup, GroupId, NestedGroup } from '@/types/groups';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n'; // Retrieve the board.
-import { useRoute } from 'vue-router'; // import { useDeviceComponent } from '@/composables/hardware';
-import { useDeviceComponent } from '@/composables/deviceComposables';
+import { useRoute } from 'vue-router';
+import { useFlatToNested } from '@/composables/groupComposables';
 import { useBoardStore } from '@/stores/boardStore';
 import { useDeviceStore } from '@/stores/deviceStore';
+import { useGroupStore } from '@/stores/groupStore';
 
 const { t } = useI18n();
 
@@ -102,6 +98,20 @@ const board = computed(() => boardStore.get(Number(route.params.bid) as BoardId)
 // Retrieve the associated devices.
 const deviceStore = useDeviceStore();
 const devices = computed(() => deviceStore.list_by_board(board.value.id));
+
+const groupStore = useGroupStore();
+const nestedGroups = computed(() => {
+  const filteredGroups = Object.values(groupStore.groups).reduce(
+    (acc, group) => {
+      if (!group.device || devices.value.find((device) => device.id == group.device)) {
+        acc[group.id] = group;
+      }
+      return acc;
+    },
+    {} as Record<GroupId, FlatGroup>,
+  );
+  return useFlatToNested(filteredGroups);
+});
 
 // Selected tab.
 const tab = ref('controls');
