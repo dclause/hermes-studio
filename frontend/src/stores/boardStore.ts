@@ -32,10 +32,6 @@ socketRegister((socket: Socket) => {
   socket.on('board:deleted', (board: Board) => {
     delete boardStore.boards[board.id];
   });
-
-  return new Promise((resolve) => {
-    socket.emit('getSchema', resolve);
-  });
 });
 
 export const useBoardStore = defineStore({

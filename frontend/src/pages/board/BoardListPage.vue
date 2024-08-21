@@ -80,16 +80,9 @@
     <template #no-data>
       <em>{{ t('empty') }}</em>
     </template>
-
-    <!--    <template #bottom="slots">-->
-    <!--      <v-row class="mt-1">-->
-    <!--        &lt;!&ndash;        <div class="align-self-center text-center text-md-left flex-1-1"></div>&ndash;&gt;-->
-    <!--        <v-data-table-footer class="flex-1-1"></v-data-table-footer>-->
-    <!--      </v-row>-->
-    <!--    </template>-->
   </v-data-table>
 
-  <confirm-delete-dialog v-model="toBeDeleted" @confirm="onDelete" />
+  <confirm-delete-dialog v-model="toBeDeleted" @confirm="onConfirmDelete" />
 </template>
 
 <script lang="ts" setup>
@@ -107,7 +100,7 @@ const items = computed<Board[]>(() => Object.values(boards.value));
 
 // Delete a board.
 const toBeDeleted = ref<Board | null>(null);
-const onDelete = () => {
+const onConfirmDelete = () => {
   if (toBeDeleted.value) {
     boardStore.delete(toBeDeleted.value.id);
   }

@@ -39,6 +39,12 @@ const mainMenuLinks: NavigationItem[] = [
     label: t('device.list'),
     icon: 'mdi-camera-control',
   },
+  {
+    to: { name: 'animation.list' },
+    id: 'animation.list',
+    label: t('animation.list'),
+    icon: 'mdi-movie-open',
+  },
 ];
 </script>
 
@@ -46,11 +52,13 @@ const mainMenuLinks: NavigationItem[] = [
 {
   "en": {
     "board.list": "Hardware configuration",
-    "device.list": "Groups & Controls"
+    "device.list": "Groups & Controls",
+    "animation.list": "Animations"
   },
   "fr": {
     "board.list": "Configuration matérielle",
-    "device.list": "Groupes & Contrôles"
+    "device.list": "Groupes & Contrôles",
+    "animation.list": "Animations"
   }
 }
 </i18n>

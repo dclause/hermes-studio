@@ -4,6 +4,7 @@ use serde::Serialize;
 use socketioxide::extract::{AckSender, SocketRef};
 
 use crate::api::sockets::ack::Ack;
+use crate::api::sockets::animations::register_animation_events;
 use crate::api::sockets::boards::register_board_events;
 use crate::api::sockets::config::register_config_events;
 use crate::api::sockets::devices::register_device_events;
@@ -14,6 +15,7 @@ use crate::api::sockets::groups::register_group_events;
 // use crate::api::sockets::devices::register_device_events;
 
 pub mod ack;
+mod animations;
 mod boards;
 mod config;
 mod devices;
@@ -52,7 +54,7 @@ pub fn register_socket_events(
     register_board_events(&socket);
     register_device_events(&socket);
     register_group_events(&socket);
-    // register_animation_events(&socket);
+    register_animation_events(&socket);
 
     for custom_register in &custom_register_callbacks {
         custom_register(&socket);
