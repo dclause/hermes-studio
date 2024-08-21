@@ -4,7 +4,7 @@ use anyhow::Result;
 use dyn_clone::DynClone;
 use serde::{Deserialize, Serialize};
 
-use crate::animation::groups::Group;
+use crate::animation::group::Group;
 use crate::hardware::board::Board;
 use crate::impl_entity;
 use crate::utils::database::Database;

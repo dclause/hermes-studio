@@ -10,8 +10,16 @@ use crate::impl_device;
 
 impl_device!(Servo, {
     fn reset(&mut self, board: &Board) -> anyhow::Result<()> {
-        self.inner =
-            hermes_five::devices::Servo::new(&board.inner, self.get_pin(), self.get_default())?;
+        let current = self.inner.clone();
+        self.inner = hermes_five::devices::Servo::new(
+            &board.inner,
+            current.get_pin(),
+            current.get_default(),
+        )?
+        .set_type(current.get_type())
+        .set_pwn_range(current.get_pwn_range())?
+        .set_degree_range(current.get_degree_range())
+        .set_range(current.get_range());
         Ok(())
     }
 });

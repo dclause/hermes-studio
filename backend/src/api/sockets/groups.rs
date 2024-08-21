@@ -4,7 +4,7 @@ use anyhow::{anyhow, bail, Result};
 use log::debug;
 use socketioxide::extract::{AckSender, Data, SocketRef, State, TryData};
 
-use crate::animation::groups::Group;
+use crate::animation::group::Group;
 use crate::api::sockets::{broadcast_and_ack, broadcast_to_all};
 use crate::api::sockets::ack::Ack;
 use crate::utils::database::ArcDb;

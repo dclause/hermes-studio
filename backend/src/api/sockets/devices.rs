@@ -2,7 +2,7 @@ use anyhow::bail;
 use log::debug;
 use socketioxide::extract::{AckSender, Data, SocketRef, State, TryData};
 
-use crate::animation::groups::Group;
+use crate::animation::group::Group;
 use crate::api::sockets::{broadcast_and_ack, broadcast_to_all};
 use crate::api::sockets::ack::Ack;
 use crate::hardware::board::Board;
@@ -77,37 +77,19 @@ pub fn register_device_events(socket: &SocketRef) {
 
             let mut new_device = data.unwrap();
             let device = Board::get(&database, &new_device.bid).and_then(|board| match board {
-                None => new_device.save(&database),
+                None => bail!("Board [{}] not found", new_device.bid),
                 Some(board) => {
                     if board.connected {
                         new_device.inner.reset(&board)?;
                     }
-                    new_device.save(&database)
+                    database.write().set(new_device)
                 }
             });
 
             broadcast_and_ack("device:updated", device, &socket, ack);
         },
     );
-    //
-    // socket.on(
-    //     "device:update",
-    //     |socket: SocketRef, Data(value): Data<Value>, ack: AckSender| {
-    //         debug!("Event received: [device:update]: device:{:?}", value);
-    //         let bid = value[0].as_u64().unwrap() as Id;
-    //         let device = serde_json::from_value::<Device>(value[1].clone()).unwrap();
-    //         let device = Board::get(&bid).and_then(|board| match board {
-    //             None => bail!("Board not found"),
-    //             Some(mut board) => {
-    //                 let device = board.with_device(device);
-    //                 board.save()?;
-    //                 Ok(device)
-    //             }
-    //         });
-    //         broadcast_and_ack("device:updated", device, socket, ack);
-    //     },
-    // );
-    //
+
     socket.on(
         "device:delete",
         |socket: SocketRef, database: State<ArcDb>, Data(id): Data<Id>, ack: AckSender| {

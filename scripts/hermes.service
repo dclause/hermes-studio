@@ -12,8 +12,8 @@ Description=HERMES
 After=multi-user.target
 
 [Service]
-WorkingDirectory=/home/pi/Desktop/hermes-studio
-ExecStart=/home/pi/Desktop/hermes-studio/hermes-studio --open --debug --logfile
+WorkingDirectory=/home/inmoov/Desktop/hermes-studio
+ExecStart=/home/inmoov/Desktop/hermes-studio/hermes-studio --open --debug --logfile
 Restart=always
 RestartSec=10s
 

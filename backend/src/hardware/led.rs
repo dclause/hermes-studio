@@ -10,7 +10,9 @@ use crate::impl_device;
 
 impl_device!(Led, {
     fn reset(&mut self, board: &Board) -> anyhow::Result<()> {
-        self.inner = hermes_five::devices::Led::new(&board.inner, self.get_pin())?;
+        let current = self.inner.clone();
+        self.inner = hermes_five::devices::Led::new(&board.inner, current.get_pin())?
+            .set_intensity(current.get_intensity())?;
         Ok(())
     }
 });
