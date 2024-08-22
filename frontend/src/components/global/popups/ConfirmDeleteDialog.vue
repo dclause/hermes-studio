@@ -28,14 +28,18 @@ watch(toBeDeleted, (newValue, oldValue) => {
 });
 
 const onCancel = () => {
-  emit('cancel');
   confirmPopup.value = false;
-  toBeDeleted.value = null;
+  emit('cancel');
+  setTimeout(() => {
+    toBeDeleted.value = null;
+  }, 500);
 };
 const onDelete = () => {
   emit('confirm');
   confirmPopup.value = false;
-  toBeDeleted.value = null;
+  setTimeout(() => {
+    toBeDeleted.value = null;
+  }, 500);
 };
 </script>
 

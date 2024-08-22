@@ -26,12 +26,20 @@ export function useNestedToFlat(groups: NestedGroup[]): Record<GroupId, FlatGrou
 }
 
 // Flat to Nested Conversion
-export function useFlatToNested(groups: Record<GroupId, FlatGroup>): NestedGroup[] {
+export function useFlatToNested(
+  groups: Record<GroupId, FlatGroup>,
+  enrichments: Record<GroupId, { [key: string]: any }> = {},
+): NestedGroup[] {
   const nestedGroups: Record<GroupId, NestedGroup> = {};
 
   // Create equivalent NestedGroup for all FlatGroup.
   Object.values(groups).forEach((group) => {
-    nestedGroups[group.id] = { ...group, children: [] as NestedGroup[], level: 0 };
+    nestedGroups[group.id] = {
+      ...group,
+      children: [] as NestedGroup[],
+      level: 0,
+      ...enrichments[group.id],
+    };
   });
 
   // Helper function to build the nested structure.

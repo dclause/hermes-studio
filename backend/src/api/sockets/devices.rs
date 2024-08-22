@@ -1,4 +1,4 @@
-use anyhow::bail;
+use anyhow::{anyhow, bail};
 use log::debug;
 use socketioxide::extract::{AckSender, Data, SocketRef, State, TryData};
 
@@ -9,12 +9,6 @@ use crate::hardware::board::Board;
 use crate::hardware::device::Device;
 use crate::utils::database::ArcDb;
 use crate::utils::entity::{Entity, Id};
-
-// #[derive(Debug, Serialize, Deserialize)]
-// struct DevicePayload {
-//     name: String,
-//     config: Box<dyn DeviceType>,
-// }
 
 pub fn register_device_events(socket: &SocketRef) {
     socket.on(
@@ -66,25 +60,51 @@ pub fn register_device_events(socket: &SocketRef) {
         "device:create",
         |socket: SocketRef,
          State(database): State<ArcDb>,
-         TryData(data): TryData<Device>,
+         TryData(new_device): TryData<Device>,
          ack: AckSender| {
-            debug!("Event received: [device:create]: {:?}", data);
+            debug!("Event received: [device:create]: {:?}", new_device);
 
-            if data.is_err() {
-                ack.send(Ack::from(data.map_err(anyhow::Error::msg))).ok();
-                return;
-            }
-
-            let mut new_device = data.unwrap();
-            let device = Board::get(&database, &new_device.bid).and_then(|board| match board {
-                None => bail!("Board [{}] not found", new_device.bid),
-                Some(board) => {
-                    if board.connected {
-                        new_device.inner.reset(&board)?;
-                    }
-                    database.write().set(new_device)
+            let device = match new_device {
+                Err(error) => Err(anyhow!("Invalid device: {}", error)),
+                Ok(mut new_device) => {
+                    Board::get(&database, &new_device.bid).and_then(|board| match board {
+                        None => bail!("Board [{}] not found", new_device.bid),
+                        Some(board) => {
+                            if board.connected {
+                                new_device.inner.reset(&board)?;
+                            }
+                            database.write().insert(new_device)
+                        }
+                    })
                 }
-            });
+            };
+
+            broadcast_and_ack("device:updated", device, &socket, ack);
+        },
+    );
+
+    socket.on(
+        "device:update",
+        |socket: SocketRef,
+         State(database): State<ArcDb>,
+         TryData(device): TryData<Device>,
+         ack: AckSender| {
+            debug!("Event received: [device:update]: {:?}", device);
+
+            let device = match device {
+                Err(error) => Err(anyhow!("Invalid device: {}", error)),
+                Ok(mut device) => {
+                    Board::get(&database, &device.bid).and_then(|board| match board {
+                        None => bail!("Board [{}] not found", device.bid),
+                        Some(board) => {
+                            if board.connected {
+                                device.inner.reset(&board)?;
+                            }
+                            database.write().update(device)
+                        }
+                    })
+                }
+            };
 
             broadcast_and_ack("device:updated", device, &socket, ack);
         },

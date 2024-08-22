@@ -58,6 +58,11 @@ export const useAnimationStore = defineStore({
         id: 0 as AnimationId,
         name: 'New animation',
         description: '',
+        repeat: false,
+        loopback: 0,
+        fps: 60,
+        speed: 100,
+        keyframes: {},
       };
     },
 

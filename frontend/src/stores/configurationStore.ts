@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { Socket } from 'socket.io-client';
 import { WritableComputedRef } from 'vue';
+import { HardwareMode } from '@/composables/globalComposables';
 import { useSocketIO } from '@/composables/socketComposables';
 import { useToasterStore } from '@/stores/toastStore';
 import { SocketAck } from '@/types/socket';
@@ -23,6 +24,7 @@ export const useConfigStore = defineStore({
   state: () => ({
     // Language configuration
     locale: storedLanguage ?? 'en',
+    mode: HardwareMode.NONE,
   }),
   actions: {
     refresh() {

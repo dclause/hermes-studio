@@ -15,8 +15,12 @@ socketRegister((socket: Socket) => {
     groupStore.refresh();
   });
 
-  socket.on('groups:updated', (groups: Record<GroupId, FlatGroup>) => {
+  socket.on('group:list', (groups: Record<GroupId, FlatGroup>) => {
     groupStore.groups = groups;
+  });
+
+  socket.on('group:updated', (group: FlatGroup) => {
+    groupStore.groups[group.id] = group;
   });
 
   socket.on('group:deleted', (group: FlatGroup) => {
@@ -48,9 +52,9 @@ export const useGroupStore = defineStore({
       };
     },
 
-    create(group: FlatGroup) {
+    create(name: string) {
       this.loading = true;
-      return socketEmit('group:create', group, (ack: SocketAck) => {
+      return socketEmit('group:create', name, (ack: SocketAck) => {
         if (ack.success) {
           const createdGroup = ack.success as FlatGroup;
           this.groups[createdGroup.id] = createdGroup;
@@ -62,15 +66,20 @@ export const useGroupStore = defineStore({
       });
     },
 
-    save(groups: Record<GroupId, FlatGroup>) {
+    update(id: GroupId, name: string) {
       this.loading = true;
-      return socketEmit('groups:update', groups, (ack: SocketAck) => {
+      return socketEmit('group:update', id, name, (ack: SocketAck) => {
         if (ack.success) {
-          this.groups = ack.success as Record<GroupId, FlatGroup>;
+          const updatedGroup = ack.success as FlatGroup;
+          this.groups[updatedGroup.id] = updatedGroup;
+          useToasterStore().success(
+            `Successfully updated group '${updatedGroup.name}' [${updatedGroup.id}]`,
+          );
         }
         this.loading = false;
       });
     },
+
     delete(id: GroupId) {
       this.loading = true;
       return socketEmit('group:delete', id, (ack: SocketAck) => {
@@ -81,6 +90,16 @@ export const useGroupStore = defineStore({
           useToasterStore().info(
             `Group '${deletedGroup.name}' [${deletedGroup.id}] as been deleted`,
           );
+        }
+        this.loading = false;
+      });
+    },
+
+    save(groups: Record<GroupId, FlatGroup>) {
+      this.loading = true;
+      return socketEmit('groups:save', groups, (ack: SocketAck) => {
+        if (ack.success) {
+          this.groups = ack.success as Record<GroupId, FlatGroup>;
         }
         this.loading = false;
       });

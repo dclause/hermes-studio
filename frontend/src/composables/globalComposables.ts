@@ -20,7 +20,7 @@ export function useRedirect() {
       if (redirection) {
         return router.push({ path: redirection });
       }
-      return router.push({ name: 'device.list' });
+      return router.go(-1);
     },
   };
 }

@@ -1,6 +1,6 @@
 <template>
   <v-dialog v-model="openDialog" max-width="400" persistent>
-    <v-card prepend-icon="mdi-alert-outline" :title="title ?? t('title')">
+    <v-card :prepend-icon="icon ?? 'mdi-alert-outline'" :title="title ?? t('title')">
       <v-card-text>
         <slot>{{ text ?? t('text') }}</slot>
       </v-card-text>
@@ -23,16 +23,18 @@ import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 const emit = defineEmits(['confirm', 'cancel']);
 const openDialog = defineModel<boolean>({ required: true });
+
 defineProps<{
   title?: string;
   text?: string;
+  icon?: string;
   cancel?: string;
   confirm?: string;
 }>();
 
 const cancelAction = () => {
-  emit('cancel');
   openDialog.value = false;
+  emit('cancel');
 };
 const confirmAction = () => {
   emit('confirm');

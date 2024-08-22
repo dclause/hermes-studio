@@ -23,29 +23,51 @@ pub fn register_group_events(socket: &SocketRef) {
     socket.on(
         "group:create",
         |socket: SocketRef,
-         TryData(group): TryData<Group>,
+         TryData(name): TryData<String>,
          database: State<ArcDb>,
          ack: AckSender| {
-            debug!("Event received: [group:create]: group:{:?}", group);
+            debug!("Event received: [group:create]: group:{:?}", name);
 
-            let group = match group {
-                Ok(group) => group.save(&database),
+            let group = match name {
+                Ok(name) => database.write().insert(Group::new(name)),
                 Err(error) => Err(anyhow!("Invalid group: {}", error)),
             };
-            ack.send(Ack::from(group)).ok();
-
-            let groups = database.read().list::<Group>();
-            broadcast_to_all("groups:updated", groups, &socket);
+            broadcast_and_ack("group:updated", group, &socket, ack);
         },
     );
 
     socket.on(
-        "groups:update",
+        "group:update",
+        |socket: SocketRef,
+         TryData(data): TryData<(Id, String)>,
+         database: State<ArcDb>,
+         ack: AckSender| {
+            debug!("Event received: [group:update]: group:{:?}", data);
+
+            let group = match data {
+                Ok(data) => {
+                    let (id, name) = data;
+                    Group::get(&database, &id).and_then(|group| match group {
+                        None => bail!("Group not found"),
+                        Some(mut group) => {
+                            group.name = Some(name);
+                            database.write().update(group)
+                        }
+                    })
+                }
+                Err(error) => Err(anyhow!("Invalid group: {}", error)),
+            };
+            broadcast_and_ack("group:updated", group, &socket, ack);
+        },
+    );
+
+    socket.on(
+        "groups:save",
         |socket: SocketRef,
          TryData(groups): TryData<HashMap<Id, Group>>,
          database: State<ArcDb>,
          ack: AckSender| {
-            debug!("Event received: [group:bulk_update]");
+            debug!("Event received: [groups:save]");
 
             // Disable autosave temporarily.
             database.write().set_autosave(false);
@@ -71,7 +93,7 @@ pub fn register_group_events(socket: &SocketRef) {
 
             // Resume autosave
             database.write().set_autosave(true);
-            broadcast_and_ack("groups:updated", groups, &socket, ack);
+            broadcast_and_ack("group:list", groups, &socket, ack);
         },
     );
 
@@ -89,7 +111,7 @@ pub fn register_group_events(socket: &SocketRef) {
             ack.send(Ack::from(group)).ok();
 
             let groups = database.read().list::<Group>();
-            broadcast_to_all("groups:updated", groups, &socket);
+            broadcast_to_all("group:list", groups, &socket);
         },
     );
 }

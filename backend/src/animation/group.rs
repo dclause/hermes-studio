@@ -42,3 +42,15 @@ impl_entity!(Group, {
         Ok(())
     }
 });
+
+impl Group {
+    pub fn new(name: String) -> Self {
+        Self {
+            id: 0,
+            name: Some(name),
+            order: 0,
+            children: vec![],
+            device: None,
+        }
+    }
+}

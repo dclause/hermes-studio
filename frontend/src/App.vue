@@ -8,7 +8,7 @@
 
     <!-- Main: -->
     <v-main class="bg-grey-lighten-3">
-      <v-container class="pa-8" fluid style="overflow-x: auto">
+      <v-container class="page-container pa-8" fluid style="overflow-x: auto">
         <component :is="route.meta.layoutComponent || 'div'" />
       </v-container>
     </v-main>
@@ -32,3 +32,9 @@ onBeforeMount(() => {
   store.open();
 });
 </script>
+
+<style lang="scss" scoped>
+.page-container {
+  height: 100%;
+}
+</style>

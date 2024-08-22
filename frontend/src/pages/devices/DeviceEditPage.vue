@@ -84,7 +84,9 @@ const isEdit = route.name === 'device.edit';
 // Create new device.
 const deviceStore = useDeviceStore();
 const device = ref<Device>(
-  isEdit ? deviceStore.devices[Number(route.params.id) as DeviceId] : deviceStore.default(bid),
+  isEdit
+    ? { ...deviceStore.devices[Number(route.params.id) as DeviceId] }
+    : deviceStore.default(bid),
 );
 
 // Build the board selection.

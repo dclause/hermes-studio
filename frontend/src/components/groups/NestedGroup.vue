@@ -2,9 +2,9 @@
   <div v-for="group in groups" :key="group.id">
     <div v-if="group.device">
       <component
-        :is="useDeviceComponent(devices[group.device as DeviceId].type)"
-        v-if="devices[group.device as DeviceId]"
-        v-model="devices[group.device as DeviceId] as Actuator"
+        :is="useDeviceComponent(devices[group.device].type)"
+        v-if="devices[group.device]"
+        v-model="devices[group.device] as Actuator"
         @delete="onDelete"
       />
     </div>
@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Actuator, Device, DeviceId } from '@/types/devices';
+import type { Actuator, Device } from '@/types/devices';
 import type { NestedGroup } from '@/types/groups';
 import { storeToRefs } from 'pinia';
 import { useDeviceComponent } from '@/composables/deviceComposables';

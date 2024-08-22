@@ -23,7 +23,7 @@
   />
 
   <confirm-delete-dialog v-model="toBeDeleted" @confirm="onConfirmDelete" />
-  <create-group-dialog v-model="toBeCreated" @confirm="onConfirmCreate" />
+  <edit-group-dialog v-model="toBeEdited" @confirm="onConfirmCreateOrEdit" />
 </template>
 
 <script lang="ts" setup>
@@ -71,13 +71,15 @@ const onConfirmDelete = () => {
   }
 };
 
-// Create a group.
-const toBeCreated = ref<FlatGroup | null>(null);
-const onEditRequest = (item: NestedGroup) => (toBeCreated.value = { ...item });
-const onCreateGroup = () => (toBeCreated.value = groupStore.default());
-const onConfirmCreate = () => {
-  if (toBeCreated.value) {
-    groupStore.create(toBeCreated.value);
+// Create / edit a group.
+const toBeEdited = ref<FlatGroup | null>(null);
+const onEditRequest = (item: NestedGroup) => (toBeEdited.value = { ...item });
+const onCreateGroup = () => (toBeEdited.value = groupStore.default());
+const onConfirmCreateOrEdit = () => {
+  if (toBeEdited.value) {
+    toBeEdited.value.id
+      ? groupStore.update(toBeEdited.value.id, toBeEdited.value.name)
+      : groupStore.create(toBeEdited.value.name);
   }
 };
 </script>

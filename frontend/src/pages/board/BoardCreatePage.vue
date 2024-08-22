@@ -56,7 +56,7 @@
             :loading="loading"
             size="large"
             variant="text"
-            @click="router.push('board.list')"
+            @click="redirect"
           >
             {{ $t('form.cancel') }}
           </v-btn>
@@ -69,16 +69,15 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
 import { Rule } from '@/composables/formComposables';
-import { logError } from '@/composables/globalComposables';
+import { logError, useRedirect } from '@/composables/globalComposables';
 import { useBoardStore } from '@/stores/boardStore';
 import { useToasterStore } from '@/stores/toastStore';
 import { Board } from '@/types/boards';
 import { SocketAck } from '@/types/socket';
 
 const { t } = useI18n();
-const router = useRouter();
+const { redirect } = useRedirect();
 
 const toaster = useToasterStore();
 const boardStore = useBoardStore();
@@ -101,7 +100,7 @@ const onSubmit = () => {
             }),
           );
         }
-        return router.push({ name: 'board.list' });
+        return redirect();
       })
       .catch(logError);
     loading.value = false;

@@ -34,7 +34,6 @@
       :to="{
         name: 'device.edit',
         params: { id: device.id },
-        query: { destination: $route.path },
       }"
       variant="text"
     />

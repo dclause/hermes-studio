@@ -19,6 +19,11 @@ router.beforeEach(
   (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
     startLoader();
 
+    // Auto-redirect
+    if (!to.query.destination) {
+      to.query.destination = from.path;
+    }
+
     if (to.meta.serverless || to.meta.layout === 'ServerlessLayout') {
       // Use the serverless Layout.
       to.meta.layoutComponent = ServerlessLayout;
