@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex flex-column" style="min-height: 100%">
+  <div v-if="animation" class="d-flex flex-column" style="min-height: 100%">
     <h1 class="text-h5 text-md-h4">
       <v-icon icon="mdi-movie-open" />
       {{ animation.name }}

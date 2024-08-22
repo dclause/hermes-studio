@@ -61,7 +61,7 @@ else
 
     # Move only the executable files to the dist directory
     echo "Find & move executables"
-    move_executables "${SCRIPT_DIR}/../backend/target/${TARGET_ARCH}/debug" "$DIST_DIR"
+    move_executables "${SCRIPT_DIR}/../backend/target/${TARGET_ARCH}/release" "$DIST_DIR"
 fi
 
 echo "Compilation done. Project has been move into: $DIST_DIR"

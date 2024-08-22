@@ -13,6 +13,7 @@
     @move="onMove"
     @change="onChange"
     @delete="onDelete"
+    @edit="onEdit"
   >
     <template #item="{ element }">
       <div v-if="element.device">
@@ -49,19 +50,15 @@
                 {{ element.name }}
               </div>
             </div>
-            <v-btn icon="mdi-pencil" size="small" variant="text" @click="emit('edit', element)" />
-            <v-btn
-              icon="mdi-trash-can"
-              size="small"
-              variant="text"
-              @click="emit('delete', element)"
-            />
+            <v-btn icon="mdi-pencil" size="small" variant="text" @click="onEdit(element)" />
+            <v-btn icon="mdi-trash-can" size="small" variant="text" @click="onDelete(element)" />
           </div>
           <nested-draggable-group
             v-if="!element.device"
             v-model="element.children"
             @change="onChange"
             @delete="onDelete"
+            @edit="onEdit"
           />
         </div>
       </v-card>
@@ -105,6 +102,9 @@ const onChange = () => {
 };
 const onDelete = (item: NestedGroup | Device) => {
   emit('delete', item);
+};
+const onEdit = (item: NestedGroup) => {
+  emit('edit', item);
 };
 </script>
 

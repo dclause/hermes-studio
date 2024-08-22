@@ -73,7 +73,9 @@ const onConfirmDelete = () => {
 
 // Create / edit a group.
 const toBeEdited = ref<FlatGroup | null>(null);
-const onEditRequest = (item: NestedGroup) => (toBeEdited.value = { ...item });
+const onEditRequest = (item: NestedGroup) => {
+  toBeEdited.value = { ...item };
+};
 const onCreateGroup = () => (toBeEdited.value = groupStore.default());
 const onConfirmCreateOrEdit = () => {
   if (toBeEdited.value) {

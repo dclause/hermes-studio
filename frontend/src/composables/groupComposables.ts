@@ -43,7 +43,7 @@ export function useFlatToNested(
   });
 
   // Helper function to build the nested structure.
-  function traverse(groupId: GroupId, level: number = 1): NestedGroup | null {
+  function traverse(groupId: GroupId, level: number = 0): NestedGroup | null {
     const nestedGroup: NestedGroup = nestedGroups[groupId];
     if (!nestedGroup) {
       return null;
