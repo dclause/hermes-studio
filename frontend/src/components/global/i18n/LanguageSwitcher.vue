@@ -13,28 +13,32 @@
         item-value="code"
         persistent-hint
         variant="underlined"
-        @update:model-value="onChange"
       />
     </v-card-text>
   </v-card>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { storeToRefs } from 'pinia';
+import { watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useConfigStore } from '@/stores/configurationStore';
 
-const { t, locale: i18n } = useI18n();
+const { t } = useI18n();
+
 const languages = [
   { code: 'en', name: 'English' },
   { code: 'fr', name: 'Français' },
 ];
 
 const configStore = useConfigStore();
-const locale = ref<string>(configStore.locale);
-const onChange = (locale: string) => {
-  configStore.updateLanguage(i18n, locale);
-};
+const { locale } = storeToRefs(configStore);
+
+watch(locale, (locale, oldLocale) => {
+  if (oldLocale && oldLocale != locale) {
+    configStore.update({ locale });
+  }
+});
 </script>
 
 <i18n>

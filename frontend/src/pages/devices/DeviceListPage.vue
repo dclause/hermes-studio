@@ -8,7 +8,12 @@
       <v-icon>mdi-plus</v-icon>
       <span class="d-none d-sm-block">{{ t('new_group') }}</span>
     </v-btn>
-    <v-btn color="secondary" :icon="$vuetify.display.xs === true" :to="{ name: 'device.new' }">
+    <v-btn
+      color="primary"
+      variant="tonal"
+      :icon="$vuetify.display.xs === true"
+      :to="{ name: 'device.new' }"
+    >
       <v-icon>mdi-plus</v-icon>
       <span class="d-none d-sm-block">{{ t('new_device') }}</span>
     </v-btn>

@@ -46,8 +46,37 @@
       </tr>
     </template>
 
-    <template #[`item.play`]>
-      <v-btn icon="mdi-play" size="small" variant="outlined" :loading="loading" color="primary" />
+    <template #[`item.play`]="{ item }">
+      <v-btn
+        v-if="!item.playing"
+        icon="mdi-play"
+        size="small"
+        variant="outlined"
+        :loading="loading"
+        :disabled="loading || mode == HardwareMode.OFF"
+        color="primary"
+        @click="animationStore.play(item)"
+      />
+      <v-progress-circular
+        v-else
+        :model-value="(item.progress * 360) / item.duration"
+        :indeterminate="!item.progress"
+        :rotate="360"
+        :size="40"
+        :width="5"
+        color="primary"
+      >
+        <template #default>
+          <v-btn
+            icon="mdi-stop"
+            :disabled="loading || mode == HardwareMode.OFF"
+            size="small"
+            variant="text"
+            color="primary"
+            @click="animationStore.stop(item)"
+          />
+        </template>
+      </v-progress-circular>
     </template>
 
     <template #[`item.name`]="{ item }">
@@ -81,12 +110,15 @@
 import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { HardwareMode } from '@/composables/globalComposables';
 import { useAnimationStore } from '@/stores/animationStore';
+import { useConfigStore } from '@/stores/configurationStore';
 import { Animation } from '@/types/animation';
 
 const { t } = useI18n();
+const { mode } = storeToRefs(useConfigStore());
 
-// Refresh all animations.
+// Get all animations.
 const animationStore = useAnimationStore();
 const { loading, animations } = storeToRefs(animationStore);
 const items = computed<Animation[]>(() => Object.values(animations.value));

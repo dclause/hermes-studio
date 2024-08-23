@@ -1,6 +1,6 @@
 <template>
-  <v-layout class="align-center h-100">
-    <v-card class="mx-auto pa-5">
+  <v-layout class="mt-10">
+    <v-card class="mx-auto pa-5 h-auto">
       <div class="align-center d-flex flex-no-wrap">
         <v-avatar class="pa-2" rounded="0" size="125">
           <svg-robot-broken />

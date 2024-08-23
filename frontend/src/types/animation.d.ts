@@ -12,6 +12,10 @@ export declare interface Animation {
   fps: number;
   speed: number;
   keyframes: Record<GroupId, Keyframe[]>;
+
+  readonly duration: number;
+  readonly playing: number;
+  readonly progress: number;
 }
 
 export declare interface Keyframe {

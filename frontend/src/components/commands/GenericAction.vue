@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex flex-grow-1 align-center action">
-    <div v-if="mode != HardwareMode.NONE && board && !board.connected" class="text-center">
+    <div v-if="mode != HardwareMode.OFF && board && !board.connected" class="text-center">
       <em>{{ $t('connexion.disconnect') }}</em>
     </div>
     <slot v-else name="action">

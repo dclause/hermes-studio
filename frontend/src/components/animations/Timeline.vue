@@ -1,6 +1,6 @@
 <template>
   <div tabindex="0" class="timeline">
-    <!--    <timeline-header class="timeline-header" :on-save="unsavedActions > 1 && saveAnimation" />-->
+    <timeline-header class="timeline-header" :on-save="unsavedActions > 1 && saveAnimation" />
     <div class="timeline-container">
       <div ref="tracksContainer" class="v-col v-col-2 tracks">
         <template v-for="(track, idx) in tracks" :key="track.id">

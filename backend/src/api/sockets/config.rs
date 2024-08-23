@@ -20,7 +20,6 @@ pub fn register_config_events(socket: &SocketRef) {
             debug!("Event received: [config:set]");
             let config_as_toml: toml::Value = json_to_toml(value).unwrap();
             let config = Interface::set_config(config_as_toml);
-            // ack.send(Ack::from(config)).ok();
             broadcast_and_ack("config:updated", config, &socket, ack);
         },
     );

@@ -9,8 +9,7 @@ export default createI18n({
   locale: navigator.language.split('-')[0],
   fallbackLocale: 'en',
   messages: {
-    fr: { $vuetify: vuetifyFr },
-    en: { $vuetify: vuetifyEn },
-    ...messages,
+    fr: { $vuetify: vuetifyFr, ...messages?.fr },
+    en: { $vuetify: vuetifyEn, ...messages?.en },
   },
 });

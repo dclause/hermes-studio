@@ -1,4 +1,5 @@
 use std::any::{Any, type_name};
+use std::collections::HashMap;
 
 use anyhow::Result;
 use dyn_clone::DynClone;
@@ -25,6 +26,10 @@ pub trait Entity: DynClone + Any + Send + Sync + EntityToAny {
         Self: Sized,
     {
         type_name::<Self>().split("::").last().unwrap().to_string()
+    }
+
+    fn post_load2(&mut self, _: &HashMap<EntityType, HashMap<Id, Box<dyn Entity>>>) -> Result<()> {
+        Ok(())
     }
 
     fn post_load(&mut self, _: &Database) -> Result<()> {

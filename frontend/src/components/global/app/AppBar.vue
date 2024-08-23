@@ -6,13 +6,31 @@
     </v-app-bar-title>
 
     <template #append>
+      <robot-mode-switcher class="align-self-center" />
+
+      <v-divider vertical inset opacity="0.5" />
+
       <lan-control />
 
-      <v-tooltip v-for="link in appBarMenuLinks" :key="link.id" location="bottom">
+      <v-tooltip location="bottom">
         <template #activator="{ props }">
-          <v-btn v-bind="{ ...props, ...link }" />
+          <v-btn v-bind="props" :active="false" :to="{ name: 'settings' }" icon="mdi-cog" />
         </template>
-        <span>{{ link.label }}</span>
+        <span>{{ t('settings') }}</span>
+      </v-tooltip>
+
+      <v-divider vertical inset opacity="0.5" />
+
+      <v-tooltip location="bottom">
+        <template #activator="{ props }">
+          <v-btn
+            v-bind="props"
+            href="https://github.com/dclause/hermes-studio"
+            target="_blank"
+            icon="mdi-github"
+          />
+        </template>
+        <span>{{ t('github') }}</span>
       </v-tooltip>
     </template>
 
@@ -21,25 +39,9 @@
 </template>
 
 <script lang="ts" setup>
-import type { NavigationItem } from '@/types/menus';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
-const appBarMenuLinks: NavigationItem[] = [
-  {
-    href: 'https://github.com/dclause/hermes-studio',
-    target: '_blank',
-    id: 'github',
-    label: t('github'),
-    icon: 'mdi-github',
-  },
-  {
-    to: { name: 'settings' },
-    id: 'settings',
-    label: t('settings'),
-    icon: 'mdi-cog',
-  },
-];
 </script>
 
 <i18n>

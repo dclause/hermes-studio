@@ -1,7 +1,12 @@
 <template>
   <v-tooltip location="bottom">
     <template #activator="{ props }">
-      <v-btn :class="{ blink: status === 'pending' }" :icon="`mdi-lan-${status}`" v-bind="props" />
+      <v-icon
+        class="mx-2 ml-3"
+        :class="{ blink: status === 'pending' }"
+        :icon="`mdi-lan-${status}`"
+        v-bind="props"
+      />
     </template>
     <span>{{ t('server') }}: {{ $t(`connexion.${status}`) }}</span>
   </v-tooltip>

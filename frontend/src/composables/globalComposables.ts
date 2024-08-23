@@ -1,7 +1,7 @@
 import { useRoute, useRouter } from 'vue-router';
 
 export enum HardwareMode {
-  NONE,
+  OFF,
   VIRTUAL,
   REALTIME,
 }

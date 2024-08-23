@@ -1,20 +1,29 @@
 import '@mdi/font/css/materialdesignicons.css';
 import 'vuetify/styles';
+import { useI18n } from 'vue-i18n';
 import { createVuetify } from 'vuetify';
+import { createVueI18nAdapter } from 'vuetify/locale/adapters/vue-i18n';
+import i18n from '@/plugins/i18n';
 
 // https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
 export default createVuetify({
+  locale: {
+    adapter: createVueI18nAdapter({ i18n, useI18n }),
+  },
   theme: {
-    defaultTheme: 'myCustomTheme',
+    defaultTheme: 'OffModeTheme',
     themes: {
-      myCustomTheme: {
+      RealTimeModeTheme: {
         dark: false,
-        variables: {
-          'timeline-header-height': '36px',
-        },
         colors: {
           'timeline-border': '#737070',
-          'timeline-header-height': '36px',
+        },
+      },
+      OffModeTheme: {
+        dark: false,
+        colors: {
+          primary: '#48a9a6',
+          'timeline-border': '#737070',
         },
       },
     },

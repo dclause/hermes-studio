@@ -38,6 +38,7 @@ export const useAnimationStore = defineStore({
   state: () => ({
     loading: false,
     animations: {} as Record<AnimationId, Animation>,
+    timer: 0,
   }),
   actions: {
     refresh() {
@@ -63,6 +64,9 @@ export const useAnimationStore = defineStore({
         fps: 60,
         speed: 100,
         keyframes: {},
+        duration: 0,
+        playing: 0,
+        progress: 0,
       };
     },
 
@@ -107,6 +111,39 @@ export const useAnimationStore = defineStore({
           useToasterStore().info(
             `Animation '${deletedAnimation.name}' [${deletedAnimation.id}] as been deleted`,
           );
+        }
+        this.loading = false;
+      });
+    },
+
+    play(animation: Animation) {
+      this.loading = true;
+      return socketEmit('animation:play', animation.id, (ack: SocketAck) => {
+        if (ack.success) {
+          const updatedAnimation = ack.success as Animation;
+          this.animations[updatedAnimation.id] = updatedAnimation;
+        }
+        this.loading = false;
+      });
+    },
+
+    stop(animation: Animation) {
+      this.loading = true;
+      socketEmit('animation:stop', animation.id, (ack: SocketAck) => {
+        if (ack.success) {
+          const updatedAnimation = ack.success as Animation;
+          this.animations[updatedAnimation.id] = updatedAnimation;
+        }
+        this.loading = false;
+      });
+    },
+
+    pause(animation: Animation) {
+      this.loading = true;
+      socketEmit('animation:pause', animation.id, (ack: SocketAck) => {
+        if (ack.success) {
+          const updatedAnimation = ack.success as Animation;
+          this.animations[updatedAnimation.id] = updatedAnimation;
         }
         this.loading = false;
       });

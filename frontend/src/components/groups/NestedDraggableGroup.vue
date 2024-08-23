@@ -23,7 +23,8 @@
           v-model="devices[element.device] as Actuator"
           :disabled="element.disabled"
           :class="{ disabled: element.disabled }"
-          class="my-2 px-3"
+          class="my-2 pl-3"
+          :rounded="0"
           @delete="onDelete"
         >
           <template #prefix>
@@ -33,11 +34,14 @@
           </template>
         </component>
       </div>
-      <v-card
+      <div
         v-else
-        class="wrapper my-2 px-3"
+        class="wrapper my-2 pl-3 mr-0"
         :disabled="element.disabled"
         :class="{ disabled: element.disabled }"
+        variant="outlined"
+        :rounded="0"
+        :border="1"
       >
         <div class="handler">
           <v-icon icon="mdi-cursor-move" />
@@ -61,7 +65,7 @@
             @edit="onEdit"
           />
         </div>
-      </v-card>
+      </div>
     </template>
   </draggable>
 </template>
@@ -124,6 +128,7 @@ const onEdit = (item: NestedGroup) => {
   display: grid;
   grid-template-columns: 40px auto;
   overflow: auto;
+  border-left: 4px rgb(var(--v-theme-primary)) double !important;
   @media (min-width: 460px) {
     overflow: auto;
   }
@@ -143,7 +148,10 @@ const onEdit = (item: NestedGroup) => {
 .v-drag-area {
   min-height: 1em;
   border: 1px transparent dashed;
-  margin: 0 10px 10px 10px;
+
+  .v-drag-area {
+    margin: 0 0 10px 10px;
+  }
 }
 
 .is-dragging .v-drag-area {

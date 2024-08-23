@@ -131,16 +131,18 @@ impl Database {
 
                 // Deserialize data from the current entity_type file in the storage folder.
                 let data = std::fs::read_to_string(file)?;
-                let mut entities =
-                    serde_json::from_str::<HashMap<Id, Box<dyn Entity>>>(data.as_str())?;
-
-                // Call the post_load hook on each loaded entities.
-                for (_, entity) in entities.iter_mut() {
-                    entity.post_load(&self)?;
-                }
+                let entities = serde_json::from_str::<HashMap<Id, Box<dyn Entity>>>(data.as_str())?;
 
                 // Update the storage to save the provided entity
                 self.entities.insert(entity_type, entities);
+            }
+
+            // Iterate over all entities and call post_load
+            let cloned_db = self.clone();
+            for (_, entity_list) in self.entities.iter_mut() {
+                for (_, entity) in entity_list {
+                    entity.post_load(&cloned_db)?;
+                }
             }
         }
         Ok(())

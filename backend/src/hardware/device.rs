@@ -2,6 +2,7 @@ use std::fmt::Debug;
 
 use anyhow::Result;
 use dyn_clone::DynClone;
+use hermes_five::animation::Track;
 use serde::{Deserialize, Serialize};
 
 use crate::animation::group::Group;
@@ -60,6 +61,7 @@ impl_entity!(Device, {
 pub trait DeviceType: DynClone + Debug + Send + Sync {
     fn reset(&mut self, board: &Board) -> Result<()>;
     fn set_state(&mut self, state: u16) -> Result<u16>;
+    fn into_track(&self) -> Option<Track>;
 }
 dyn_clone::clone_trait_object!(DeviceType);
 
@@ -93,6 +95,7 @@ macro_rules! impl_device {
                 self.inner.set_state(state)?;
                 Ok(state)
             }
+
             // Apply additional methods if provided
             $(
                 $($additional_impl)*

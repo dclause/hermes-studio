@@ -1,5 +1,5 @@
 export const Rule = {
-  REQUIRED: (value: unknown) => !!value,
+  REQUIRED: (value: unknown) => value !== null && value !== undefined,
   NON_EMPTY: (value: unknown[]) => value.length > 0,
 };
 

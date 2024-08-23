@@ -21,15 +21,25 @@
 </template>
 
 <script lang="ts" setup>
-import { onBeforeMount } from 'vue';
+import { storeToRefs } from 'pinia';
+import { getCurrentInstance, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import { useConfigStore } from '@/stores/configurationStore';
 import { useConnectionStore } from '@/stores/connectionStore';
 
 const route = useRoute();
-const store = useConnectionStore();
 
-onBeforeMount(() => {
-  store.open();
+// Force connexion of socket to backend.
+const connectionStore = useConnectionStore();
+connectionStore.open();
+
+// React to language change in config.
+const app = getCurrentInstance();
+const configStore = useConfigStore();
+const { locale } = storeToRefs(configStore);
+watch(locale, (locale) => {
+  app!.appContext.config.globalProperties.$i18n.locale = locale;
+  // current.value = locale;
 });
 </script>
 
