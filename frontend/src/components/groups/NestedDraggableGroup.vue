@@ -28,22 +28,14 @@
           @delete="onDelete"
         >
           <template #prefix>
-            <div class="handler">
+            <div class="handler handler-device">
               <v-icon icon="mdi-cursor-move" />
             </div>
           </template>
         </component>
       </div>
-      <div
-        v-else
-        class="wrapper my-2 pl-3 mr-0"
-        :disabled="element.disabled"
-        :class="{ disabled: element.disabled }"
-        variant="outlined"
-        :rounded="0"
-        :border="1"
-      >
-        <div class="handler">
+      <div v-else class="wrapper my-2 pl-3 mr-0" :class="{ disabled: element.disabled }">
+        <div class="handler handler-group">
           <v-icon icon="mdi-cursor-move" />
         </div>
         <div>
@@ -128,14 +120,11 @@ const onEdit = (item: NestedGroup) => {
   display: grid;
   grid-template-columns: 40px auto;
   overflow: auto;
-  border-left: 4px rgb(var(--v-theme-primary)) double !important;
   @media (min-width: 460px) {
     overflow: auto;
   }
 }
-</style>
 
-<style lang="scss">
 .handler {
   grid-column: 1;
   grid-row: 1 / 5;
@@ -145,6 +134,12 @@ const onEdit = (item: NestedGroup) => {
   cursor: move;
 }
 
+.handler-group {
+  border-right: 4px rgb(var(--v-theme-primary)) double;
+}
+</style>
+
+<style lang="scss">
 .v-drag-area {
   min-height: 1em;
   border: 1px transparent dashed;
