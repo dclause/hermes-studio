@@ -1,19 +1,13 @@
-import { timelineConfig } from '@/composables/timelineComposables';
-import { Area, TimelineItem, TimelineStyleConfig, Track } from '@/types/timeline';
+import { Area, TimelineConfig, TimelineItem, Track } from '@/types/timeline';
 
 export default class TimelineDrawing {
   /** Rendering context */
   protected _ctx: CanvasRenderingContext2D | null = null;
   /** Customizables */
-  protected _config: TimelineStyleConfig = timelineConfig;
+  protected _config!: TimelineConfig;
 
-  initialize(
-    canvas: HTMLCanvasElement,
-    tracks: Track[],
-    config: Partial<TimelineStyleConfig>,
-  ): void {
-    this._config = { ...this._config, ...config };
-
+  init(canvas: HTMLCanvasElement, _: Track[], config: TimelineConfig) {
+    this._config = config;
     // Creates the drawing context from the canvas.
     this._ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
     // Align point/pixel in canvas (https://stackoverflow.com/questions/4261090/html5-canvas-and-anti-aliasing)
@@ -57,7 +51,7 @@ export default class TimelineDrawing {
   ): void {
     if (this._ctx && groupHeight) {
       this._ctx.save();
-      this._ctx.strokeStyle = this._config.colorSecondary;
+      this._ctx.strokeStyle = this._config.colorPrimary;
       this._ctx.lineWidth = 3;
       this._ctx.setLineDash([3]);
       this.drawLine(x, y - 10, x, y + groupHeight - 5);
@@ -112,8 +106,8 @@ export default class TimelineDrawing {
     if (this._ctx) {
       this._ctx.save();
       this._ctx.fillStyle = keyframe.selected
-        ? this._config.colorPrimary
-        : this._config.colorSecondary;
+        ? this._config.colorPrimaryLighten
+        : this._config.colorPrimary;
       this._ctx.beginPath();
       this._ctx.fillRect(x, y, w, h);
       this._ctx.fill();
@@ -161,5 +155,9 @@ export default class TimelineDrawing {
       this._ctx.stroke();
       this._ctx.restore();
     }
+  }
+
+  setConfig(config: TimelineConfig) {
+    this._config = config;
   }
 }

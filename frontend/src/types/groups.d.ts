@@ -3,13 +3,17 @@ import { DeviceId } from '@/types/devices';
 
 export declare type GroupId = Branded<number, 'GroupId'>;
 
-export declare interface FlatGroup extends Entity<GroupId> {
+export declare type Enrichment = {
+  [key: string]: unknown;
+};
+
+export declare type FlatGroup = Entity<GroupId> & {
   device?: DeviceId;
   order: number;
   children: GroupId[];
-}
+} & Enrichment;
 
-export declare interface NestedGroup extends FlatGroup {
+export declare type NestedGroup = FlatGroup & {
   children: NestedGroup[];
   level: number;
-}
+};

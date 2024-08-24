@@ -8,6 +8,7 @@ import { useTimeline } from '@/composables/timelineComposables';
 import { Track } from '@/types/timeline';
 
 const track = defineModel<Track>({ required: true });
+// CSS binding.
 const { config } = useTimeline();
 </script>
 <style lang="scss" scoped>

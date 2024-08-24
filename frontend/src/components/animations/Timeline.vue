@@ -19,6 +19,7 @@
       v-model="showConfirmPopup"
       title="You have unsaved changes"
       text="You are about to leave the page. Would you like to save changes first ?"
+      :confirm="$t('form.save')"
       @cancel="confirmDialogUtils.setDialogResponse(false)"
       @confirm="confirmDialogUtils.setDialogResponse(true)"
     />
@@ -29,9 +30,10 @@
 import { storeToRefs } from 'pinia';
 import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
+import { TimelineEvents } from '@/components/animations/timeline/timeline.events';
 import { DialogUtils } from '@/composables/formComposables';
 import { logError } from '@/composables/globalComposables';
-import { useFlatToNested } from '@/composables/groupComposables';
+import { useNestedToFlat } from '@/composables/groupComposables';
 import { useTimeline } from '@/composables/timelineComposables';
 import { useAnimationStore } from '@/stores/animationStore';
 import { useGroupStore } from '@/stores/groupStore';
@@ -39,19 +41,25 @@ import { Animation, Keyframe } from '@/types/animation';
 import { FlatGroup, GroupId } from '@/types/groups';
 import { Track } from '@/types/timeline';
 
+// Build timeline.
+const { timeline, config, reset, groupsToTracks } = useTimeline();
+watch(config, (config) => {
+  timeline.setConfig(config);
+  timeline.refresh();
+});
+
 const animation = defineModel<Animation>({ required: true });
 const { groups } = storeToRefs(useGroupStore());
 
-// Retrieve tracks
-const tracks = ref<Track[]>(useFlatToNested(groups.value, animation.value.keyframes));
+/** Build tracks */
+const tracks = ref<Track[]>(groupsToTracks(animation.value, groups.value));
 watch(
-  [animation.value.keyframes, groups],
-  ([keyframes, groups]: [Record<GroupId, Keyframe[]>, Record<GroupId, FlatGroup>]) => {
-    tracks.value = useFlatToNested(groups, keyframes);
+  [animation, groups],
+  ([animation, groups]: [Animation, Record<GroupId, FlatGroup>]) => {
+    tracks.value = groupsToTracks(animation, groups);
   },
+  { deep: true },
 );
-
-const { timeline, config, reset } = useTimeline();
 
 /** confirmPopup is used to avoid leaving the page with unsaved changes */
 const showConfirmPopup = ref(false);
@@ -59,29 +67,15 @@ const confirmDialogUtils = new DialogUtils<boolean>();
 
 const emit = defineEmits(['selectKeyframe']);
 
-/** Build tracks */
-// const { buildTracks, flattenTracks } = useTracks();
-// const tracks = ref(buildTracks(animation.value.keyframes));
-
 /** Elements to act on */
 const tracksContainer = ref<HTMLElement>();
 const timelineContainer = ref<HTMLElement>();
-
-onMounted(() => {
-  nextTick(() => {
-    reset();
-    // timeline.initialize(timelineContainer.value!, tracks.value);
-  });
-});
-onUnmounted(() => {
-  // timeline.destroy();
-});
 
 // Displays a warning before the user leaves the page (vue router navigation).
 onBeforeRouteLeave(async (to, from, next) => {
   if (unsavedActions.value > 1) {
     showConfirmPopup.value = true;
-    // Saves the animation if the confirmDialog answser is yes.
+    // Saves the animation if the confirmDialog answer is yes.
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     (await confirmDialogUtils.getDialogResponse()) && saveAnimation();
     showConfirmPopup.value = false;
@@ -101,34 +95,48 @@ window.onbeforeunload = (event) => {
   }
 };
 
+// Create the timeline.
+onMounted(() => {
+  nextTick(() => {
+    reset();
+    timeline.init(timelineContainer.value!, tracks.value, config.value);
+  });
+});
+onUnmounted(() => {
+  timeline.destroy();
+});
 // Anytime the tracks change (open/close, new keyframes, etc..) we need to redraw the whole canvas.
-// watch(
-//   [tracks],
-//   () => {
-//     nextTick(() => {
-//       unsavedActions.value++;
-//       timeline?.setTracks(tracks?.value ?? []);
-//     });
-//   },
-//   { deep: true },
-// );
+watch(
+  [tracks],
+  () => {
+    nextTick(() => {
+      timeline.setTracks(tracks?.value);
+    });
+  },
+  { deep: true },
+);
 
-// timeline.on(TimelineEvents.updateTracks, () => unsavedActions.value++);
-// timeline.on(TimelineEvents.selectKeyframe, (item) => emit('selectKeyframe', item));
-// timeline.on(TimelineEvents.scroll, (scrollTop) => {
-//   tracksContainer.value!.scrollTop = scrollTop;
-// });
+timeline.on(TimelineEvents.updateTracks, () => unsavedActions.value++);
+timeline.on(TimelineEvents.selectKeyframe, (item) => {
+  emit('selectKeyframe', item);
+});
+timeline.on(TimelineEvents.scroll, (scrollTop) => {
+  tracksContainer.value!.scrollTop = scrollTop;
+});
 
 /** Saves the animation handler. */
 const animationStore = useAnimationStore();
 const saveAnimation = () => {
-  // // Flatten the tracks.
-  // const flatTracks = flattenTracks(tracks.value);
-  // // Build the keyframes array.
-  // animation.value.keyframes = flatTracks.reduce((keyframes, track: Track) => {
-  //   keyframes.push(...track.keyframes);
-  //   return keyframes;
-  // }, [] as Keyframe[]);
+  // Flatten the tracks.
+  const flatTracks = useNestedToFlat(tracks.value) as unknown as Track[];
+  // Build the keyframes array.
+  animation.value.keyframes = Object.values(flatTracks).reduce(
+    (keyframes, track: Track) => {
+      keyframes[track.id] = [...track.keyframes];
+      return keyframes;
+    },
+    {} as Record<GroupId, Keyframe[]>,
+  );
   // Save.
   animationStore
     .update(animation.value)

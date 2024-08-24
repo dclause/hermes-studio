@@ -1,5 +1,4 @@
-import { DeviceId } from '@/types/devices';
-import { Area, KeyFrameData, Point, Track } from '@/types/timeline';
+import { Area, Point } from '@/types/timeline';
 
 export default class TimelineUtils {
   /** Check if the given `pos` (point or area) intersects with the given `area`. */
@@ -112,21 +111,6 @@ export default class TimelineUtils {
     }
 
     return str;
-  }
-
-  static createDefaultKeyframeData(track: Track, data: KeyFrameData[] = []): KeyFrameData[] {
-    if (track.board && track.device) {
-      data.push({
-        device: track.device.id as DeviceId,
-        state: track.device.state,
-      } as KeyFrameData);
-    }
-
-    for (const child of track.children) {
-      TimelineUtils.createDefaultKeyframeData(child, data);
-    }
-
-    return data;
   }
 
   static deepClone = <T>(previousOptions: T): T => {

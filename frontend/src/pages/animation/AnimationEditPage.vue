@@ -1,5 +1,13 @@
 <template>
-  <div v-if="animation" class="d-flex flex-column" style="min-height: 100%">
+  <v-form
+    v-if="animation"
+    ref="form"
+    :disabled="loading"
+    :loading="loading"
+    class="d-flex flex-column"
+    style="min-height: 100%"
+    @submit.prevent="onSave"
+  >
     <h1 class="text-h5 text-md-h4">
       <v-icon icon="mdi-movie-open" />
       {{ animation.name }}
@@ -13,102 +21,108 @@
         <v-expansion-panel-title>{{ t('edit') }}</v-expansion-panel-title>
 
         <v-expansion-panel-text>
-          <v-form ref="form" :disabled="loading" :loading="loading" @submit.prevent="onSave">
-            <v-row>
+          <v-row>
+            <v-text-field
+              v-model="animation.name"
+              :label="t('name')"
+              required
+              :rules="[Rule.REQUIRED]"
+            />
+          </v-row>
+          <v-row>
+            <v-textarea v-model="animation.description" :label="t('description')" />
+          </v-row>
+          <v-row>
+            <v-col class="align-self-center pa-0">
               <v-text-field
-                v-model="animation.name"
-                :label="t('name')"
+                v-model="animation.fps"
+                :label="t('fps')"
+                :min="0"
+                :max="100"
                 required
                 :rules="[Rule.REQUIRED]"
+                type="number"
               />
-            </v-row>
-            <v-row>
-              <v-textarea v-model="animation.description" :label="t('description')" />
-            </v-row>
-            <v-row>
-              <v-col class="align-self-center pa-0">
-                <v-text-field
-                  v-model="animation.fps"
-                  :label="t('fps')"
-                  :min="0"
-                  :max="100"
-                  required
-                  :rules="[Rule.REQUIRED]"
-                  type="number"
-                />
-              </v-col>
-              <v-col class="align-self-center pa-0">
-                <v-slider
-                  v-model="animation.speed"
-                  :label="t('speed')"
-                  :min="0"
-                  :max="500"
-                  required
-                  :rules="[Rule.REQUIRED]"
-                  thumb-label
-                  step="1"
-                >
-                  <template #append>
-                    <v-text-field
-                      v-model="animation.speed"
-                      density="compact"
-                      style="width: 100px"
-                      type="number"
-                      variant="outlined"
-                      hide-details
-                      suffix="%"
-                    />
-                  </template>
-                </v-slider>
-              </v-col>
-            </v-row>
+            </v-col>
+            <v-col class="align-self-center pa-0">
+              <v-slider
+                v-model="animation.speed"
+                :label="t('speed')"
+                :min="0"
+                :max="500"
+                required
+                :rules="[Rule.REQUIRED]"
+                thumb-label
+                step="1"
+              >
+                <template #append>
+                  <v-text-field
+                    v-model="animation.speed"
+                    density="compact"
+                    style="width: 100px"
+                    type="number"
+                    variant="outlined"
+                    hide-details
+                    suffix="%"
+                  />
+                </template>
+              </v-slider>
+            </v-col>
+          </v-row>
 
-            <v-row>
-              <v-col class="align-self-center py-2">
-                <v-checkbox v-model="animation.repeat" :label="t('repeat')" />
-              </v-col>
-              <v-col class="align-self-center pa-0">
-                <v-text-field
-                  v-if="animation.repeat"
-                  v-model="animation.loopback"
-                  :label="t('loopback')"
-                  :min="0"
-                  required
-                  :rules="[Rule.REQUIRED]"
-                  type="number"
-                />
-              </v-col>
-            </v-row>
+          <v-row>
+            <v-col class="align-self-center py-2">
+              <v-checkbox v-model="animation.repeat" :label="t('repeat')" />
+            </v-col>
+            <v-col class="align-self-center pa-0">
+              <v-text-field
+                v-if="animation.repeat"
+                v-model="animation.loopback"
+                :label="t('loopback')"
+                :min="0"
+                required
+                :rules="[Rule.REQUIRED]"
+                type="number"
+              />
+            </v-col>
+          </v-row>
 
-            <!-- Submit -->
-            <v-row>
-              <v-col class="align-self-center" cols="12" sm="6">
-                <v-btn
-                  block
-                  class="mt-2"
-                  color="primary"
-                  size="large"
-                  type="submit"
-                  variant="elevated"
-                >
-                  {{ $t('form.save') }}
-                </v-btn>
-              </v-col>
-              <v-col class="align-self-center" cols="12" sm="6">
-                <v-btn block class="mt-2" size="large" variant="text" @click="onCancel">
-                  {{ $t('form.cancel') }}
-                </v-btn>
-              </v-col>
-            </v-row>
-          </v-form>
+          <!-- Submit -->
+          <v-row class="align-self-end">
+            <v-col class="align-self-center" cols="12" sm="6">
+              <v-btn
+                block
+                class="mt-2"
+                color="primary"
+                size="large"
+                type="submit"
+                variant="elevated"
+              >
+                {{ $t('form.save') }}
+              </v-btn>
+            </v-col>
+            <v-col class="align-self-center" cols="12" sm="6">
+              <v-btn block class="mt-2" size="large" variant="text" @click="onCancel">
+                {{ $t('form.cancel') }}
+              </v-btn>
+            </v-col>
+          </v-row>
         </v-expansion-panel-text>
       </v-expansion-panel>
     </v-expansion-panels>
 
-    <div class="flex-grow-1" />
-    <!--  <keyframe-editor v-if="selectedKeyframe" v-model="selectedKeyframe" />-->
-    <timeline id="timeline" v-model="animation" class="align-content-end" />
-  </div>
+    <div class="d-flex flex-grow-1">
+      {{ selectedKeyframe }}
+      <!--  <keyframe-editor v-if="selectedKeyframe" v-model="selectedKeyframe" />-->
+    </div>
+
+    <timeline
+      id="timeline"
+      v-model="animation"
+      class="align-content-end"
+      @select-keyframe="onSelectedItem"
+    />
+  </v-form>
 </template>
 <script setup lang="ts">
 import { computed, ref } from 'vue';
@@ -116,23 +130,28 @@ import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import { VForm } from 'vuetify/components';
 import { Rule } from '@/composables/formComposables';
-import { logError } from '@/composables/globalComposables';
+import { logError, useRedirect } from '@/composables/globalComposables';
 import { useAnimationStore } from '@/stores/animationStore';
-import { AnimationId } from '@/types/animation';
+import { AnimationId, Keyframe } from '@/types/animation';
 
 const { t } = useI18n();
+const { redirect } = useRedirect();
 
 /** Retrieve the animation from the URL parameter */
 const animationStore = useAnimationStore();
 const route = useRoute();
 const id = Number(route.params.id) as AnimationId;
-const animation = computed(() => animationStore.get(id));
+const animation = computed(() => {
+  // Force work on copy
+  return { ...animationStore.get(id) };
+});
 
 // Selected panel.
 const panel = ref([]);
 
 const onCancel = () => {
   panel.value = [];
+  redirect();
 };
 
 // Create new form.
@@ -156,10 +175,10 @@ const onSave = async () => {
 };
 
 /** The keyframe selected inside the animation timeline (used for edition) */
-// const selectedKeyframe = ref<Keyframe>();
-// const onSelectedItem = (item: Keyframe) => {
-//   selectedKeyframe.value = item;
-// };
+const selectedKeyframe = ref<Keyframe>();
+const onSelectedItem = (item: Keyframe) => {
+  selectedKeyframe.value = item;
+};
 </script>
 
 <style lang="scss" scoped>

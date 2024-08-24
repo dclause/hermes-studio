@@ -1,9 +1,7 @@
 import TimelineDrawing from '@/components/animations/timeline/timeline.drawing';
 import TimelineUtils from '@/components/animations/timeline/timeline.utils';
-import { timelineConfig } from '@/composables/timelineComposables';
 import {
   Area,
-  PartialTimelineConfig,
   Point,
   TimelineConfig,
   TimelineItem,
@@ -28,18 +26,16 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
   protected _currentZoom = 1;
   // Selection area.
   protected _selectionArea: Area | null = null;
-  /** Customizables */
-  protected _config: TimelineConfig = timelineConfig;
   /** Current time for the cursor. */
   protected _currentTime: number = 0;
 
-  initialize(container: HTMLElement, tracks: Track[], config: PartialTimelineConfig = {}) {
-    this._config = { ...this._config, ...config };
+  init(container: HTMLElement, tracks: Track[], config: TimelineConfig) {
     this._tracks = tracks;
 
     // Create the virtual scroller (used to only render what visible on screen)
     this._scrollContainer = document.createElement('div');
     this._scrollContent = document.createElement('div');
+
     // Those styles are hardcoded and required for the proper scrolling.
     this._scrollContainer.style.cssText =
       'overflow: scroll;' +
@@ -82,7 +78,7 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
     this._canvas.style.width = this._canvas.style.height =
       'calc(100% - ' + (scrollBarWidth || 17) + 'px)';
 
-    super.initialize(this._canvas, tracks, config);
+    super.init(this._canvas, tracks, config);
   }
 
   destroy() {
@@ -102,7 +98,7 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
       tracks.reduce((count, track) => {
         this._totalDuration = Math.max(
           this._totalDuration,
-          ...track.keyframes.map((t) => t.time + t.duration),
+          ...track.keyframes.map((keyframe) => keyframe.end),
         );
         return count + 1 + (track.open ? countTracks(track.children) : 0);
       }, 0);
@@ -110,13 +106,14 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
     this.rescale(this._countTracks);
     this.render();
   };
-  getTracks = (): Track[] => {
-    return this._tracks;
-  };
 
-  getDuration = (): number => {
+  getTracks(): Track[] {
+    return this._tracks;
+  }
+
+  getDuration(): number {
     return this._totalDuration;
-  };
+  }
 
   rescale(countTracks?: number) {
     this._updateCanvasScale();
@@ -190,10 +187,10 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
           let isTrackAtPosition = TimelineUtils.isIntersect(pos, area);
 
           for (const keyframe of track.keyframes) {
-            const handleLeft = this.valToPxPosition(keyframe.time) - 6;
+            const handleLeft = this.valToPxPosition(keyframe.start) - 6;
             const handleRight = handleLeft + 12;
             const keyframeLeft = handleRight;
-            const keyframeRight = keyframeLeft + this.valToPx(keyframe.duration) - 9;
+            const keyframeRight = this.valToPxPosition(keyframe.end) - 9;
             const resizerLeft = keyframeRight;
             const resizerRight = resizerLeft + 6;
             const keyframeTop = trackTop + 5;
@@ -233,7 +230,7 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
               isTrackAtPosition &&
               !(isHandleAtPosition || isKeyFrameAtPosition || isResizerAtPosition);
           }
-          track.keyframes.sort((left, right) => left.time - right.time);
+          track.keyframes.sort((left, right) => left.start - right.start);
 
           if (onTrack) onTrack(track as unknown as TimelineItem, isTrackAtPosition, track);
 
@@ -264,15 +261,15 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
   // ###########################################
 
   /** Renders the canvas background. */
-  private _renderBackground = (): void => {
+  private _renderBackground(): void {
     if (this._ctx) {
       // Transparent background.
       this._ctx.clearRect(0, 0, this._ctx.canvas.width, this._ctx.canvas.height);
     }
-  };
+  }
 
   /** Renders timescale: the time scale in the canvas header and the on-tracks time-step marks. */
-  private _renderTimeScale = () => {
+  private _renderTimeScale() {
     if (this._ctx) {
       const screenWidth = this._ctx.canvas.clientWidth - this._config.leftMargin;
       const screenHeight = this._scrollContainer!.scrollTop + this._ctx.canvas.clientHeight;
@@ -342,10 +339,10 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
 
       this._ctx.restore();
     }
-  };
+  }
 
   /** Renders timeline rows. */
-  private _renderTracks = () => {
+  private _renderTracks() {
     if (this._ctx) {
       const from = 0;
       const to = from + this._ctx.canvas.clientWidth;
@@ -369,10 +366,10 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
       }
       this._ctx.restore();
     }
-  };
+  }
 
   /** Renders keyframes recursively */
-  private _renderKeyframe = (tracks: Track[] = this._tracks, counter = 0): number => {
+  private _renderKeyframe(tracks: Track[] = this._tracks, counter = 0): number {
     if (this._ctx) {
       const screenLeft = 0; //this._scrollContainer!.scrollLeft;
       const screenRight = screenLeft + this._ctx.canvas.clientWidth;
@@ -396,19 +393,19 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
 
         // Draw the keyframes
         for (const keyframe of track.keyframes) {
-          const x = this.valToPxPosition(keyframe.time);
+          const x = this.valToPxPosition(keyframe.start);
           const h = trackHeight - 10;
           const y = trackPosY + 10 / 2;
-          const w = this.valToPx(keyframe.duration);
+          const w = this.valToPx(keyframe.end - keyframe.start);
 
           // Do not draw keyframes outside the screen.
           if (x + w < screenLeft) continue;
           if (x > screenRight) break;
 
-          if (track.group) {
-            this.drawGroupKeyframe(keyframe as unknown as TimelineItem, x, y, w, h);
-          } else {
+          if (track.device) {
             this.drawSimpleKeyframe(keyframe as unknown as TimelineItem, x, y, w, h);
+          } else {
+            this.drawGroupKeyframe(keyframe as unknown as TimelineItem, x, y, w, h);
           }
           if (track.open) {
             this.drawGroupKeyframeMarker(
@@ -433,16 +430,16 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
     }
 
     return counter;
-  };
+  }
 
   /** Renders timeline rows. */
-  private _renderTimeCursor = () => {
+  private _renderTimeCursor() {
     if (this._ctx) {
       const cursorPosition = this.valToPxPosition(this._currentTime);
       const screenBottom = this._scrollContainer!.scrollTop + this._ctx.canvas.clientHeight;
       this.drawTimeCursor(cursorPosition, screenBottom);
     }
-  };
+  }
 
   /** Renders selection area. */
   private _renderSelectionArea = () => {
@@ -468,24 +465,24 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
   };
 
   /** Convert value to local screen component coordinates. */
-  valToPxPosition = (val: number): number => {
+  valToPxPosition(val: number): number {
     return Math.round(
       this.valToPx(val) - this._scrollContainer!.scrollLeft + this._config.leftMargin,
     );
-  };
+  }
 
   /** Convert value to local screen component coordinates. */
-  pxPositionToVal = (px: number): number => {
+  pxPositionToVal(px: number): number {
     return Math.round(
       this.pxToVal(this._scrollContainer!.scrollLeft + px - this._config.leftMargin),
     );
-  };
+  }
 
   // ###########################################
   // Event handling
   // ###########################################
 
-  protected _getMousePositionOnCanvas = (e: TouchEvent | MouseEvent): Point => {
+  protected _getMousePositionOnCanvas(e: TouchEvent | MouseEvent): Point {
     let clientX: number;
     let clientY: number;
     if (e instanceof TouchEvent && e.changedTouches.length > 0) {
@@ -504,7 +501,7 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
     const y = clientY - (rect?.top ?? 0) + (this._scrollContainer?.scrollTop ?? 0);
 
     return { x, y };
-  };
+  }
 
   onZoom(event: WheelEvent) {
     if (this._ctx) {
@@ -538,17 +535,17 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
    * @param max max zoom.
    * @return normalized value.
    */
-  private _setZoom = (
+  private _setZoom(
     zoom: number,
     min: number = this._config.zoomMin,
     max: number = this._config.zoomMax,
-  ) => {
+  ) {
     zoom = TimelineUtils.clampValue(zoom, min, max);
     zoom = zoom || 1;
     this._currentZoom = zoom;
-  };
+  }
 
-  private _updateCanvasScale = (): boolean => {
+  private _updateCanvasScale(): boolean {
     if (this._ctx) {
       let changed = false;
       const width = this._ctx.canvas.clientWidth * this._config.scaleFactor;
@@ -569,5 +566,5 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
       return changed;
     }
     return false;
-  };
+  }
 }

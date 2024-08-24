@@ -12,6 +12,11 @@ export default createVuetify({
   },
   theme: {
     defaultTheme: 'OffModeTheme',
+    variations: {
+      colors: ['primary'],
+      lighten: 2,
+      darken: 0,
+    },
     themes: {
       RealTimeModeTheme: {
         dark: false,

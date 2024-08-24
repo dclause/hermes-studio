@@ -20,7 +20,7 @@
       <div class="timer primary">
         {{ timer }}
       </div>
-      <!--      <timeline-controls />-->
+      <timeline-controls />
     </div>
   </div>
 </template>

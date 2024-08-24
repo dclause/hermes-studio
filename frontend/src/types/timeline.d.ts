@@ -1,6 +1,6 @@
 import Timeline from '@/components/animations/timeline/timeline';
 import TimelineRenderer from '@/components/animations/timeline/timeline.renderer.ts_';
-import { DeviceId, DeviceState } from '@/types/devices';
+import { Keyframe } from '@/types/animation';
 import { NestedGroup } from '@/types/groups';
 
 export declare type TimelineItemCallback =
@@ -9,7 +9,7 @@ export declare type TimelineItemCallback =
 
 export declare interface TimelineEvent {
   topic: string;
-  callback: (args: any) => void;
+  callback: (...args: unknown[]) => void;
 }
 
 export interface Point {
@@ -36,7 +36,7 @@ export declare type TimelineSelection = {
 
 export declare type TimelineStyleConfig = {
   colorPrimary: string;
-  colorSecondary: string;
+  colorPrimaryLighten: string;
   colorHandle: string;
   colorTimeCursor: string;
   colorSelectedHandle: string;
@@ -67,25 +67,12 @@ export declare interface TimelineItem {
   resize_start_position: number;
   resize_previous_position: number;
 
-  [x: string]: any;
+  [key: string]: unknown;
 }
-
-export declare type TrackId = Branded<number, 'TrackId'>;
 
 export declare interface Track extends NestedGroup {
-  open?: boolean;
-  disabled?: boolean;
-}
-
-export declare interface Keyframe {
-  id: KeyFrameId;
-  track: TrackId;
-  time: number;
-  duration: number;
-  data: KeyFrameData[];
-}
-
-export declare interface KeyFrameData {
-  device: DeviceId;
-  state: DeviceState;
+  open: boolean;
+  disabled: boolean;
+  children: Track[];
+  keyframes: Keyframe[];
 }

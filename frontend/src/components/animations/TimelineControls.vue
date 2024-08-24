@@ -41,11 +41,13 @@
 </template>
 
 <script setup lang="ts">
+import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
+import { useTimeline } from '@/composables/timelineComposables';
+import { useConfigStore } from '@/stores/configurationStore';
 import { Keyframe } from '@/types/animation';
 
 const { timeline } = useTimeline();
-const { flattenTracks } = useTracks();
 
 let activeRafId = ref<number | null>(null);
 
@@ -97,28 +99,28 @@ const nextFrame = () => {
 
 const resume = () => {
   if (!activeRafId.value) {
-    // Flatten the tracks.
-    const flatTracks = flattenTracks(timeline.getTracks());
-    // Build an array of keyframes for active tracks only, with data for connected board only.
-    // This is done before the actual start to maximize the efficiency of the realtime "demo" mode.
-    activatedKeyFrames = flatTracks.reduce((keyframes, track: Track) => {
-      // Remove disabled tracks.
-      if (!track.disabled && track.keyframes.length) {
-        // Remove keyframes for none connected boards.
-        keyframes.push(
-          ...track.keyframes.map((keyframe) => {
-            return {
-              ...keyframe,
-              data: keyframe.data.filter((_innerData) => {
-                const board = hardwareStore.board.get(_innerData.device.bid);
-                return board.connected;
-              }),
-            };
-          }),
-        );
-      }
-      return keyframes;
-    }, [] as Keyframe[]);
+    // // Flatten the tracks.
+    // const flatTracks = flattenTracks(timeline.getTracks());
+    // // Build an array of keyframes for active tracks only, with data for connected board only.
+    // // This is done before the actual start to maximize the efficiency of the realtime "demo" mode.
+    // activatedKeyFrames = flatTracks.reduce((keyframes, track: Track) => {
+    //   // Remove disabled tracks.
+    //   if (!track.disabled && track.keyframes.length) {
+    //     // Remove keyframes for none connected boards.
+    //     keyframes.push(
+    //       ...track.keyframes.map((keyframe) => {
+    //         return {
+    //           ...keyframe,
+    //           data: keyframe.data.filter((_innerData) => {
+    //             const board = hardwareStore.board.get(_innerData.device.bid);
+    //             return board.connected;
+    //           }),
+    //         };
+    //       }),
+    //     );
+    //   }
+    //   return keyframes;
+    // }, [] as Keyframe[]);
 
     activeRafId.value = window.requestAnimationFrame(loop);
   }
@@ -136,7 +138,7 @@ const loop = () => {
     restart();
   } else {
     timeline?.setTime(elapsed);
-    playKeyframeAt(elapsed);
+    // playKeyframeAt(elapsed);
   }
 
   if (activeRafId.value) {
@@ -147,41 +149,39 @@ const loop = () => {
 // #####
 // Playing keyFrames.
 
-const hardwareStore = useHardwareStore();
-const commandStore = useCommandStore();
-
-const { mode } = useTimeline();
+const { mode } = storeToRefs(useConfigStore());
+// const deviceStore = useDeviceStore();
 let lastPlayedTime: number = -1;
 let activatedKeyFrames: Keyframe[] = [];
 
 /** Play the keyframe at given time. In practice, we are playing the next available keyframe  */
-const playKeyframeAt = (time: number) => {
-  if (mode.value === HardwareMode.VIRTUAL) {
-    lastPlayedTime = -1;
-    return;
-  }
-
-  // playableKeyframes are the ones between the last one played and all the ones to be played in the next 50ms.
-  const playableKeyframe = activatedKeyFrames.toReversed().filter((kf) => {
-    return kf.time > lastPlayedTime && kf.time < time + 50;
-  });
-  for (const nextKeyFrame of playableKeyframe) {
-    for (const data of nextKeyFrame.data) {
-      let state = data.state;
-      const device = hardwareStore.device.get(data.device.bid, data.device.hid);
-      if (device.config.type === 'ServoDevice') {
-        const current = device.state as number;
-        const target = data.state as number;
-        const speed = Math.floor((1000 * Math.abs(current - target)) / nextKeyFrame.duration);
-        state = [data.state, speed];
-        console.log('servo speed: ', speed);
-      }
-      commandStore.mutate(data.device.bid, data.device.hid, state).catch(logError);
-    }
-  }
-
-  lastPlayedTime = time + 50;
-};
+// const playKeyframeAt = (time: number) => {
+//   if (mode.value === HardwareMode.VIRTUAL) {
+//     lastPlayedTime = -1;
+//     return;
+//   }
+//
+//   // playableKeyframes are the ones between the last one played and all the ones to be played in the next 50ms.
+//   const playableKeyframe = activatedKeyFrames.toReversed().filter((kf) => {
+//     return kf.start > lastPlayedTime && kf.start < time + 50;
+//   });
+//   for (const nextKeyFrame of playableKeyframe) {
+//     for (const data of nextKeyFrame.data) {
+//       let state = data.state;
+//       const device = deviceStore.get(data.device);
+//       if (device.config.type === 'ServoDevice') {
+//         const current = device.state as number;
+//         const target = data.state as number;
+//         const speed = Math.floor((1000 * Math.abs(current - target)) / nextKeyFrame.duration);
+//         state = [data.state, speed];
+//         console.log('servo speed: ', speed);
+//       }
+//       commandStore.mutate(data.device.bid, data.device.hid, state).catch(logError);
+//     }
+//   }
+//
+//   lastPlayedTime = time + 50;
+// };
 </script>
 
 <style lang="scss" scoped>

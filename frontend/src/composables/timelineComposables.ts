@@ -1,4 +1,10 @@
-import { TimelineConfig } from '@/types/timeline';
+import { computed } from 'vue';
+import { ThemeDefinition, useTheme } from 'vuetify';
+import Timeline from '@/components/animations/timeline/timeline';
+import { useFlatToNested } from '@/composables/groupComposables';
+import { Animation } from '@/types/animation';
+import { FlatGroup, GroupId } from '@/types/groups';
+import { TimelineConfig, Track } from '@/types/timeline';
 
 export enum Easing {
   /// https://easings.net/#easeInBack
@@ -70,10 +76,11 @@ export enum Easing {
 }
 
 // @todo move this inside vuetify ?
+
 export const timelineConfig: TimelineConfig = {
   // styling options.
-  colorPrimary: '#3191ef', //"#1867c0",
-  colorSecondary: '#48a9a6',
+  colorPrimary: 'blue',
+  colorPrimaryLighten: 'light-blue',
   colorHandle: 'white',
   colorTimeCursor: 'orange',
   colorSelectedHandle: 'yellow',
@@ -90,16 +97,41 @@ export const timelineConfig: TimelineConfig = {
   zoomSpeed: 0.1,
 };
 
-export class Timeline {}
-
 let timeline = new Timeline();
 
 export function useTimeline() {
+  const { current } = useTheme();
+  const config = computed(() => getConfig(current.value));
+
+  function getConfig(theme: ThemeDefinition) {
+    return {
+      ...timelineConfig,
+      colorPrimary: theme.colors?.primary,
+      colorPrimaryLighten: theme.colors?.['primary-lighten-1'],
+    } as TimelineConfig;
+  }
+
   return {
     timeline,
-    config: timelineConfig,
+    config,
     reset: () => {
       timeline = new Timeline();
+    },
+    groupsToTracks: (animation: Animation, groups: Record<GroupId, FlatGroup>): Track[] => {
+      const flatTracks = Object.entries(groups).reduce(
+        (tracks, [id, group]) => {
+          tracks[id as GroupId] = {
+            ...group,
+            keyframes: [],
+            level: 0,
+            open: true,
+            disabled: false,
+          } as Track;
+          return tracks;
+        },
+        {} as Record<GroupId, Track>,
+      );
+      return useFlatToNested(flatTracks, animation.keyframes);
     },
   };
 }
