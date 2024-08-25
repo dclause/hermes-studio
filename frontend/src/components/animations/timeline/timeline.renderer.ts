@@ -38,10 +38,7 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
 
     // Those styles are hardcoded and required for the proper scrolling.
     this._scrollContainer.style.cssText =
-      'overflow: scroll;' +
-      'position: absolute;' +
-      'width:  100%;' +
-      'height:  100%;scrollbar-color: #1867c0 #eeeeee';
+      'overflow: scroll;' + 'position: absolute;' + 'width:  100%;' + 'height:  100%;';
     this._scrollContent.style.width = this._scrollContent.style.height = '100%';
     this._scrollContainer.appendChild(this._scrollContent);
     container.appendChild(this._scrollContainer);
@@ -69,7 +66,7 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
       '-o-user-drag: none;' +
       'user-drag: none;' +
       'padding: inherit' +
-      'margin-top: 0.5px' +
+      // 'margin-top: 0.5px' +
       'height: 100%';
     container.appendChild(this._canvas);
 
@@ -143,7 +140,8 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
     if (this._ctx) {
       this._ctx.save();
       // Take consideration for scrollY position: translating the canvas makes it easier for later calculation.
-      this._ctx.translate(0.5, -(this?._scrollContainer?.scrollTop ?? 0.5));
+      // Align point/pixel in canvas (https://stackoverflow.com/questions/4261090/html5-canvas-and-anti-aliasing)
+      this._ctx.translate(0.5, -(this?._scrollContainer?.scrollTop ?? 0) + 0.5);
       this._renderBackground();
       this._renderTracks();
       this._renderTimeScale(); // weird but needs to be after tracks to draw over it
@@ -192,7 +190,7 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
             const keyframeLeft = handleRight;
             const keyframeRight = this.valToPxPosition(keyframe.end) - 9;
             const resizerLeft = keyframeRight;
-            const resizerRight = resizerLeft + 6;
+            const resizerRight = resizerLeft + 12;
             const keyframeTop = trackTop + 5;
             const keyframeBottom = keyframeTop + trackHeight - 10;
 
@@ -361,7 +359,7 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
       this._ctx.strokeStyle = '#737070';
       this.drawLine(0, headerHeight, this._ctx.canvas.clientWidth, headerHeight);
       for (let i = firstVisibleTrack; i <= lastVisibleTrack; i++) {
-        const trackPosY = i * trackHeight + this._config.headerHeight;
+        const trackPosY = i * trackHeight + headerHeight;
         this.drawLine(from, trackPosY + trackHeight, to, trackPosY + trackHeight);
       }
       this._ctx.restore();

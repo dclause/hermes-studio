@@ -107,7 +107,7 @@ export function useTimeline() {
     return {
       ...timelineConfig,
       colorPrimary: theme.colors?.primary,
-      colorPrimaryLighten: theme.colors?.['primary-lighten-1'],
+      colorPrimaryLighten: theme.colors?.['primary-lighten'],
     } as TimelineConfig;
   }
 

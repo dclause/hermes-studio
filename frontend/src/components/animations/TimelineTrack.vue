@@ -15,6 +15,5 @@ const { config } = useTimeline();
 .track {
   border-top: 1px solid rgb(var(--v-theme-timeline-border));
   height: v-bind('config.trackHeight + "px"');
-  box-sizing: border-box;
 }
 </style>

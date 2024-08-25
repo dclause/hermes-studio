@@ -7,7 +7,7 @@
     }"
   >
     <div
-      class="track indent"
+      class="track"
       :class="{
         expandable: !!track.children.length,
       }"
@@ -15,7 +15,7 @@
       <v-btn
         v-if="track.children.length"
         :block="true"
-        class="button"
+        class="button indent"
         rounded="0"
         variant="text"
         @click="onToggleOpen"
@@ -67,10 +67,11 @@ const onToggleOpen = () => {
     display: flex;
     align-items: center;
     overflow: hidden;
+    width: 100%;
   }
 
   .indent {
-    padding-left: v-bind('(track.level * 40) + "px"');
+    padding-left: v-bind('(track.level * 40 + 16) + "px"');
   }
 
   .button {

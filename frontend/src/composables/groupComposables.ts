@@ -1,4 +1,5 @@
 // Nested to Flat Conversion
+import TimelineUtils from '@/components/animations/timeline/timeline.utils';
 import { Keyframe } from '@/types/animation';
 import { FlatGroup, GroupId, NestedGroup } from '@/types/groups';
 
@@ -40,7 +41,7 @@ export function useFlatToNested<Flat extends FlatGroup, Nested extends NestedGro
       ...groups[id],
       children: [] as Nested[],
       level: 0,
-      keyframes: [...(keyframes[id] ?? [])],
+      keyframes: TimelineUtils.deepClone(keyframes[id] ?? []),
     } as unknown as Nested;
   });
 

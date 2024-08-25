@@ -163,7 +163,6 @@ const saveAnimation = () => {
   }
 
   .tracks {
-    margin: 1px;
     border-right: 1px solid rgb(var(--v-theme-timeline-border));
     padding: v-bind('config.headerHeight + "px"') 0 0 0;
     margin-bottom: 17px;
