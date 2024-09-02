@@ -8,8 +8,17 @@
     </template>
     <template #command>
       <servo-action
+        v-if="!keyframe"
         v-model="device.state"
-        :mode="HardwareMode.REALTIME"
+        :mode="mode"
+        :device="device"
+        :min="device.range[0]"
+        :max="device.range[1]"
+      />
+      <servo-action
+        v-else
+        v-model="keyframe.target"
+        :mode="mode"
         :device="device"
         :min="device.range[0]"
         :max="device.range[1]"
@@ -20,7 +29,15 @@
 
 <script lang="ts" setup>
 import { HardwareMode } from '@/composables/globalComposables';
+import { Keyframe } from '@/types/animation';
 import { Servo } from '@/types/devices';
 
 const device = defineModel<Servo>({ required: true });
+const keyframe = defineModel<Keyframe>('keyframe', { required: false });
+withDefaults(
+  defineProps<{
+    mode?: HardwareMode;
+  }>(),
+  { mode: HardwareMode.REALTIME },
+);
 </script>

@@ -1,15 +1,18 @@
 <template>
-  <v-card class="wrapper d-flex flex-1-1-100 align-center my-2 overflow-visible">
+  <v-card
+    class="wrapper d-flex flex-1-1-100 align-center my-2 overflow-visible"
+    :variant="cardVariant"
+  >
     <slot name="prefix" />
-    <!-- Compact variant -->
-    <div v-if="variant === 'compact'" class="d-flex flex-1-1-100 align-center mt-2 mb-2 command">
+
+    <div class="d-flex flex-1-1-100 align-center mt-2 mb-2 command">
       <div class="d-none d-sm-block">
         <slot name="icon">
           <v-icon class="mx-2" icon="mdi-progress-question" size="30" />
         </slot>
       </div>
 
-      <v-label class="command-label ml-2">
+      <v-label v-if="variant !== 'minimal'" class="command-label ml-2">
         <slot name="label">
           <div class="font-weight-bold">
             {{ device.name }}
@@ -33,17 +36,19 @@
       </slot>
     </div>
 
-    <v-btn
-      icon="mdi-pencil"
-      size="small"
-      :to="{
-        name: 'device.edit',
-        params: { id: device.id },
-      }"
-      variant="text"
-    />
+    <div v-if="variant !== 'minimal'" class="d-flex">
+      <v-btn
+        icon="mdi-pencil"
+        size="small"
+        :to="{
+          name: 'device.edit',
+          params: { id: device.id },
+        }"
+        variant="text"
+      />
 
-    <v-btn icon="mdi-trash-can" size="small" variant="text" @click="emit('delete', device)" />
+      <v-btn icon="mdi-trash-can" size="small" variant="text" @click="emit('delete', device)" />
+    </div>
   </v-card>
   <!-- Normal variant -->
   <!--  <v-card v-else>-->
@@ -68,17 +73,26 @@ import { computed } from 'vue';
 import { useBoardStore } from '@/stores/boardStore';
 import { Actuator } from '@/types/devices';
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     variant?: string;
   }>(),
-  { variant: 'compact' },
+  { variant: 'normal' },
 );
 
 const boardStore = useBoardStore();
 const emit = defineEmits<{ delete: [item: Actuator] }>();
 const device = defineModel<Actuator>({ required: true });
 const board = computed(() => boardStore.get(device.value.bid));
+
+const cardVariant = computed(() => {
+  switch (props.variant) {
+    case 'normal':
+      return 'elevated';
+    case 'minimal':
+      return 'flat';
+  }
+});
 </script>
 
 <style lang="scss" scoped>

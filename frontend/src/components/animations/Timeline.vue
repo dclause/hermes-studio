@@ -105,6 +105,7 @@ watch(
   [tracks],
   () => {
     nextTick(() => {
+      unsavedActions.value++;
       timeline.setTracks(tracks?.value);
     });
   },

@@ -112,8 +112,7 @@
     </v-expansion-panels>
 
     <div class="d-flex flex-grow-1">
-      {{ selectedKeyframe }}
-      <!--  <keyframe-editor v-if="selectedKeyframe" v-model="selectedKeyframe" />-->
+      <keyframe-editor v-if="selectedKeyframe" v-model="selectedKeyframe" class="mt-5 w-100" />
     </div>
 
     <timeline

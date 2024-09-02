@@ -143,7 +143,6 @@ const loop = () => {
   const elapsed = currentTimestamp - startTimestamp;
   if (elapsed > (timeline?.getDuration() ?? 0)) {
     pause();
-    restart();
   } else {
     timeline?.setTime(elapsed);
     playKeyframeAt(elapsed);
