@@ -1,5 +1,5 @@
 <template>
-  <v-card class="wrapper d-flex flex-1-1-100 align-center my-2">
+  <v-card class="wrapper d-flex flex-1-1-100 align-center my-2 overflow-visible">
     <slot name="prefix" />
     <!-- Compact variant -->
     <div v-if="variant === 'compact'" class="d-flex flex-1-1-100 align-center mt-2 mb-2 command">
@@ -9,9 +9,14 @@
         </slot>
       </div>
 
-      <v-label class="command-label font-weight-bold ml-2">
+      <v-label class="command-label ml-2">
         <slot name="label">
-          {{ device.name }}
+          <div class="font-weight-bold">
+            {{ device.name }}
+          </div>
+          <div class="text-body-2 font-italic">
+            {{ board.name }}
+          </div>
         </slot>
       </v-label>
 
@@ -59,6 +64,8 @@
 </template>
 
 <script lang="ts" setup>
+import { computed } from 'vue';
+import { useBoardStore } from '@/stores/boardStore';
 import { Actuator } from '@/types/devices';
 
 withDefaults(
@@ -68,8 +75,10 @@ withDefaults(
   { variant: 'compact' },
 );
 
+const boardStore = useBoardStore();
 const emit = defineEmits<{ delete: [item: Actuator] }>();
 const device = defineModel<Actuator>({ required: true });
+const board = computed(() => boardStore.get(device.value.bid));
 </script>
 
 <style lang="scss" scoped>

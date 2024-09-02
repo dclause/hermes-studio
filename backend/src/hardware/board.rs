@@ -46,7 +46,7 @@ impl Board {
         let devices = database.write().list::<Device>()?;
         for (_, mut device) in devices {
             if device.bid == self.id {
-                device.inner.reset(&self)?;
+                device.inner.set_board(&self)?;
                 // @todo why is state != default ?
                 device.save(&database)?;
             }

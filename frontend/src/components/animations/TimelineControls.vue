@@ -43,6 +43,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
+import { HardwareMode, logError } from '@/composables/globalComposables';
 import { useNestedToFlat } from '@/composables/groupComposables';
 import { useTimeline } from '@/composables/timelineComposables';
 import { useBoardStore } from '@/stores/boardStore';
@@ -72,6 +73,7 @@ const restart = () => {
   currentTimestamp = startTimestamp;
   pause();
   timeline?.setTime(0);
+  boardStore.reset_all();
 };
 
 /**
@@ -144,7 +146,7 @@ const loop = () => {
     restart();
   } else {
     timeline?.setTime(elapsed);
-    // playKeyframeAt(elapsed);
+    playKeyframeAt(elapsed);
   }
 
   if (activeRafId.value) {
@@ -161,33 +163,29 @@ let lastPlayedTime: number = -1;
 let activatedKeyFrames: Keyframe[] = [];
 
 /** Play the keyframe at given time. In practice, we are playing the next available keyframe  */
-// const playKeyframeAt = (time: number) => {
-//   if (mode.value === HardwareMode.VIRTUAL) {
-//     lastPlayedTime = -1;
-//     return;
-//   }
-//
-//   // playableKeyframes are the ones between the last one played and all the ones to be played in the next 50ms.
-//   const playableKeyframe = activatedKeyFrames.toReversed().filter((kf) => {
-//     return kf.start > lastPlayedTime && kf.start < time + 50;
-//   });
-//   for (const nextKeyFrame of playableKeyframe) {
-//     for (const data of nextKeyFrame.data) {
-//       let state = data.state;
-//       const device = deviceStore.get(data.device);
-//       if (device.config.type === 'ServoDevice') {
-//         const current = device.state as number;
-//         const target = data.state as number;
-//         const speed = Math.floor((1000 * Math.abs(current - target)) / nextKeyFrame.duration);
-//         state = [data.state, speed];
-//         console.log('servo speed: ', speed);
-//       }
-//       commandStore.mutate(data.device.bid, data.device.hid, state).catch(logError);
-//     }
-//   }
-//
-//   lastPlayedTime = time + 50;
-// };
+const playKeyframeAt = (time: number) => {
+  if (mode.value === HardwareMode.VIRTUAL) {
+    lastPlayedTime = -1;
+    return;
+  }
+
+  // playableKeyframes are the ones between the last one played and all the ones to be played in the next 50ms.
+  const playableKeyframe = activatedKeyFrames.toReversed().filter((kf) => {
+    return kf.start > lastPlayedTime && kf.start < time + 50;
+  });
+  for (const nextKeyFrame of playableKeyframe) {
+    deviceStore
+      .animate(
+        nextKeyFrame.device,
+        nextKeyFrame.target,
+        nextKeyFrame.end - nextKeyFrame.start,
+        nextKeyFrame.transition,
+      )
+      .catch(logError);
+  }
+
+  lastPlayedTime = time + 50;
+};
 </script>
 
 <style lang="scss" scoped>

@@ -120,5 +120,13 @@ export const useBoardStore = defineStore({
         }
       });
     },
+
+    reset(board: Board) {
+      return socketEmit('board:reset', board.id);
+    },
+
+    reset_all() {
+      Object.values(this.boards).forEach((board) => socketEmit('board:reset', board.id));
+    },
   },
 });

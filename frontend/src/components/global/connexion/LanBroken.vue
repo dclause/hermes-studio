@@ -1,15 +1,15 @@
 <template>
   <v-layout class="mt-10">
-    <v-card class="mx-auto pa-5 h-auto">
+    <v-card class="mx-auto pa-5 h-auto" flat>
       <div class="align-center d-flex flex-no-wrap">
-        <v-avatar class="pa-2" rounded="0" size="125">
+        <v-avatar class="pa-2 d-none d-sm-block" rounded="0" size="125">
           <svg-robot-broken />
         </v-avatar>
         <div>
           <v-card-title class="text-h5 pt-0 pb-0">
             {{ t('title') }}
           </v-card-title>
-          <v-card-subtitle>
+          <v-card-text>
             <div class="font-italic mb-4">
               {{ t('description') }}
             </div>
@@ -21,7 +21,7 @@
                 </app-link>
               </i18n-t>
             </div>
-          </v-card-subtitle>
+          </v-card-text>
         </div>
       </div>
     </v-card>

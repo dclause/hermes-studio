@@ -4,6 +4,7 @@ import { defineStore } from 'pinia';
 import { Socket } from 'socket.io-client';
 import { DeviceType } from '@/composables/deviceComposables';
 import { useSocketIO } from '@/composables/socketComposables';
+import { Easing } from '@/composables/timelineComposables';
 import { useToasterStore } from '@/stores/toastStore';
 import { Device, DeviceId, DeviceState } from '@/types/devices';
 import { SocketAck } from '@/types/socket';
@@ -129,6 +130,14 @@ export const useDeviceStore = defineStore({
 
     mutate(id: DeviceId, state: DeviceState) {
       return socketEmit('device:mutate', id, state);
+    },
+
+    animate(id: DeviceId, state: DeviceState, duration: number, transition: Easing) {
+      return socketEmit('device:animate', id, state, duration, transition, (ack: SocketAck) => {
+        if (ack.success) {
+          this.devices[id].state = ack.success;
+        }
+      });
     },
   },
 });

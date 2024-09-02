@@ -38,7 +38,7 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
 
     // Those styles are hardcoded and required for the proper scrolling.
     this._scrollContainer.style.cssText =
-      'overflow: scroll;' + 'position: absolute;' + 'width:  100%;' + 'height:  100%;';
+      'overflow:scroll;position:absolute; width:100%;height:100%;';
     this._scrollContent.style.width = this._scrollContent.style.height = '100%';
     this._scrollContainer.appendChild(this._scrollContent);
     container.appendChild(this._scrollContainer);
@@ -344,21 +344,22 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
     if (this._ctx) {
       const from = 0;
       const to = from + this._ctx.canvas.clientWidth;
-      const top = this._scrollContainer!.scrollTop;
+
       const trackHeight = this._config.trackHeight;
       const headerHeight = this._config.headerHeight;
 
-      const firstVisibleTrack = Math.min(this._countTracks, Math.ceil(top / trackHeight));
-      const lastVisibleTrack = Math.min(
-        this._countTracks,
-        firstVisibleTrack + Math.ceil(this._ctx.canvas.clientHeight / trackHeight),
-      );
+      // const top = 0;
+      // const firstVisibleTrack = Math.min(this._countTracks, Math.ceil(top / trackHeight));
+      // const lastVisibleTrack = Math.min(
+      //
+      //   firstVisibleTrack + Math.ceil(this._ctx.canvas.clientHeight / trackHeight),
+      // );
 
       this._ctx.save();
       this._ctx.lineWidth = 1;
       this._ctx.strokeStyle = '#737070';
       this.drawLine(0, headerHeight, this._ctx.canvas.clientWidth, headerHeight);
-      for (let i = firstVisibleTrack; i <= lastVisibleTrack; i++) {
+      for (let i = 0; i <= this._countTracks + 1; i++) {
         const trackPosY = i * trackHeight + headerHeight;
         this.drawLine(from, trackPosY + trackHeight, to, trackPosY + trackHeight);
       }

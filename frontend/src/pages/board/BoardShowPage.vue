@@ -80,6 +80,7 @@
 import type { BoardId } from '@/types/boards';
 import type { Device } from '@/types/devices';
 import type { FlatGroup, GroupId, NestedGroup } from '@/types/groups';
+import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n'; // Retrieve the board.
 import { useRoute } from 'vue-router';
@@ -100,8 +101,9 @@ const deviceStore = useDeviceStore();
 const devices = computed(() => deviceStore.list_by_board(board.value.id));
 
 const groupStore = useGroupStore();
+const { groups } = storeToRefs(groupStore);
 const nestedGroups = computed(() => {
-  const filteredGroups = Object.values(groupStore.groups).reduce(
+  const filteredGroups = Object.values(groups.value).reduce(
     (acc, group) => {
       if (!group.device || devices.value.find((device) => device.id == group.device)) {
         acc[group.id] = group;

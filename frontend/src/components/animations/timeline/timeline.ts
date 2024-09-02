@@ -163,47 +163,49 @@ export default class Timeline extends TimelineRenderer {
     const isDoubleClick = Date.now() - this._lastClickTime < 400;
     this._mousePositionOnCanvas = this._getMousePositionOnCanvas(event);
 
-    // When shiftkey is used with a single click: draw a selection box.
-    if (event.shiftKey && !isDoubleClick) {
-      this._selectionArea = {
-        x1: this._mousePositionOnCanvas.x,
-        y1: this._mousePositionOnCanvas.y,
-        x2: this._mousePositionOnCanvas.x,
-        y2: this._mousePositionOnCanvas.y,
-      };
-    } else {
-      this._selectionArea = null;
-      this.applyAtPosition(
-        this._mousePositionOnCanvas,
-        (item: TimelineItem, isAtPosition: boolean) => {
-          if (!event.ctrlKey) {
-            // Toggle the current keyframe (keep selected the others only if ctrlKey)
-            item.selected = isAtPosition && !item.selected;
-          }
-        },
-        // Set the current position of the keyframe when clicked on: this allows moving it later on.
-        (item: TimelineItem, isAtPosition: boolean) => {
-          if ((event.ctrlKey && item.selected) || isAtPosition) {
-            item.move_start_position = item.move_previous_position = this._mousePositionOnCanvas.x;
-          }
-        },
-        (item: TimelineItem, isAtPosition: boolean) => {
-          if (!event.ctrlKey && isAtPosition) {
-            item.resize_start_position = item.resize_previous_position =
-              this._mousePositionOnCanvas.x;
-          }
-        },
-        // Creates a keyframe if double-click on the track.
-        (item: TimelineItem, isAtPosition: boolean) => {
-          if (isAtPosition && isDoubleClick) {
+    this._selectionArea = null;
+    this.applyAtPosition(
+      this._mousePositionOnCanvas,
+      (item: TimelineItem, isAtPosition: boolean) => {
+        if (!event.ctrlKey) {
+          // Toggle the current keyframe (keep selected the others only if ctrlKey)
+          item.selected = isAtPosition && !item.selected;
+        }
+      },
+      // Set the current position of the keyframe when clicked on: this allows moving it later on.
+      (item: TimelineItem, isAtPosition: boolean) => {
+        if (isAtPosition) {
+          this._selectionArea = null;
+        }
+        if (item.selected || isAtPosition) {
+          item.move_start_position = item.move_previous_position = this._mousePositionOnCanvas.x;
+        }
+      },
+      (item: TimelineItem, isAtPosition: boolean) => {
+        if (isAtPosition) {
+          item.resize_start_position = item.resize_previous_position =
+            this._mousePositionOnCanvas.x;
+        }
+      },
+      // Creates a keyframe if double-click on the track.
+      (item: TimelineItem, isAtPosition: boolean) => {
+        if (isAtPosition) {
+          if (isDoubleClick) {
             this._onCreateKeyframe(
               item as unknown as Track,
               this.pxPositionToVal(this._mousePositionOnCanvas.x),
             );
+          } else {
+            this._selectionArea = {
+              x1: this._mousePositionOnCanvas.x,
+              y1: this._mousePositionOnCanvas.y,
+              x2: this._mousePositionOnCanvas.x,
+              y2: this._mousePositionOnCanvas.y,
+            };
           }
-        },
-      );
-    }
+        }
+      },
+    );
     this.render();
     this._lastClickTime = Date.now();
   };
@@ -215,7 +217,7 @@ export default class Timeline extends TimelineRenderer {
     this._mousePositionOnCanvas = this._getMousePositionOnCanvas(event);
 
     // When shiftkey is used: draw a selection box.
-    if (event.shiftKey && this._selectionArea) {
+    if (this._selectionArea) {
       this._selectionArea.x2 = this._mousePositionOnCanvas.x;
       this._selectionArea.y2 = this._mousePositionOnCanvas.y;
       this.applyAtPosition(this._selectionArea, (item: TimelineItem, isAtPosition: boolean) => {
@@ -304,7 +306,7 @@ export default class Timeline extends TimelineRenderer {
     event.preventDefault();
     let needHistory = false;
 
-    if (event.shiftKey && this._selectionArea) {
+    if (this._selectionArea) {
       this.applyAtPosition(this._selectionArea, (item: TimelineItem, isAtPosition: boolean) => {
         item.selected = isAtPosition;
       });

@@ -74,6 +74,17 @@
         </v-slider>
       </v-col>
     </v-row>
+
+    <v-row class="my-0">
+      <v-col class="py-0">
+        <v-checkbox
+          v-model="device.inverted"
+          :label="t('inverted')"
+          hide-details
+          density="compact"
+        />
+      </v-col>
+    </v-row>
   </default-device-edit>
 </template>
 
@@ -97,12 +108,14 @@ device.value.pwm_range = device.value.pwm_range ?? [600, 2400];
   "en": {
     "type": "Servo type",
     "restriction": "Servo restrictions: between {min}° and {max}°",
-    "default": "Default position: {default}°"
+    "default": "Default position: {default}°",
+    "inverted": "Invert servo direction"
   },
   "fr": {
     "type": "Type de servo",
     "restriction": "Restriction du servo: entre {min}° et {max}°",
-    "default": "Position par défaut: {default}°"
+    "default": "Position par défaut: {default}°",
+    "inverted": "Inverser la direction du servo"
   }
 }
 </i18n>

@@ -1,4 +1,5 @@
 use anyhow::{anyhow, bail};
+use hermes_five::utils::Easing;
 use log::debug;
 use socketioxide::extract::{AckSender, Data, SocketRef, State, TryData};
 
@@ -30,10 +31,57 @@ pub fn register_device_events(socket: &SocketRef) {
                 "Event received: [device:mutate]: device={}, state={:?}",
                 id, state
             );
+            database.write().set_autosave(false);
 
             let mutation = Device::get(&database, &id).and_then(|device| match device {
                 None => bail!("Device not found"),
-                Some(mut device) => device.inner.set_state(state),
+                Some(mut device) => {
+                    device
+                        .inner
+                        .set_state(state)
+                        .and_then(|state| match device.save(&database) {
+                            Ok(_) => Ok(state),
+                            Err(err) => bail!(err.to_string()),
+                        })
+                }
+            });
+
+            if mutation.is_ok() {
+                socket
+                    .broadcast()
+                    .emit("device:mutated", (id, mutation.as_ref().unwrap()))
+                    .ok();
+            } else {
+                let board = Board::get(&database, &id).and_then(|board| match board {
+                    None => bail!("Board not found"),
+                    Some(mut board) => {
+                        board.connected = false;
+                        Ok(board)
+                    }
+                });
+                // Update to all, including socket itself myself.
+                broadcast_to_all("board:updated", board, &socket);
+            }
+
+            database.write().set_autosave(true);
+            ack.send(Ack::from(mutation)).ok();
+        },
+    );
+
+    socket.on(
+        "device:animate",
+        |socket: SocketRef,
+         State(database): State<ArcDb>,
+         Data((id, state, duration, transition)): Data<(Id, u16, u64, Easing)>,
+         ack: AckSender| async move {
+            debug!(
+                "Event received: [device:animate]: device={}, state={:?}, duration={}, transition={:?}",
+                id, state, duration, transition
+            );
+
+            let mutation = Device::get(&database, &id).and_then(|device| match device {
+                None => bail!("Device not found"),
+                Some(mut device) => device.inner.animate(state, duration, transition),
             });
 
             if mutation.is_ok() {
@@ -71,7 +119,7 @@ pub fn register_device_events(socket: &SocketRef) {
                         None => bail!("Board [{}] not found", new_device.bid),
                         Some(board) => {
                             if board.connected {
-                                new_device.inner.reset(&board)?;
+                                new_device.inner.set_board(&board)?;
                             }
                             database.write().insert(new_device)
                         }
@@ -79,6 +127,7 @@ pub fn register_device_events(socket: &SocketRef) {
                 }
             };
 
+            broadcast_to_all("group:list", database.read().list::<Group>(), &socket);
             broadcast_and_ack("device:updated", device, &socket, ack);
         },
     );
@@ -98,7 +147,7 @@ pub fn register_device_events(socket: &SocketRef) {
                         None => bail!("Board [{}] not found", device.bid),
                         Some(board) => {
                             if board.connected {
-                                device.inner.reset(&board)?;
+                                device.inner.set_board(&board)?;
                             }
                             database.write().update(device)
                         }

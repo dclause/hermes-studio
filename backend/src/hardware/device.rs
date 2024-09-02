@@ -3,6 +3,7 @@ use std::fmt::Debug;
 use anyhow::Result;
 use dyn_clone::DynClone;
 use hermes_five::animation::Track;
+use hermes_five::utils::Easing;
 use serde::{Deserialize, Serialize};
 
 use crate::animation::group::Group;
@@ -59,8 +60,10 @@ impl_entity!(Device, {
 
 #[typetag::serde(tag = "type")]
 pub trait DeviceType: DynClone + Debug + Send + Sync {
-    fn reset(&mut self, board: &Board) -> Result<()>;
+    fn reset(&mut self) -> Result<u16>;
+    fn set_board(&mut self, board: &Board) -> Result<()>;
     fn set_state(&mut self, state: u16) -> Result<u16>;
+    fn animate(&mut self, state: u16, duration: u64, transition: Easing) -> Result<u16>;
     fn into_track(&self) -> Result<Track>;
 }
 dyn_clone::clone_trait_object!(DeviceType);
@@ -91,8 +94,24 @@ macro_rules! impl_device {
 
         #[typetag::serde]
         impl DeviceType for $struct_name {
+
+            fn animate(&mut self, state: u16, duration: u64, transition: hermes_five::utils::Easing) -> anyhow::Result<u16> {
+                self.inner.animate(state, duration, transition);
+                Ok(state)
+            }
+
             fn set_state(&mut self, state: u16) -> anyhow::Result<u16> {
                 self.inner.set_state(state)?;
+                Ok(state)
+            }
+
+            fn into_track(&self) -> Result<Track> {
+                let device = self.inner.clone();
+                Ok(Track::new(device))
+            }
+
+            fn reset(&mut self) -> Result<u16> {
+                let state = self.inner.reset()?;
                 Ok(state)
             }
 

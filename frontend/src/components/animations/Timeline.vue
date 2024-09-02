@@ -2,17 +2,12 @@
   <div tabindex="0" class="timeline">
     <timeline-header class="timeline-header" :on-save="unsavedActions > 1 && saveAnimation" />
     <div class="timeline-container">
-      <div ref="tracksContainer" class="v-col v-col-2 tracks">
+      <div ref="tracksContainer" class="tracks">
         <template v-for="(track, idx) in tracks" :key="track.id">
           <timeline-track v-model="tracks[idx]" class="track" />
         </template>
       </div>
-      <div
-        ref="timelineContainer"
-        class="position-relative"
-        style="display: flex; flex: 1 1 100%"
-        tabindex="0"
-      />
+      <div ref="timelineContainer" class="timeline" tabindex="0" />
     </div>
 
     <confirm-dialog
@@ -160,6 +155,7 @@ const saveAnimation = () => {
     height: calc(100% - 35px) !important;
     display: flex;
     position: relative;
+    overflow: hidden;
   }
 
   .tracks {
@@ -167,10 +163,15 @@ const saveAnimation = () => {
     padding: v-bind('config.headerHeight + "px"') 0 0 0;
     margin-bottom: 17px;
     overflow: hidden;
+    flex: 0 0 16.666%;
 
     > *:last-child {
       border-bottom: 1px solid rgb(var(--v-theme-timeline-border));
     }
+  }
+
+  .timeline {
+    flex: 0 0 83.333%;
   }
 }
 </style>

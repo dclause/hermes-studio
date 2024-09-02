@@ -46,6 +46,26 @@ pub fn register_board_events(socket: &SocketRef) {
     );
 
     socket.on(
+        "board:reset",
+        |socket: SocketRef, State(database): State<ArcDb>, Data(id): Data<Id>, ack: AckSender| {
+            debug!("Event received: [board:reset]: board:{}", id);
+
+            database.write().set_autosave(false);
+            let devices = database.read().list::<Device>().and_then(|mut devices| {
+                for (_, mut device) in &mut devices {
+                    if device.bid == id {
+                        device.inner.reset()?;
+                    }
+                }
+
+                Ok(devices)
+            });
+            database.write().set_autosave(true);
+            broadcast_to_all("device:list", devices, &socket);
+        },
+    );
+
+    socket.on(
         "board:create",
         |socket: SocketRef,
          TryData(new_board): TryData<CreateBoard>,
@@ -92,9 +112,9 @@ pub fn register_board_events(socket: &SocketRef) {
                 });
 
             let devices = database.read().list::<Device>();
-            broadcast_to_all("devices:updated", devices, &socket);
+            broadcast_to_all("device:list", devices, &socket);
             let groups = database.read().list::<Group>();
-            broadcast_to_all("groups:updated", groups, &socket);
+            broadcast_to_all("group:list", groups, &socket);
             broadcast_and_ack("board:deleted", board, &socket, ack);
         },
     );
