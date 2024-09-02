@@ -43,11 +43,17 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
+import { useNestedToFlat } from '@/composables/groupComposables';
 import { useTimeline } from '@/composables/timelineComposables';
+import { useBoardStore } from '@/stores/boardStore';
 import { useConfigStore } from '@/stores/configurationStore';
+import { useDeviceStore } from '@/stores/deviceStore';
 import { Keyframe } from '@/types/animation';
+import { Track } from '@/types/timeline';
 
 const { timeline } = useTimeline();
+const boardStore = useBoardStore();
+const deviceStore = useDeviceStore();
 
 let activeRafId = ref<number | null>(null);
 
@@ -99,28 +105,28 @@ const nextFrame = () => {
 
 const resume = () => {
   if (!activeRafId.value) {
-    // // Flatten the tracks.
-    // const flatTracks = flattenTracks(timeline.getTracks());
-    // // Build an array of keyframes for active tracks only, with data for connected board only.
-    // // This is done before the actual start to maximize the efficiency of the realtime "demo" mode.
-    // activatedKeyFrames = flatTracks.reduce((keyframes, track: Track) => {
-    //   // Remove disabled tracks.
-    //   if (!track.disabled && track.keyframes.length) {
-    //     // Remove keyframes for none connected boards.
-    //     keyframes.push(
-    //       ...track.keyframes.map((keyframe) => {
-    //         return {
-    //           ...keyframe,
-    //           data: keyframe.data.filter((_innerData) => {
-    //             const board = hardwareStore.board.get(_innerData.device.bid);
-    //             return board.connected;
-    //           }),
-    //         };
-    //       }),
-    //     );
-    //   }
-    //   return keyframes;
-    // }, [] as Keyframe[]);
+    // Flatten the tracks.
+    const flatTracks = useNestedToFlat<Track, Track>(timeline.getTracks());
+    // Build an array of keyframes for active tracks only, with data for connected board only.
+    // This is done before the actual start to maximize the efficiency of the realtime "demo" mode.
+    activatedKeyFrames = Object.values(flatTracks).reduce((keyframes, track: Track) => {
+      // Remove disabled tracks.
+      if (!track.disabled && track.keyframes.length) {
+        if (track.device) {
+          const device = deviceStore.get(track.device);
+          const board = boardStore.get(device.bid);
+          if (board.connected) {
+            // Remove keyframes for none connected boards.
+            keyframes.push(
+              ...track.keyframes.map((kf) => {
+                return { ...kf, device: device.id };
+              }),
+            );
+          }
+        }
+      }
+      return keyframes;
+    }, [] as Keyframe[]);
 
     activeRafId.value = window.requestAnimationFrame(loop);
   }

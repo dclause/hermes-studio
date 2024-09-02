@@ -7,27 +7,27 @@ export declare type TimelineItemCallback =
   | ((item: TimelineItem, isAtPosition: boolean, track: Track) => void)
   | null;
 
-export declare interface TimelineEvent {
+export declare type TimelineEvent = {
   topic: string;
   callback: (...args: unknown[]) => void;
-}
+};
 
-export interface Point {
+export type Point = {
   x: number;
   y: number;
-}
+};
 
-export interface Area {
+export type Area = {
   x1: number;
   y1: number;
   x2: number;
   y2: number;
-}
+};
 
-export declare interface HTMLTimelineElement extends HTMLElement {
+export declare type HTMLTimelineElement = HTMLElement & {
   timeline?: Timeline;
   renderer?: TimelineRenderer;
-}
+};
 
 export declare type TimelineSelection = {
   tracks: Track[];
@@ -59,7 +59,7 @@ export declare type TimelineConfig = TimelineRenderConfig & TimelineStyleConfig;
 export declare type PartialTimelineConfig = Partial<TimelineRenderConfig> &
   Partial<TimelineStyleConfig>;
 
-export declare interface TimelineItem {
+export declare type TimelineItem = {
   hovered: boolean;
   selected: boolean;
   move_start_position: number;
@@ -68,11 +68,11 @@ export declare interface TimelineItem {
   resize_previous_position: number;
 
   [key: string]: unknown;
-}
+};
 
-export declare interface Track extends NestedGroup {
+export declare type Track = NestedGroup & {
   open: boolean;
   disabled: boolean;
   children: Track[];
   keyframes: Keyframe[];
-}
+};

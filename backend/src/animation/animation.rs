@@ -1,9 +1,14 @@
 //! This file defines a structure called `Animation`.
 //! @todo describe keyframes, etc...
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use anyhow::Result;
-use hermes_five::animation::Keyframe;
+use hermes_five::animation::Track;
+use hermes_five::utils::task;
+use hermes_five::utils::task::TaskHandler;
+use log::trace;
+use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 
 use crate::animation::group::Group;
@@ -30,12 +35,14 @@ pub struct Animation {
     /// The number of frames per second (fps) for running the animation (default: 40fps).
     pub fps: u8,
     /// A hashmap of `Keyframe` keyed by `Group` id.
-    pub keyframes: HashMap<Id, Vec<Keyframe>>,
+    pub tracks: HashMap<Id, Vec<Keyframe>>,
 
     // ########################################
     // # Volatile utility data.
     #[serde(skip)]
     pub inner: hermes_five::animation::Animation,
+    #[serde(skip)]
+    pub interval: Arc<RwLock<Option<TaskHandler>>>,
 }
 impl_entity!(Animation, {
     fn post_load(&mut self, database: &Database) -> Result<()> {
@@ -52,25 +59,108 @@ impl Animation {
             .set_speed(self.speed)
             .set_fps(self.fps);
 
-        for (group_id, keyframes) in &self.keyframes {
-            // Get the associated group.
-            let group = database.get::<Group>(group_id)?;
-            if let Some(group) = group {
-                // Get the group device.
-                if let Some(device_id) = group.device {
-                    // Create a new track from the device: assign the keyframes and turn it into a segment.
-                    let device = database.get::<Device>(&device_id)?.unwrap();
-                    if let Some(mut new_track) = device.inner.into_track() {
-                        for keyframe in keyframes {
-                            new_track = new_track.with_keyframe(keyframe.clone());
-                        }
-                        new_segment = new_segment.with_track(new_track)
-                    }
+        let mut tracks: HashMap<Id, Track> = HashMap::new();
+        // Loop through each tracks of the animation (one track per group)
+        for (group_id, keyframes) in &self.tracks {
+            // Retrieve the device ID associated with the group, if any
+            let device_id = match database.get::<Group>(group_id).unwrap() {
+                None => continue, // Skip if the group no longer exists
+                Some(group) => group.device,
+            };
+
+            // Fetch the device associated with the device_id, if any
+            let (mut device_id, mut track) = match device_id {
+                None => (0, None),
+                Some(device_id) => match database.get::<Device>(&device_id).unwrap() {
+                    None => continue, // Skip if the group no longer exists
+                    Some(device) => match device.inner.clone().into_track() {
+                        Err(_) => continue, // Skip if device is not applicable as a track (device is not Actuator for instance)
+                        Ok(track) => (device_id, Some(track)),
+                    },
+                },
+            };
+
+            for keyframe in keyframes {
+                // If we are not supposed to have a track already, then we can proceed to:
+                if device_id == 0 {
+                    track = match tracks.get(&keyframe.device).cloned().or_else(|| {
+                        database
+                            .get::<Device>(&keyframe.device)
+                            .unwrap()
+                            .and_then(|device| device.inner.into_track().ok())
+                    }) {
+                        None => continue,
+                        Some(track) => Some(track),
+                    };
+                    device_id = keyframe.device;
+                };
+
+                if let Some(_track) = track {
+                    track = Some(_track.with_keyframe(keyframe.clone().into()));
                 }
+            }
+
+            if keyframes.len() > 0 && track.is_some() && device_id > 0 {
+                tracks.insert(device_id, track.unwrap());
             }
         }
 
+        for (_, track) in tracks {
+            new_segment = new_segment.with_track(track)
+        }
+
         self.inner = hermes_five::animation::Animation::from(new_segment);
+        trace!("Animation built: {:#?}", self.inner);
         Ok(())
+    }
+
+    pub fn play(&mut self) -> Result<()> {
+        let mut self_clone = self.clone();
+        let handler = task::run(async move {
+            // Loop through the segments and run them one by one.
+            for index in self_clone.inner.get_current()..self_clone.inner.get_segments().len() {
+                self_clone.inner.set_current(index);
+
+                // Retrieve the currently running segment.
+                let segment_playing = self_clone.inner.get_mut_segments().get_mut(index).unwrap();
+                segment_playing.play()?;
+            }
+
+            self_clone.inner.set_current(0); // reset to the beginning
+            Ok(())
+        })?;
+        *self.interval.write() = Some(handler);
+
+        Ok(())
+    }
+
+    // pub fn play(&mut self) -> Result<()> {
+    //     // Loop through the segments and run them one by one.
+    //     for index in self.inner.get_current()..self.inner.get_segments().len() {
+    //         self.inner.set_current(index);
+    //
+    //         // Retrieve the currently running segment.
+    //         let segment_playing = self.inner.get_mut_segments().get_mut(index).unwrap();
+    //         segment_playing.play()?;
+    //     }
+    //
+    //     self.inner.set_current(0); // reset to the beginning
+    //
+    //     Ok(())
+    // }
+}
+
+// ######################################
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Keyframe {
+    #[serde(flatten)]
+    inner: hermes_five::animation::Keyframe,
+    device: Id,
+}
+
+impl Into<hermes_five::animation::Keyframe> for Keyframe {
+    fn into(self) -> hermes_five::animation::Keyframe {
+        self.inner
     }
 }

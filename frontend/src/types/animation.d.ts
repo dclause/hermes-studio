@@ -1,4 +1,5 @@
 import { Branded } from '@/modules/hardware/types/hardware';
+import { DeviceId } from '@/types/devices';
 import { GroupId } from '@/types/groups';
 
 export declare type AnimationId = Branded<number, 'AnimationId'>;
@@ -11,7 +12,7 @@ export declare interface Animation {
   loopback: number;
   fps: number;
   speed: number;
-  keyframes: Record<GroupId, Keyframe[]>;
+  tracks: Record<GroupId, Keyframe[]>;
 
   readonly duration: number;
   readonly playing: number;
@@ -19,6 +20,7 @@ export declare interface Animation {
 }
 
 export declare interface Keyframe {
+  device: DeviceId;
   start: number;
   end: number;
   target: number;

@@ -9,7 +9,7 @@ use crate::api::payloads::animation::AnimationPayload;
 use crate::api::sockets::ack::Ack;
 use crate::api::sockets::broadcast_and_ack;
 use crate::utils::database::ArcDb;
-use crate::utils::entity::{Entity, Id};
+use crate::utils::entity::Id;
 
 pub fn register_animation_events(socket: &SocketRef) {
     socket.on(
@@ -100,12 +100,11 @@ pub fn register_animation_events(socket: &SocketRef) {
                     None => bail!("Animation not found"),
                     Some(mut animation) => {
                         animation.build(&database)?;
-                        animation.inner.play();
+                        animation.play()?;
                         let animation = database.update(animation)?;
                         Ok(AnimationPayload::from(animation))
                     }
                 });
-
             broadcast_and_ack("animation:updated", animation, &socket, ack);
         },
     );

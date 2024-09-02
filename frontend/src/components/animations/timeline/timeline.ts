@@ -2,6 +2,7 @@ import { TimelineEvents } from '@/components/animations/timeline/timeline.events
 import TimelineRenderer from '@/components/animations/timeline/timeline.renderer';
 import TimelineUtils from '@/components/animations/timeline/timeline.utils';
 import { Keyframe } from '@/types/animation';
+import { DeviceId } from '@/types/devices';
 import {
   HTMLTimelineElement,
   Point,
@@ -431,6 +432,7 @@ export default class Timeline extends TimelineRenderer {
     }, null);
 
     track.keyframes.push({
+      device: track.device ?? lastKeyframe?.device ?? (0 as DeviceId),
       start: time,
       end: time + 200,
       target: lastKeyframe?.target ?? 0,

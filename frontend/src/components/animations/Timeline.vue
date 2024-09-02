@@ -130,7 +130,7 @@ const saveAnimation = () => {
   // Flatten the tracks.
   const flatTracks = useNestedToFlat(tracks.value) as unknown as Track[];
   // Build the keyframes array.
-  animation.value.keyframes = Object.values(flatTracks).reduce(
+  animation.value.tracks = Object.values(flatTracks).reduce(
     (keyframes, track: Track) => {
       keyframes[track.id] = [...track.keyframes];
       return keyframes;

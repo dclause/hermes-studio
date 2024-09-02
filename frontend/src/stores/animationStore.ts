@@ -63,7 +63,7 @@ export const useAnimationStore = defineStore({
         loopback: 0,
         fps: 60,
         speed: 100,
-        keyframes: {},
+        tracks: {},
         duration: 0,
         playing: 0,
         progress: 0,

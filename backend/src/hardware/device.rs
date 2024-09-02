@@ -61,7 +61,7 @@ impl_entity!(Device, {
 pub trait DeviceType: DynClone + Debug + Send + Sync {
     fn reset(&mut self, board: &Board) -> Result<()>;
     fn set_state(&mut self, state: u16) -> Result<u16>;
-    fn into_track(&self) -> Option<Track>;
+    fn into_track(&self) -> Result<Track>;
 }
 dyn_clone::clone_trait_object!(DeviceType);
 

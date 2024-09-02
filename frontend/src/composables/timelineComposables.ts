@@ -131,7 +131,7 @@ export function useTimeline() {
         },
         {} as Record<GroupId, Track>,
       );
-      return useFlatToNested(flatTracks, animation.keyframes);
+      return useFlatToNested(flatTracks, animation.tracks);
     },
   };
 }

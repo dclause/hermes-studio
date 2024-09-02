@@ -1,6 +1,6 @@
 <template>
   <v-card class="mx-auto pa-4" variant="elevated" max-width="600" width="100%">
-    <v-form ref="form" :disabled="loading" :loading="loading" @submit.prevent="onSubmit">
+    <v-form ref="form" :disabled="loading || !device" :loading="loading" @submit.prevent="onSubmit">
       <v-text-field v-model="device.name" label="Name" required :rules="[Rule.REQUIRED]" />
 
       <v-row>
@@ -67,7 +67,7 @@
 import type { BoardId } from '@/types/boards';
 import type { Device, DeviceId } from '@/types/devices';
 import { storeToRefs } from 'pinia';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { VForm } from 'vuetify/components';
 import { DeviceType, useDeviceEditComponent } from '@/composables/deviceComposables';
@@ -81,13 +81,17 @@ const { redirect } = useRedirect();
 const bid = route.query['board'] ? (Number(route.query['board']) as BoardId) : null;
 const isEdit = route.name === 'device.edit';
 
-// Create new device.
+/** Retrieve the device from the URL parameter */
 const deviceStore = useDeviceStore();
-const device = ref<Device>(
-  isEdit
-    ? { ...deviceStore.devices[Number(route.params.id) as DeviceId] }
-    : deviceStore.default(bid),
+const id = Number(route.params.id) as DeviceId;
+const deviceFromStore = computed<Device>(() =>
+  isEdit ? { ...deviceStore.get(id) } : deviceStore.default(bid),
 );
+const device = ref<Device>(deviceFromStore.value);
+watch(deviceFromStore, (deviceFromStore) => {
+  console.log('changed');
+  device.value = { ...deviceFromStore };
+});
 
 // Build the board selection.
 const { boards } = storeToRefs(useBoardStore());

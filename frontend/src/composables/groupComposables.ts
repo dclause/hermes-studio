@@ -4,17 +4,19 @@ import { Keyframe } from '@/types/animation';
 import { FlatGroup, GroupId, NestedGroup } from '@/types/groups';
 
 // Convert from nested to flat representation
-export function useNestedToFlat(groups: NestedGroup[]): Record<GroupId, FlatGroup> {
-  const flatMap: Record<GroupId, FlatGroup> = {};
+export function useNestedToFlat<Flat extends FlatGroup, Nested extends NestedGroup>(
+  groups: Nested[],
+): Record<GroupId, Flat> {
+  const flatMap: Record<GroupId, Flat> = {};
 
   // Traverse and collect all groups into the map
-  function traverse(nestedGroup: NestedGroup, currentOrder: number): GroupId {
+  function traverse(nestedGroup: Nested, currentOrder: number): GroupId {
     let childOrder = 0;
-    const flatGroup: FlatGroup = {
+    const flatGroup: Flat = {
       ...nestedGroup,
       order: currentOrder,
-      children: nestedGroup.children.map((child: NestedGroup) => traverse(child, ++childOrder)),
-    };
+      children: nestedGroup.children.map((child: Nested) => traverse(child, ++childOrder)),
+    } as unknown as Flat;
     flatMap[flatGroup.id] = flatGroup;
 
     return flatGroup.id;

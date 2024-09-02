@@ -1,6 +1,7 @@
 use std::fmt::Debug;
 use std::ops::{Deref, DerefMut};
 
+use anyhow::Result;
 use hermes_five::animation::Track;
 use hermes_five::devices::Actuator;
 use serde::{Deserialize, Serialize};
@@ -17,8 +18,8 @@ impl_device!(Led, {
         Ok(())
     }
 
-    fn into_track(&self) -> Option<Track> {
+    fn into_track(&self) -> Result<Track> {
         let device = self.inner.clone();
-        Some(Track::new(device))
+        Ok(Track::new(device))
     }
 });
