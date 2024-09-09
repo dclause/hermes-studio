@@ -8,7 +8,11 @@
         @delete="onDelete"
       />
     </div>
-    <div v-else :class="{ 'ml-5': group.level }" class="group pt-1 pb-2 pl-3 my-2">
+    <div
+      v-else-if="group.children.length"
+      :class="{ 'ml-5': group.level }"
+      class="group pt-1 pb-2 pl-3 my-2"
+    >
       <div class="d-flex flex-1-1-100 align-center mb-2">
         <v-icon class="mr-3" icon="mdi-select-group" size="30" />
         <div class="group-label font-weight-bold">

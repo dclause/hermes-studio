@@ -75,7 +75,7 @@ import { Actuator } from '@/types/devices';
 
 const props = withDefaults(
   defineProps<{
-    variant?: string;
+    variant: string;
   }>(),
   { variant: 'normal' },
 );

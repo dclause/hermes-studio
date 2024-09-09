@@ -1,5 +1,5 @@
 <template>
-  <default-command v-bind="$attrs" class="command-led">
+  <default-command v-model="device" class="command-led">
     <template #prefix>
       <slot name="prefix" />
     </template>

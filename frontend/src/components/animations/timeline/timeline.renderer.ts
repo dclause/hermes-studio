@@ -407,11 +407,21 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
             this.drawGroupKeyframe(keyframe as unknown as TimelineItem, x, y, w, h);
           }
           if (track.open) {
+            let opened_children = 0;
+            const countOpenedChild = (tracks: Track[]) => {
+              tracks.forEach((child: Track) => {
+                opened_children += 1;
+                if (child.open) {
+                  countOpenedChild(child.children);
+                }
+              });
+            };
+            countOpenedChild(track.children);
             this.drawGroupKeyframeMarker(
               keyframe as unknown as TimelineItem,
               x,
               y + trackHeight,
-              track.children.length * trackHeight,
+              opened_children * trackHeight,
             );
           }
           if (track.id === 0) {

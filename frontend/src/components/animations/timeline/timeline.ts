@@ -352,7 +352,7 @@ export default class Timeline extends TimelineRenderer {
       this._mousePositionOnCanvas.x >= 0 &&
       this._mousePositionOnCanvas.x <= this._ctx!.canvas.clientWidth &&
       this._mousePositionOnCanvas.y >= 0 &&
-      this._mousePositionOnCanvas.y <= this._ctx!.canvas.clientHeight
+      this._mousePositionOnCanvas.y <= this._ctx!.canvas.height
     ) {
       // Delete selected items
       if (event.key === 'Backspace' || event.key === 'Delete') {
@@ -374,15 +374,21 @@ export default class Timeline extends TimelineRenderer {
       if (event.ctrlKey && event.key === 'c') {
         event.preventDefault();
         const keyframesToCopy: TimelineItem[] = [];
-        this.applyAtPosition(this._mousePositionOnCanvas, null, (item: TimelineItem) => {
-          if (item.selected) {
-            keyframesToCopy.push({
-              ...item,
-              time: item.end,
-              type: 'keyframe',
-            });
-          }
-        });
+        this.applyAtPosition(
+          this._mousePositionOnCanvas,
+          null,
+          (item: TimelineItem, _, track: Track) => {
+            if (item.selected) {
+              keyframesToCopy.push({
+                ...item,
+                start: item.end,
+                end: (item.end as number) + (item.end as number) - (item.start as number),
+                type: 'keyframe',
+                track: track.id,
+              });
+            }
+          },
+        );
         await navigator.clipboard.writeText(JSON.stringify(keyframesToCopy));
         return;
       }
