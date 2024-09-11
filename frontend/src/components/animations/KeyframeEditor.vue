@@ -1,5 +1,5 @@
 <template>
-  <v-card class="py-3">
+  <v-card class="pt-3">
     <div class="d-flex justify-space-between align-center">
       <v-card-title v-if="device" class="py-0">
         {{ device.name }}
@@ -9,36 +9,36 @@
       </v-card-subtitle>
     </div>
     <v-card-text>
-      <v-row>
+      <v-row class="ma-0">
         <v-col class="align-self-center">
           <v-text-field
             v-model.number="keyframe.start"
+            type="number"
+            hide-details
             class="command-input flex-0-0"
             :label="t('start')"
             :min="0"
-            type="number"
           />
         </v-col>
         <v-col class="align-self-center">
           <v-text-field
             v-model.number="keyframe.end"
+            type="number"
+            hide-details
             class="command-input flex-0-0"
             :label="t('end')"
             :min="0"
-            type="number"
           />
         </v-col>
       </v-row>
-      <v-row>
-        <component
-          :is="useDeviceComponent(devices[keyframe.device].type)"
-          v-if="device"
-          v-model="devices[keyframe.device] as Actuator"
-          v-model:keyframe="keyframe"
-          variant="minimal"
-          :mode="HardwareMode.OFF"
-        />
-      </v-row>
+      <component
+        :is="useDeviceComponent(devices[keyframe.device].type)"
+        v-if="device"
+        v-model="devices[keyframe.device] as Actuator"
+        v-model:keyframe="keyframe"
+        variant="minimal"
+        :mode="HardwareMode.OFF"
+      />
     </v-card-text>
   </v-card>
 </template>
@@ -56,8 +56,8 @@ const { t } = useI18n();
 const keyframe = defineModel<Keyframe>({ required: true });
 const { devices } = useDeviceStore();
 const { boards } = useBoardStore();
-const device = computed(() => devices[keyframe.value.device]);
-const board = computed(() => boards[device.value.bid]);
+const device = computed(() => keyframe.value.device && devices[keyframe.value.device]);
+const board = computed(() => device.value.bid && boards[device.value.bid]);
 </script>
 
 <i18n>

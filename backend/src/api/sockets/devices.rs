@@ -26,7 +26,7 @@ pub fn register_device_events(socket: &SocketRef) {
         |socket: SocketRef,
          State(database): State<ArcDb>,
          Data((id, state)): Data<(Id, u16)>,
-         ack: AckSender| async move {
+         ack: AckSender| {
             debug!(
                 "Event received: [device:mutate]: device={}, state={:?}",
                 id, state
@@ -69,11 +69,34 @@ pub fn register_device_events(socket: &SocketRef) {
     );
 
     socket.on(
+        "device:reset",
+        |socket: SocketRef, database: State<ArcDb>, Data(id): Data<Id>, ack: AckSender| {
+            debug!("Event received: [device:reset]: {:?}", id);
+            database.write().set_autosave(false);
+
+            let mutation = Device::get(&database, &id).and_then(|device| match device {
+                None => bail!("Device not found"),
+                Some(mut device) => {
+                    device
+                        .inner
+                        .reset()
+                        .and_then(|state| match device.save(&database) {
+                            Ok(_) => Ok((id, state)),
+                            Err(err) => bail!(err.to_string()),
+                        })
+                }
+            });
+            database.write().set_autosave(true);
+            broadcast_to_all("device:mutated", mutation, &socket);
+        },
+    );
+
+    socket.on(
         "device:animate",
         |socket: SocketRef,
          State(database): State<ArcDb>,
          Data((id, state, duration, transition)): Data<(Id, u16, u64, Easing)>,
-         ack: AckSender| async move {
+         ack: AckSender| {
             debug!(
                 "Event received: [device:animate]: device={}, state={:?}, duration={}, transition={:?}",
                 id, state, duration, transition

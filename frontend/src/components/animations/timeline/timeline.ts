@@ -160,6 +160,7 @@ export default class Timeline extends TimelineRenderer {
 
   protected _onMouseDown = (event: TouchEvent | MouseEvent) => {
     event.preventDefault();
+    let hasSelection = false;
     const isDoubleClick = Date.now() - this._lastClickTime < 400;
     this._mousePositionOnCanvas = this._getMousePositionOnCanvas(event);
 
@@ -171,6 +172,7 @@ export default class Timeline extends TimelineRenderer {
           // Toggle the current keyframe (keep selected the others only if ctrlKey)
           item.selected = isAtPosition && !item.selected;
         }
+        hasSelection = hasSelection || item.selected;
       },
       // Set the current position of the keyframe when clicked on: this allows moving it later on.
       (item: TimelineItem, isAtPosition: boolean) => {
@@ -206,6 +208,10 @@ export default class Timeline extends TimelineRenderer {
         }
       },
     );
+    if (!hasSelection) {
+      console.log('no selection');
+      this._emit(TimelineEvents.selectKeyframe, null);
+    }
     this.render();
     this._lastClickTime = Date.now();
   };
@@ -366,6 +372,7 @@ export default class Timeline extends TimelineRenderer {
           }
         };
         deleteKeyframeToTracks(this._tracks);
+        this._emit(TimelineEvents.selectKeyframe, null);
         this._pushToHistory();
         return;
       }

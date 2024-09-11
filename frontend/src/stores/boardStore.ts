@@ -103,8 +103,8 @@ export const useBoardStore = defineStore({
       });
     },
 
-    open(board: Board) {
-      return socketEmit('board:open', board.id, (ack: SocketAck) => {
+    open(id: BoardId) {
+      return socketEmit('board:open', id, (ack: SocketAck) => {
         if (ack.success) {
           useDeviceStore().refresh();
           const board = ack.success as Board;
@@ -112,8 +112,8 @@ export const useBoardStore = defineStore({
         }
       });
     },
-    close(board: Board) {
-      return socketEmit('board:close', board.id, (ack: SocketAck) => {
+    close(id: BoardId) {
+      return socketEmit('board:close', id, (ack: SocketAck) => {
         if (ack.success) {
           const board = ack.success as Board;
           this.boards[board.id] = board;
@@ -121,8 +121,8 @@ export const useBoardStore = defineStore({
       });
     },
 
-    reset(board: Board) {
-      return socketEmit('board:reset', board.id);
+    reset(id: BoardId) {
+      return socketEmit('board:reset', id);
     },
 
     reset_all() {

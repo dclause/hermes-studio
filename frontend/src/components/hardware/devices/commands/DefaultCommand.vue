@@ -1,6 +1,6 @@
 <template>
   <v-card
-    class="wrapper d-flex flex-1-1-100 align-center my-2 overflow-visible"
+    class="wrapper d-flex flex-1-1-100 align-center mt-2 overflow-visible"
     :variant="cardVariant"
   >
     <slot name="prefix" />
@@ -38,6 +38,14 @@
 
     <div v-if="variant !== 'minimal'" class="d-flex">
       <v-btn
+        icon="mdi-refresh"
+        size="small"
+        variant="text"
+        :disabled="!board.connected"
+        @click="deviceStore.reset(device.id)"
+      />
+
+      <v-btn
         icon="mdi-pencil"
         size="small"
         :to="{
@@ -71,26 +79,29 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { useBoardStore } from '@/stores/boardStore';
+import { useDeviceStore } from '@/stores/deviceStore';
 import { Actuator } from '@/types/devices';
 
 const props = withDefaults(
   defineProps<{
-    variant: string;
+    variant?: string;
   }>(),
   { variant: 'normal' },
 );
 
 const boardStore = useBoardStore();
+const deviceStore = useDeviceStore();
 const emit = defineEmits<{ delete: [item: Actuator] }>();
 const device = defineModel<Actuator>({ required: true });
 const board = computed(() => boardStore.get(device.value.bid));
 
 const cardVariant = computed(() => {
   switch (props.variant) {
-    case 'normal':
-      return 'elevated';
     case 'minimal':
       return 'flat';
+    case 'normal':
+    default:
+      return 'elevated';
   }
 });
 </script>

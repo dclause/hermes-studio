@@ -7,7 +7,6 @@ use anyhow::Result;
 use hermes_five::animation::Track;
 use hermes_five::utils::task;
 use hermes_five::utils::task::TaskHandler;
-use log::trace;
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 
@@ -110,7 +109,6 @@ impl Animation {
         }
 
         self.inner = hermes_five::animation::Animation::from(new_segment);
-        trace!("Animation built: {:#?}", self.inner);
         Ok(())
     }
 
@@ -157,10 +155,18 @@ pub struct Keyframe {
     #[serde(flatten)]
     inner: hermes_five::animation::Keyframe,
     device: Id,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    position: Vec<Position>,
 }
 
 impl Into<hermes_five::animation::Keyframe> for Keyframe {
     fn into(self) -> hermes_five::animation::Keyframe {
         self.inner
     }
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Position {
+    device: Id,
+    target: u16,
 }

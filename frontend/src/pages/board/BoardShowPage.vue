@@ -4,6 +4,23 @@
       <h1 class="text-h5 text-md-h4 d-flex align-center">
         <board-connection-switch v-model="board" class="d-inline-block pr-3" />
         {{ board.name }}
+
+        <v-tooltip location="bottom">
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              size="large"
+              rounded="xl"
+              class="ml-4 pa-0"
+              variant="text"
+              icon="mdi-refresh"
+              density="comfortable"
+              :disabled="!board.connected"
+              @click="boardStore.reset(board.id)"
+            />
+          </template>
+          <span>{{ t('reset') }}</span>
+        </v-tooltip>
       </h1>
       <v-btn
         color="primary"
@@ -139,6 +156,7 @@ const onConfirmDelete = () => {
 <i18n>
 {
   "en": {
+    "reset": "Reset",
     "new_device": "New device",
     "type": "Board type: ",
     "status": "Status: ",
@@ -153,6 +171,7 @@ const onConfirmDelete = () => {
     "no_inputs": "No inputs available for this board."
   },
   "fr": {
+    "reset": "Réinitialiser",
     "new_device": "Nouveau device",
     "type": "Type de carte : ",
     "status": "Status : ",

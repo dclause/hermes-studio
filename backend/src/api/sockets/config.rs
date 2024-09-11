@@ -16,7 +16,7 @@ pub fn register_config_events(socket: &SocketRef) {
 
     socket.on(
         "config:set",
-        |socket: SocketRef, Data(value): Data<Value>, ack: AckSender| async move {
+        |socket: SocketRef, Data(value): Data<Value>, ack: AckSender| {
             debug!("Event received: [config:set]");
             let config_as_toml: toml::Value = json_to_toml(value).unwrap();
             let config = Interface::set_config(config_as_toml);

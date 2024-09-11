@@ -47,12 +47,12 @@ pub fn register_board_events(socket: &SocketRef) {
 
     socket.on(
         "board:reset",
-        |socket: SocketRef, State(database): State<ArcDb>, Data(id): Data<Id>, ack: AckSender| {
+        |socket: SocketRef, State(database): State<ArcDb>, Data(id): Data<Id>| {
             debug!("Event received: [board:reset]: board:{}", id);
 
             database.write().set_autosave(false);
             let devices = database.read().list::<Device>().and_then(|mut devices| {
-                for (_, mut device) in &mut devices {
+                for (_, device) in &mut devices {
                     if device.bid == id {
                         device.inner.reset()?;
                     }

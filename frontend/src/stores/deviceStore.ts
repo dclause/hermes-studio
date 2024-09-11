@@ -128,6 +128,10 @@ export const useDeviceStore = defineStore({
       });
     },
 
+    reset(id: DeviceId) {
+      return socketEmit('device:reset', id);
+    },
+
     mutate(id: DeviceId, state: DeviceState) {
       return socketEmit('device:mutate', id, state);
     },
