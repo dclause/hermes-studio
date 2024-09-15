@@ -4,7 +4,8 @@
       <component
         :is="useDeviceComponent(devices[group.device].type)"
         v-if="devices[group.device]"
-        v-model="devices[group.device] as Actuator"
+        v-model="(devices[group.device] as Actuator).state"
+        :device="devices[group.device] as Actuator"
         @delete="onDelete"
       />
     </div>

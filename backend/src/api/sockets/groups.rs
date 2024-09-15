@@ -26,7 +26,7 @@ pub fn register_group_events(socket: &SocketRef) {
          TryData(name): TryData<String>,
          database: State<ArcDb>,
          ack: AckSender| {
-            debug!("Event received: [group:create]: group:{:?}", name);
+            debug!("Event received: [group:create]: group:{:#?}", name);
 
             let group = match name {
                 Ok(name) => database.write().insert(Group::new(name)),
@@ -42,7 +42,7 @@ pub fn register_group_events(socket: &SocketRef) {
          TryData(data): TryData<(Id, String)>,
          database: State<ArcDb>,
          ack: AckSender| {
-            debug!("Event received: [group:update]: group:{:?}", data);
+            debug!("Event received: [group:update]: group:{:#?}", data);
 
             let group = match data {
                 Ok(data) => {

@@ -71,7 +71,7 @@ pub fn register_board_events(socket: &SocketRef) {
          TryData(new_board): TryData<CreateBoard>,
          database: State<ArcDb>,
          ack: AckSender| {
-            debug!("Event received: [board:add]: board:{:?}", new_board);
+            debug!("Event received: [board:add]: board:{:#?}", new_board);
 
             let board = match new_board {
                 Ok(new_board) => {

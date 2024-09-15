@@ -209,8 +209,7 @@ export default class Timeline extends TimelineRenderer {
       },
     );
     if (!hasSelection) {
-      console.log('no selection');
-      this._emit(TimelineEvents.selectKeyframe, null);
+      // this._emit(TimelineEvents.selectKeyframe, null);
     }
     this.render();
     this._lastClickTime = Date.now();
@@ -321,12 +320,12 @@ export default class Timeline extends TimelineRenderer {
       this._mousePositionOnCanvas = this._getMousePositionOnCanvas(event);
       this.applyAtPosition(
         this._mousePositionOnCanvas,
-        (item: TimelineItem, isAtPosition: boolean) => {
+        (item: TimelineItem, isAtPosition: boolean, track: Track) => {
           if (event.ctrlKey) {
             // Toggle the current keyframe (keep selected the others only if ctrlKey)
             item.selected = (isAtPosition && !item.selected) || (!isAtPosition && item.selected);
           } else if (item.selected) {
-            this._emit(TimelineEvents.selectKeyframe, item as unknown as Keyframe);
+            this._emit(TimelineEvents.selectKeyframe, item as unknown as Keyframe, track);
           }
         },
         (item: TimelineItem) => {
@@ -447,11 +446,15 @@ export default class Timeline extends TimelineRenderer {
     }, null);
 
     track.keyframes.push({
-      device: track.device ?? lastKeyframe?.device ?? (0 as DeviceId),
       start: time,
       end: time + 200,
-      target: lastKeyframe?.target ?? 0,
       transition: lastKeyframe?.transition ?? 'Linear',
+      positions: lastKeyframe?.positions ?? [
+        {
+          device: track.device ?? (track.id as DeviceId),
+          target: 0,
+        },
+      ],
     });
     this._pushToHistory();
   };

@@ -113,7 +113,12 @@
       </v-expansion-panels>
 
       <div class="d-flex flex-grow-1">
-        <keyframe-editor v-if="selectedKeyframe" v-model="selectedKeyframe" class="mt-5 w-100" />
+        <keyframe-editor
+          v-if="selectedKeyframe && selectedTrack"
+          v-model="selectedKeyframe"
+          :track="selectedTrack"
+          class="mt-5 w-100"
+        />
       </div>
     </v-form>
 
@@ -131,12 +136,12 @@ import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import { VForm } from 'vuetify/components';
 import { Rule } from '@/composables/formComposables';
-import { logError, useRedirect } from '@/composables/globalComposables';
+import { logError } from '@/composables/globalComposables';
 import { useAnimationStore } from '@/stores/animationStore';
 import { AnimationId, Keyframe } from '@/types/animation';
+import { Track } from '@/types/timeline';
 
 const { t } = useI18n();
-const { redirect } = useRedirect();
 
 /** Retrieve the animation from the URL parameter */
 const animationStore = useAnimationStore();
@@ -176,8 +181,10 @@ const onSave = async () => {
 
 /** The keyframe selected inside the animation timeline (used for edition) */
 const selectedKeyframe = ref<Keyframe>();
-const onSelectedItem = (item: Keyframe) => {
+const selectedTrack = ref<Track>();
+const onSelectedItem = (item: Keyframe, track: Track) => {
   selectedKeyframe.value = item;
+  selectedTrack.value = track;
 };
 </script>
 

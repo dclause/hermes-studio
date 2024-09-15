@@ -1,8 +1,8 @@
 <template>
   <v-card class="pt-3">
     <div class="d-flex justify-space-between align-center">
-      <v-card-title v-if="device" class="py-0">
-        {{ device.name }}
+      <v-card-title class="py-0">
+        {{ track.name }}
       </v-card-title>
       <v-card-subtitle v-if="board" class="py-0">
         {{ board.name }}
@@ -31,14 +31,18 @@
           />
         </v-col>
       </v-row>
-      <component
-        :is="useDeviceComponent(devices[keyframe.device].type)"
-        v-if="device"
-        v-model="devices[keyframe.device] as Actuator"
-        v-model:keyframe="keyframe"
-        variant="minimal"
-        :mode="HardwareMode.OFF"
-      />
+      <div class="pa-3">
+        <div v-for="position in keyframe.positions" :key="position.device">
+          <component
+            :is="useDeviceComponent(devices[position.device].type)"
+            v-model="position.target"
+            :device="devices[position.device] as Actuator"
+            variant="minimal"
+            hide-label
+            :mode="HardwareMode.OFF"
+          />
+        </div>
+      </div>
     </v-card-text>
   </v-card>
 </template>
@@ -51,13 +55,41 @@ import { HardwareMode } from '@/composables/globalComposables';
 import { useBoardStore } from '@/stores/boardStore';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { Keyframe } from '@/types/animation';
+import { Track } from '@/types/timeline';
 
 const { t } = useI18n();
 const keyframe = defineModel<Keyframe>({ required: true });
+const props = defineProps<{ track: Track }>();
+
 const { devices } = useDeviceStore();
 const { boards } = useBoardStore();
-const device = computed(() => keyframe.value.device && devices[keyframe.value.device]);
-const board = computed(() => device.value.bid && boards[device.value.bid]);
+const device = computed(() => props.track.device && devices[props.track.device]);
+const board = computed(() => device.value && device.value.bid && boards[device.value.bid]);
+
+// onBeforeMount(() => {
+//   const buildPositionsForGroup = (group: FlatGroup): Position[] => {
+//     return group.children.reduce((positions, childGroup) => {
+//       // const childGroup = groups[child];
+//       if (childGroup) {
+//         if (childGroup.device) {
+//           const device = devices[childGroup.device];
+//           if (device) {
+//             positions.push({
+//               device: device.id,
+//               target:
+//                 keyframe.value.positions?.find((position) => position.device === device.id)
+//                   ?.target ?? device.default,
+//             });
+//           }
+//         } else {
+//           positions.push(...buildPositionsForGroup(childGroup));
+//         }
+//       }
+//       return positions;
+//     }, [] as Position[]);
+//   };
+//   keyframe.value.positions = buildPositionsForGroup(props.track);
+// });
 </script>
 
 <i18n>

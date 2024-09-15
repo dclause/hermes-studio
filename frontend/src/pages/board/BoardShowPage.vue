@@ -19,7 +19,7 @@
               @click="boardStore.reset(board.id)"
             />
           </template>
-          <span>{{ t('reset') }}</span>
+          <span>{{ $t('form.reset') }}</span>
         </v-tooltip>
       </h1>
       <v-btn
@@ -96,7 +96,7 @@
 <script lang="ts" setup>
 import type { BoardId } from '@/types/boards';
 import type { Device } from '@/types/devices';
-import type { FlatGroup, GroupId, NestedGroup } from '@/types/groups';
+import type { FlatGroup, GroupId } from '@/types/groups';
 import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n'; // Retrieve the board.
@@ -156,7 +156,6 @@ const onConfirmDelete = () => {
 <i18n>
 {
   "en": {
-    "reset": "Reset",
     "new_device": "New device",
     "type": "Board type: ",
     "status": "Status: ",
@@ -171,7 +170,6 @@ const onConfirmDelete = () => {
     "no_inputs": "No inputs available for this board."
   },
   "fr": {
-    "reset": "Réinitialiser",
     "new_device": "Nouveau device",
     "type": "Type de carte : ",
     "status": "Status : ",

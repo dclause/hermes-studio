@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 use anyhow::Result;
 use hermes_five::animation::Track;
-use hermes_five::utils::task;
+use hermes_five::utils::{Easing, task};
 use hermes_five::utils::task::TaskHandler;
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
@@ -61,54 +61,53 @@ impl Animation {
         let mut tracks: HashMap<Id, Track> = HashMap::new();
         // Loop through each tracks of the animation (one track per group)
         for (group_id, keyframes) in &self.tracks {
-            // Retrieve the device ID associated with the group, if any
-            let device_id = match database.get::<Group>(group_id).unwrap() {
-                None => continue, // Skip if the group no longer exists
-                Some(group) => group.device,
+            // First: ensure the group associated with the track still exists: if not abort this track.
+            if database.get::<Group>(group_id)?.is_none() {
+                continue;
             };
 
-            // Fetch the device associated with the device_id, if any
-            let (mut device_id, mut track) = match device_id {
-                None => (0, None),
-                Some(device_id) => match database.get::<Device>(&device_id).unwrap() {
-                    None => continue, // Skip if the group no longer exists
-                    Some(device) => match device.inner.clone().into_track() {
-                        Err(_) => continue, // Skip if device is not applicable as a track (device is not Actuator for instance)
-                        Ok(track) => (device_id, Some(track)),
-                    },
-                },
-            };
-
+            // Loop over the track keyframes...
             for keyframe in keyframes {
-                // If we are not supposed to have a track already, then we can proceed to:
-                if device_id == 0 {
-                    track = match tracks.get(&keyframe.device).cloned().or_else(|| {
-                        database
-                            .get::<Device>(&keyframe.device)
-                            .unwrap()
-                            .and_then(|device| device.inner.into_track().ok())
-                    }) {
+                // But for "group keyframes" purpose (see frontend), we harmonised device-track
+                // (track which group is actually a device) and group-track (tracks for group where a keyframes
+                // will control multiple devices) so each keyframe contains positions (can be an array of one)
+                // that we need to loop through.
+                for position in &keyframe.positions {
+                    // 1. ensure the device associated with the position still exists: if not abort this track.
+                    let device = match database.get::<Device>(&position.device)? {
                         None => continue,
-                        Some(track) => Some(track),
+                        Some(device) => device,
                     };
-                    device_id = keyframe.device;
-                };
 
-                if let Some(_track) = track {
-                    track = Some(_track.with_keyframe(keyframe.clone().into()));
+                    // 2. Retrieve the hermes-track for the device (if already created) or create a new one
+                    // for the current frontend-track.
+                    let track = match tracks.get(&position.device) {
+                        Some(track) => track.clone(),
+                        None => device.inner.into_track()?,
+                    };
+
+                    // 3. Add the position as a new hermes-keyframe on the hermes-track.
+                    let track = track.with_keyframe(
+                        hermes_five::animation::Keyframe::new(
+                            position.target,
+                            keyframe.start,
+                            keyframe.end,
+                        )
+                        .set_transition(keyframe.transition),
+                    );
+
+                    tracks.insert(device.id, track);
                 }
-            }
-
-            if keyframes.len() > 0 && track.is_some() && device_id > 0 {
-                tracks.insert(device_id, track.unwrap());
             }
         }
 
+        // Add the tracks to the new animation segment.
         for (_, track) in tracks {
             new_segment = new_segment.with_track(track)
         }
 
         self.inner = hermes_five::animation::Animation::from(new_segment);
+        println!("{}", self.inner);
         Ok(())
     }
 
@@ -152,17 +151,10 @@ impl Animation {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Keyframe {
-    #[serde(flatten)]
-    inner: hermes_five::animation::Keyframe,
-    device: Id,
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    position: Vec<Position>,
-}
-
-impl Into<hermes_five::animation::Keyframe> for Keyframe {
-    fn into(self) -> hermes_five::animation::Keyframe {
-        self.inner
-    }
+    positions: Vec<Position>,
+    start: u64,
+    end: u64,
+    transition: Easing,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

@@ -20,9 +20,13 @@ export declare interface Animation {
 }
 
 export declare interface Keyframe {
-  device: DeviceId;
   start: number;
   end: number;
-  target: number;
   transition: Transition;
+  positions: Position[];
+}
+
+export declare interface Position {
+  device: DeviceId;
+  target: number;
 }

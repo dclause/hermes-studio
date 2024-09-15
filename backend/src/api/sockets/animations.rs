@@ -33,7 +33,7 @@ pub fn register_animation_events(socket: &SocketRef) {
          TryData(new_animation): TryData<Animation>,
          ack: AckSender| {
             debug!(
-                "Event received: [animation:create]: animation:{:?}",
+                "Event received: [animation:create]: animation:{:#?}",
                 new_animation
             );
 
@@ -56,7 +56,7 @@ pub fn register_animation_events(socket: &SocketRef) {
          TryData(animation): TryData<Animation>,
          ack: AckSender| {
             debug!(
-                "Event received: [animation:update]: animation:{:?}",
+                "Event received: [animation:update]: animation:{:#?}",
                 animation
             );
 

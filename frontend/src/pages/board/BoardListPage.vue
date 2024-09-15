@@ -10,15 +10,6 @@
     </v-btn>
   </div>
 
-  <v-btn
-    append-icon="mdi-refresh"
-    class="pa-2 pt-0 pb-0"
-    :disabled="loading"
-    text="Refresh"
-    variant="text"
-    @click="boardStore.refresh()"
-  />
-
   <v-spacer />
 
   <v-data-table

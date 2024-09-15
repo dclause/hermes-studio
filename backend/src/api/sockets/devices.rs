@@ -70,7 +70,7 @@ pub fn register_device_events(socket: &SocketRef) {
 
     socket.on(
         "device:reset",
-        |socket: SocketRef, database: State<ArcDb>, Data(id): Data<Id>, ack: AckSender| {
+        |socket: SocketRef, database: State<ArcDb>, Data(id): Data<Id>| {
             debug!("Event received: [device:reset]: {:?}", id);
             database.write().set_autosave(false);
 
@@ -133,7 +133,7 @@ pub fn register_device_events(socket: &SocketRef) {
          State(database): State<ArcDb>,
          TryData(new_device): TryData<Device>,
          ack: AckSender| {
-            debug!("Event received: [device:create]: {:?}", new_device);
+            debug!("Event received: [device:create]: {:#?}", new_device);
 
             let device = match new_device {
                 Err(error) => Err(anyhow!("Invalid device: {}", error)),
@@ -161,7 +161,7 @@ pub fn register_device_events(socket: &SocketRef) {
          State(database): State<ArcDb>,
          TryData(device): TryData<Device>,
          ack: AckSender| {
-            debug!("Event received: [device:update]: {:?}", device);
+            debug!("Event received: [device:update]: {:#?}", device);
 
             let device = match device {
                 Err(error) => Err(anyhow!("Invalid device: {}", error)),

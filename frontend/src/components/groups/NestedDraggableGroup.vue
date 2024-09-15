@@ -20,7 +20,8 @@
         <component
           :is="useDeviceComponent(devices[element.device].type)"
           v-if="devices[element.device]"
-          v-model="devices[element.device] as Actuator"
+          v-model="(devices[element.device] as Actuator).state"
+          :device="devices[element.device] as Actuator"
           :disabled="element.disabled"
           :class="{ disabled: element.disabled }"
           class="my-2 pl-3"

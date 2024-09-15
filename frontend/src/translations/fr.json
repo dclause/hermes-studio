@@ -9,7 +9,8 @@
     "create": "Créer",
     "edit": "Editer",
     "delete": "Supprimer",
-    "confirm": "Confirmer"
+    "confirm": "Confirmer",
+    "reset": "Réinitialiser"
   },
   "connexion": {
     "check": "connecté",

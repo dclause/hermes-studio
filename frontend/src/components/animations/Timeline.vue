@@ -113,8 +113,8 @@ watch(
 );
 
 timeline.on(TimelineEvents.updateTracks, () => unsavedActions.value++);
-timeline.on(TimelineEvents.selectKeyframe, (item) => {
-  emit('selectKeyframe', item);
+timeline.on(TimelineEvents.selectKeyframe, (item, track) => {
+  emit('selectKeyframe', item, track);
 });
 timeline.on(TimelineEvents.scroll, (scrollTop) => {
   tracksContainer.value!.scrollTop = scrollTop;

@@ -114,18 +114,12 @@ const resume = () => {
     activatedKeyFrames = Object.values(flatTracks).reduce((keyframes, track: Track) => {
       // Remove disabled tracks.
       if (!track.disabled && track.keyframes.length) {
-        if (track.device) {
-          const device = deviceStore.get(track.device);
-          const board = boardStore.get(device.bid);
-          if (board.connected) {
-            // Remove keyframes for none connected boards.
-            keyframes.push(
-              ...track.keyframes.map((kf) => {
-                return { ...kf, device: device.id };
-              }),
-            );
-          }
-        }
+        // const device = deviceStore.get(track.device);
+        // const board = boardStore.get(device.bid);
+        // if (board.connected) {
+        // Remove keyframes for none connected boards.
+        keyframes.push(...track.keyframes);
+        // }
       }
       return keyframes;
     }, [] as Keyframe[]);
@@ -173,14 +167,16 @@ const playKeyframeAt = (time: number) => {
     return kf.start > lastPlayedTime && kf.start < time + 50;
   });
   for (const nextKeyFrame of playableKeyframe) {
-    deviceStore
-      .animate(
-        nextKeyFrame.device,
-        nextKeyFrame.target,
-        nextKeyFrame.end - nextKeyFrame.start,
-        nextKeyFrame.transition,
-      )
-      .catch(logError);
+    for (const position of nextKeyFrame.positions) {
+      deviceStore
+        .animate(
+          position.device,
+          position.target,
+          nextKeyFrame.end - nextKeyFrame.start,
+          nextKeyFrame.transition,
+        )
+        .catch(logError);
+    }
   }
 
   lastPlayedTime = time + 50;

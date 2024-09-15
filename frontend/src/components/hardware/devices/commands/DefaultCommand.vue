@@ -12,7 +12,7 @@
         </slot>
       </div>
 
-      <v-label v-if="variant !== 'minimal'" class="command-label ml-2">
+      <v-label v-if="variant !== 'minimal' || hideLabel" class="command-label ml-2">
         <slot name="label">
           <div class="font-weight-bold">
             {{ device.name }}
@@ -84,16 +84,17 @@ import { Actuator } from '@/types/devices';
 
 const props = withDefaults(
   defineProps<{
+    device: Actuator;
     variant?: string;
+    hideLabel?: false;
   }>(),
-  { variant: 'normal' },
+  { variant: 'normal', hideLabel: false },
 );
 
 const boardStore = useBoardStore();
 const deviceStore = useDeviceStore();
 const emit = defineEmits<{ delete: [item: Actuator] }>();
-const device = defineModel<Actuator>({ required: true });
-const board = computed(() => boardStore.get(device.value.bid));
+const board = computed(() => boardStore.get(props.device.bid));
 
 const cardVariant = computed(() => {
   switch (props.variant) {

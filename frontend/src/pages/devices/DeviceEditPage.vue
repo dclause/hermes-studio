@@ -89,7 +89,6 @@ const deviceFromStore = computed<Device>(() =>
 );
 const device = ref<Device>(deviceFromStore.value);
 watch(deviceFromStore, (deviceFromStore) => {
-  console.log('changed');
   device.value = { ...deviceFromStore };
 });
 

@@ -1,5 +1,5 @@
 <template>
-  <default-command v-model="device" class="command-servo">
+  <default-command :device="device" class="command-servo">
     <template #prefix>
       <slot name="prefix" />
     </template>
@@ -8,16 +8,7 @@
     </template>
     <template #command>
       <servo-action
-        v-if="!keyframe"
-        v-model="device.state"
-        :mode="mode"
-        :device="device"
-        :min="device.range[0]"
-        :max="device.range[1]"
-      />
-      <servo-action
-        v-else
-        v-model="keyframe.target"
+        v-model="state"
         :mode="mode"
         :device="device"
         :min="device.range[0]"
@@ -29,13 +20,12 @@
 
 <script lang="ts" setup>
 import { HardwareMode } from '@/composables/globalComposables';
-import { Keyframe } from '@/types/animation';
-import { Servo } from '@/types/devices';
+import { DeviceState, Servo } from '@/types/devices'; // const device = defineModel<Servo>({ required: true });
 
-const device = defineModel<Servo>({ required: true });
-const keyframe = defineModel<Keyframe>('keyframe', { required: false });
+const state = defineModel<DeviceState>({ required: true });
 withDefaults(
   defineProps<{
+    device: Servo;
     mode?: HardwareMode;
   }>(),
   { mode: HardwareMode.REALTIME },
