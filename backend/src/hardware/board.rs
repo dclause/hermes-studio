@@ -47,7 +47,6 @@ impl Board {
         for (_, mut device) in devices {
             if device.bid == self.id {
                 device.inner.set_board(&self)?;
-                // @todo why is state != default ?
                 device.save(&database)?;
             }
         }

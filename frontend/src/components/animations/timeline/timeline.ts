@@ -2,7 +2,6 @@ import { TimelineEvents } from '@/components/animations/timeline/timeline.events
 import TimelineRenderer from '@/components/animations/timeline/timeline.renderer';
 import TimelineUtils from '@/components/animations/timeline/timeline.utils';
 import { Keyframe } from '@/types/animation';
-import { DeviceId } from '@/types/devices';
 import {
   HTMLTimelineElement,
   Point,
@@ -445,16 +444,27 @@ export default class Timeline extends TimelineRenderer {
       return lastKeyframe;
     }, null);
 
+    const positions = lastKeyframe?.positions ?? [];
+    if (!lastKeyframe?.positions) {
+      // Create positions for subtracks tracks.
+      const recursiveBuildTrackPositions = (track: Track) => {
+        if (track.device) {
+          positions.push({
+            device: track.device,
+            target: 0, // @todo: how to get default value here ?
+          });
+        } else {
+          track.children.forEach((child) => recursiveBuildTrackPositions(child));
+        }
+      };
+      recursiveBuildTrackPositions(track);
+    }
+
     track.keyframes.push({
       start: time,
       end: time + 200,
       transition: lastKeyframe?.transition ?? 'Linear',
-      positions: lastKeyframe?.positions ?? [
-        {
-          device: track.device ?? (track.id as DeviceId),
-          target: 0,
-        },
-      ],
+      positions: positions ?? [],
     });
     this._pushToHistory();
   };

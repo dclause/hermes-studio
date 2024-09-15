@@ -6,8 +6,8 @@ use socketioxide::extract::{AckSender, Data, SocketRef, State, TryData};
 
 use crate::animation::animation::Animation;
 use crate::api::payloads::animation::AnimationPayload;
+use crate::api::sockets::{broadcast_and_ack, broadcast_to_all};
 use crate::api::sockets::ack::Ack;
-use crate::api::sockets::broadcast_and_ack;
 use crate::utils::database::ArcDb;
 use crate::utils::entity::Id;
 
@@ -99,13 +99,29 @@ pub fn register_animation_events(socket: &SocketRef) {
                 .and_then(|animation| match animation {
                     None => bail!("Animation not found"),
                     Some(mut animation) => {
-                        animation.build(&database)?;
-                        animation.play()?;
+                        animation.play(&mut database)?;
                         let animation = database.update(animation)?;
-                        Ok(AnimationPayload::from(animation))
+                        match animation.inner.get_duration() {
+                            0 => bail!("Animation empty: check if it has keyframes or board(s) are connected."),
+                            _ => {
+                                let cloned_socket = socket.clone();
+                                let clone_animation = animation.clone();
+                                animation.inner.on(hermes_five::animation::AnimationEvent::OnEnd, move|animation: hermes_five::animation::Animation| {
+                                    // How to avoid theses double clones ?
+                                    let cloned_socket = cloned_socket.clone();
+                                    let mut clone_animation = clone_animation.clone();
+                                    async move {
+                                        clone_animation.inner = animation;
+                                        broadcast_to_all("animation:stopped", Ok(AnimationPayload::from(clone_animation)), &cloned_socket);
+                                        Ok(())
+                                    }
+                                });
+                                Ok(AnimationPayload::from(animation))
+                            },
+                        }
                     }
                 });
-            broadcast_and_ack("animation:updated", animation, &socket, ack);
+            broadcast_and_ack("animation:played", animation, &socket, ack);
         },
     );
 
@@ -125,7 +141,7 @@ pub fn register_animation_events(socket: &SocketRef) {
                     }
                 });
 
-            broadcast_and_ack("animation:updated", animation, &socket, ack);
+            broadcast_and_ack("animation:stopped", animation, &socket, ack);
         },
     );
 
@@ -145,7 +161,7 @@ pub fn register_animation_events(socket: &SocketRef) {
                     }
                 });
 
-            broadcast_and_ack("animation:updated", animation, &socket, ack);
+            broadcast_and_ack("animation:stopped", animation, &socket, ack);
         },
     );
 }

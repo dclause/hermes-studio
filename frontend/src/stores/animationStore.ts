@@ -27,6 +27,20 @@ socketRegister((socket: Socket) => {
     animationStore.animations[animation.id] = animation;
   });
 
+  // React to animation playing.
+  socket.on('animation:played', (animation: Animation) => {
+    animation.playing = window.setInterval(() => {
+      animationStore.animations[animation.id].progress += 100;
+    }, 100);
+    animationStore.animations[animation.id] = animation;
+  });
+
+  // React to animation change: store it.
+  socket.on('animation:stopped', (animation: Animation) => {
+    window.clearInterval(animationStore.animations[animation.id].playing);
+    animationStore.animations[animation.id] = animation;
+  });
+
   // React to animation deletion: remove it.
   socket.on('animation:deleted', (animation: Animation) => {
     delete animationStore.animations[animation.id];
@@ -117,24 +131,24 @@ export const useAnimationStore = defineStore({
     },
 
     play(animation: Animation) {
-      this.loading = true;
       return socketEmit('animation:play', animation.id, (ack: SocketAck) => {
         if (ack.success) {
-          const updatedAnimation = ack.success as Animation;
-          this.animations[updatedAnimation.id] = updatedAnimation;
+          const playedAnimation = ack.success as Animation;
+          playedAnimation.playing = window.setInterval(() => {
+            this.animations[playedAnimation.id].progress += 100;
+          }, 100);
+          this.animations[playedAnimation.id] = playedAnimation;
         }
-        this.loading = false;
       });
     },
 
     stop(animation: Animation) {
-      this.loading = true;
       socketEmit('animation:stop', animation.id, (ack: SocketAck) => {
         if (ack.success) {
-          const updatedAnimation = ack.success as Animation;
-          this.animations[updatedAnimation.id] = updatedAnimation;
+          const stoppedAnimation = ack.success as Animation;
+          window.clearInterval(this.animations[stoppedAnimation.id].playing);
+          this.animations[stoppedAnimation.id] = stoppedAnimation;
         }
-        this.loading = false;
       });
     },
 
@@ -142,8 +156,9 @@ export const useAnimationStore = defineStore({
       this.loading = true;
       socketEmit('animation:pause', animation.id, (ack: SocketAck) => {
         if (ack.success) {
-          const updatedAnimation = ack.success as Animation;
-          this.animations[updatedAnimation.id] = updatedAnimation;
+          const pausedAnimation = ack.success as Animation;
+          window.clearInterval(this.animations[pausedAnimation.id].playing);
+          this.animations[pausedAnimation.id] = pausedAnimation;
         }
         this.loading = false;
       });

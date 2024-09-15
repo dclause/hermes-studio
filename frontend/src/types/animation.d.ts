@@ -14,9 +14,9 @@ export declare interface Animation {
   speed: number;
   tracks: Record<GroupId, Keyframe[]>;
 
-  readonly duration: number;
-  readonly playing: number;
-  readonly progress: number;
+  duration: number;
+  playing: number;
+  progress: number;
 }
 
 export declare interface Keyframe {

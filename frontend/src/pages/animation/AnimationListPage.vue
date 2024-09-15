@@ -50,9 +50,8 @@
       />
       <v-progress-circular
         v-else
-        :model-value="(item.progress * 360) / item.duration"
-        :indeterminate="!item.progress"
-        :rotate="360"
+        :model-value="(item.progress * 100) / item.duration"
+        :indeterminate="!!item.playing && item.duration > 18446744073709550000"
         :size="40"
         :width="5"
         color="primary"

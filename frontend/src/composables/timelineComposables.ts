@@ -118,6 +118,7 @@ export function useTimeline() {
       timeline = new Timeline();
     },
     groupsToTracks: (animation: Animation, groups: Record<GroupId, FlatGroup>): Track[] => {
+      // Convert groups (flat) to flat tracks that will then be nested.
       const flatTracks = Object.entries(groups).reduce(
         (tracks, [id, group]) => {
           tracks[id as GroupId] = {
@@ -131,6 +132,7 @@ export function useTimeline() {
         },
         {} as Record<GroupId, Track>,
       );
+
       return useFlatToNested(flatTracks, animation.tracks);
     },
   };

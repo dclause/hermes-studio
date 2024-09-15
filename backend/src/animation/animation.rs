@@ -1,16 +1,15 @@
 //! This file defines a structure called `Animation`.
 //! @todo describe keyframes, etc...
 use std::collections::HashMap;
-use std::sync::Arc;
 
 use anyhow::Result;
 use hermes_five::animation::Track;
-use hermes_five::utils::{Easing, task};
-use hermes_five::utils::task::TaskHandler;
-use parking_lot::RwLock;
+use hermes_five::utils::Easing;
+use log::{debug, trace};
 use serde::{Deserialize, Serialize};
 
 use crate::animation::group::Group;
+use crate::hardware::board::Board;
 use crate::hardware::device::Device;
 use crate::impl_entity;
 use crate::utils::database::Database;
@@ -40,8 +39,6 @@ pub struct Animation {
     // # Volatile utility data.
     #[serde(skip)]
     pub inner: hermes_five::animation::Animation,
-    #[serde(skip)]
-    pub interval: Arc<RwLock<Option<TaskHandler>>>,
 }
 impl_entity!(Animation, {
     fn post_load(&mut self, database: &Database) -> Result<()> {
@@ -51,7 +48,7 @@ impl_entity!(Animation, {
 });
 
 impl Animation {
-    pub fn build(&mut self, database: &Database) -> Result<()> {
+    fn build(&mut self, database: &Database) -> Result<()> {
         let mut new_segment = hermes_five::animation::Segment::default()
             .set_repeat(self.repeat)
             .set_loopback(self.loopback)
@@ -79,14 +76,24 @@ impl Animation {
                         Some(device) => device,
                     };
 
-                    // 2. Retrieve the hermes-track for the device (if already created) or create a new one
+                    // 2. ensure the board associated with the position still exists and is connected.
+                    match database.get::<Board>(&device.bid)? {
+                        None => continue,
+                        Some(board) => {
+                            if !board.connected {
+                                continue;
+                            }
+                        }
+                    };
+
+                    // 3. Retrieve the hermes-track for the device (if already created) or create a new one
                     // for the current frontend-track.
                     let track = match tracks.get(&position.device) {
                         Some(track) => track.clone(),
                         None => device.inner.into_track()?,
                     };
 
-                    // 3. Add the position as a new hermes-keyframe on the hermes-track.
+                    // 4. Add the position as a new hermes-keyframe on the hermes-track.
                     let track = track.with_keyframe(
                         hermes_five::animation::Keyframe::new(
                             position.target,
@@ -107,44 +114,16 @@ impl Animation {
         }
 
         self.inner = hermes_five::animation::Animation::from(new_segment);
-        println!("{}", self.inner);
+        debug!("{}", self.inner);
+        trace!("{:#?}", self.inner);
         Ok(())
     }
 
-    pub fn play(&mut self) -> Result<()> {
-        let mut self_clone = self.clone();
-        let handler = task::run(async move {
-            // Loop through the segments and run them one by one.
-            for index in self_clone.inner.get_current()..self_clone.inner.get_segments().len() {
-                self_clone.inner.set_current(index);
-
-                // Retrieve the currently running segment.
-                let segment_playing = self_clone.inner.get_mut_segments().get_mut(index).unwrap();
-                segment_playing.play()?;
-            }
-
-            self_clone.inner.set_current(0); // reset to the beginning
-            Ok(())
-        })?;
-        *self.interval.write() = Some(handler);
-
+    pub fn play(&mut self, database: &Database) -> Result<()> {
+        self.build(database)?;
+        self.inner.play();
         Ok(())
     }
-
-    // pub fn play(&mut self) -> Result<()> {
-    //     // Loop through the segments and run them one by one.
-    //     for index in self.inner.get_current()..self.inner.get_segments().len() {
-    //         self.inner.set_current(index);
-    //
-    //         // Retrieve the currently running segment.
-    //         let segment_playing = self.inner.get_mut_segments().get_mut(index).unwrap();
-    //         segment_playing.play()?;
-    //     }
-    //
-    //     self.inner.set_current(0); // reset to the beginning
-    //
-    //     Ok(())
-    // }
 }
 
 // ######################################
