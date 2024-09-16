@@ -165,10 +165,6 @@ const saveAnimation = () => {
     margin-bottom: 17px;
     overflow: hidden;
     flex: 0 0 16.666%;
-
-    > *:last-child {
-      border-bottom: 1px solid rgb(var(--v-theme-timeline-border));
-    }
   }
 
   .timeline {

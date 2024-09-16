@@ -114,13 +114,13 @@ impl Animation {
         }
 
         self.inner = hermes_five::animation::Animation::from(new_segment);
-        debug!("{}", self.inner);
-        trace!("{:#?}", self.inner);
         Ok(())
     }
 
     pub fn play(&mut self, database: &Database) -> Result<()> {
         self.build(database)?;
+        debug!("{}", self.inner);
+        trace!("{:#?}", self.inner);
         self.inner.play();
         Ok(())
     }

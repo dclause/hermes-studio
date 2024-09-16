@@ -354,9 +354,9 @@ export default class Timeline extends TimelineRenderer {
     if (
       this._ctx &&
       this._mousePositionOnCanvas.x >= 0 &&
-      this._mousePositionOnCanvas.x <= this._ctx!.canvas.clientWidth &&
+      this._mousePositionOnCanvas.x <= this._ctx!.canvas.width &&
       this._mousePositionOnCanvas.y >= 0 &&
-      this._mousePositionOnCanvas.y <= this._ctx!.canvas.height
+      this._mousePositionOnCanvas.y <= this._getTotalHeight()
     ) {
       // Delete selected items
       if (event.key === 'Backspace' || event.key === 'Delete') {

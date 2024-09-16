@@ -258,11 +258,17 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
   // Rendering helpers
   // ###########################################
 
+  protected _getTotalHeight(): number {
+    const trackHeight = this._config.trackHeight;
+    const headerHeight = this._config.headerHeight;
+    return trackHeight * this._countTracks + headerHeight + 100;
+  }
+
   /** Renders the canvas background. */
   private _renderBackground(): void {
     if (this._ctx) {
       // Transparent background.
-      this._ctx.clearRect(0, 0, this._ctx.canvas.width, this._ctx.canvas.height);
+      this._ctx.clearRect(0, 0, this._ctx.canvas.width, this._getTotalHeight());
     }
   }
 
@@ -347,9 +353,10 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
 
       const trackHeight = this._config.trackHeight;
       const headerHeight = this._config.headerHeight;
-
-      // const top = 0;
-      // const firstVisibleTrack = Math.min(this._countTracks, Math.ceil(top / trackHeight));
+      // const firstVisibleTrack = Math.min(
+      //   this._countTracks,
+      //   Math.max(0, Math.ceil((this._scrollContainer!.scrollTop - headerHeight) / trackHeight)),
+      // );
       // const lastVisibleTrack = Math.min(
       //
       //   firstVisibleTrack + Math.ceil(this._ctx.canvas.clientHeight / trackHeight),
@@ -359,9 +366,9 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
       this._ctx.lineWidth = 1;
       this._ctx.strokeStyle = '#737070';
       this.drawLine(0, headerHeight, this._ctx.canvas.clientWidth, headerHeight);
-      for (let i = 0; i <= this._countTracks + 1; i++) {
+      for (let i = 0; i <= this._countTracks; i++) {
         const trackPosY = i * trackHeight + headerHeight;
-        this.drawLine(from, trackPosY + trackHeight, to, trackPosY + trackHeight);
+        this.drawLine(from, trackPosY, to, trackPosY);
       }
       this._ctx.restore();
     }
@@ -559,6 +566,7 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
       let changed = false;
       const width = this._ctx.canvas.clientWidth * this._config.scaleFactor;
       const height = this._ctx.canvas.clientHeight * this._config.scaleFactor;
+
       if (Math.floor(width) != Math.floor(this._ctx.canvas.width)) {
         this._ctx.canvas.width = width;
         changed = true;
