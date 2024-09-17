@@ -3,7 +3,6 @@ use log::debug;
 use socketioxide::extract::{AckSender, Data, SocketRef, State, TryData};
 
 use crate::animation::group::Group;
-use crate::api::payloads::board::CreateBoard;
 use crate::api::sockets::{broadcast_and_ack, broadcast_to_all};
 use crate::api::sockets::ack::Ack;
 use crate::hardware::board::Board;
@@ -68,36 +67,40 @@ pub fn register_board_events(socket: &SocketRef) {
     socket.on(
         "board:create",
         |socket: SocketRef,
-         TryData(new_board): TryData<CreateBoard>,
+         TryData(new_board): TryData<Board>,
          database: State<ArcDb>,
          ack: AckSender| {
-            debug!("Event received: [board:add]: board:{:#?}", new_board);
+            debug!("Event received: [board:create]: board:{:#?}", new_board);
 
             let board = match new_board {
-                Ok(new_board) => {
-                    let board: Board = new_board.into();
-                    database.write().insert(board)
-                }
                 Err(error) => Err(anyhow!("Invalid board: {}", error)),
+                Ok(new_board) => database.write().insert(new_board),
             };
-
             broadcast_and_ack("board:updated", board, &socket, ack);
         },
     );
-    //
-    // socket.on(
-    //     "board:update",
-    //     |socket: SocketRef, TryData(board): TryData<Board>, ack: AckSender| {
-    //         debug!("Event received: [board:update]: board:{:?}", board);
-    //
-    //         let board = match board {
-    //             Ok(board) => board.save(),
-    //             Err(error) => Err(anyhow!("Invalid board: {}", error)),
-    //         };
-    //
-    //         broadcast_and_ack("board:updated", board, socket, ack);
-    //     },
-    // );
+
+    socket.on(
+        "board:update",
+        |socket: SocketRef,
+         TryData(board): TryData<Board>,
+         database: State<ArcDb>,
+         ack: AckSender| {
+            debug!("Event received: [board:update]: board:{:#?}", board);
+
+            let board = match board {
+                Err(error) => Err(anyhow!("Invalid board: {}", error)),
+                Ok(board) => {
+                    Board::get(&database, &board.id).and_then(|existing_board| match existing_board
+                    {
+                        None => bail!("Board [{}] not found", board.id),
+                        Some(_) => database.write().update(board),
+                    })
+                }
+            };
+            broadcast_and_ack("board:updated", board, &socket, ack);
+        },
+    );
 
     socket.on(
         "board:delete",

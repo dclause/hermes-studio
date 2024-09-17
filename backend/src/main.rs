@@ -7,6 +7,7 @@ use crate::app::App;
 mod animation;
 mod api;
 mod app;
+mod extra;
 mod hardware;
 mod server;
 mod utils;

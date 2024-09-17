@@ -96,7 +96,7 @@
 <script lang="ts" setup>
 import type { BoardId } from '@/types/boards';
 import type { Device } from '@/types/devices';
-import type { FlatGroup, GroupId } from '@/types/groups';
+import type { NestedGroup } from '@/types/groups';
 import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n'; // Retrieve the board.
@@ -119,17 +119,16 @@ const devices = computed(() => deviceStore.list_by_board(board.value.id));
 
 const groupStore = useGroupStore();
 const { groups } = storeToRefs(groupStore);
+const shouldDisplayGroup = (group: NestedGroup): boolean => {
+  // A group that have device should be displayed.
+  if (group.device && devices.value.find((device) => device.id == group.device)) {
+    return true;
+  }
+  // A group is display if at least one of the nested group must be displayed.
+  return group.children.reduce((display, child) => display || shouldDisplayGroup(child), false);
+};
 const nestedGroups = computed(() => {
-  const filteredGroups = Object.values(groups.value).reduce(
-    (acc, group) => {
-      if (!group.device || devices.value.find((device) => device.id == group.device)) {
-        acc[group.id] = group;
-      }
-      return acc;
-    },
-    {} as Record<GroupId, FlatGroup>,
-  );
-  return useFlatToNested(filteredGroups);
+  return useFlatToNested(groups.value).filter((group) => shouldDisplayGroup(group));
 });
 
 // Selected tab.

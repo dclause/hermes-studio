@@ -7,7 +7,7 @@ use crate::impl_entity;
 use crate::utils::database::{ArcDb, Database};
 use crate::utils::entity::{Entity, Id};
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Board {
     pub id: Id,
     pub name: String,
@@ -72,8 +72,22 @@ pub enum ArduinoType {
 }
 
 #[derive(Clone, Default, Debug, Serialize, Deserialize)]
+pub enum RaspberryType {
+    ZERO,
+    #[allow(non_camel_case_types)]
+    ZERO_W,
+    TWO,
+    THREE,
+    FOUR,
+    FIVE,
+    #[default]
+    OTHER,
+}
+
+#[derive(Clone, Default, Debug, Serialize, Deserialize)]
 pub enum BoardType {
     Arduino(ArduinoType),
+    RaspberryPi(RaspberryType),
     #[default]
     Unknown,
 }

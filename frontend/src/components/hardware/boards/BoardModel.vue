@@ -4,6 +4,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import ArduinoModel from '@/components/hardware/boards/ArduinoModel.vue';
+import RaspberryModel from '@/components/hardware/boards/RaspberryModel.vue';
 import UnknownModel from '@/components/hardware/boards/UnknownModel.vue';
 import { BoardModel } from '@/types/boards';
 
@@ -17,6 +18,8 @@ const component = computed(() => {
     model = Object.keys(props.model)[0];
   }
   switch (model) {
+    case 'RaspberryPi':
+      return RaspberryModel;
     case 'Arduino':
       return ArduinoModel;
     default:

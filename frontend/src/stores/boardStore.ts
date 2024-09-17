@@ -2,6 +2,8 @@
 import type { Board, BoardId, Protocol } from '@/types/boards';
 import { defineStore } from 'pinia';
 import { Socket } from 'socket.io-client';
+import { ArduinoType } from '@/components/hardware/boards/edit/ArduinoBoardEdit.vue';
+import { BoardType } from '@/composables/boardComposables';
 import { useSocketIO } from '@/composables/socketComposables';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { useToasterStore } from '@/stores/toastStore';
@@ -58,7 +60,7 @@ export const useBoardStore = defineStore({
       return {
         id: 0 as BoardId,
         name: 'New board',
-        model: 'Unknown',
+        model: { [BoardType.Arduino]: ArduinoType.OTHER } as unknown as BoardType,
         protocol: {
           type: 'SerialProtocol',
           port: 'COM3',
@@ -67,10 +69,6 @@ export const useBoardStore = defineStore({
       };
     },
 
-    /**
-     * Add a new board to the database.
-     * @param board
-     */
     create(board: Board) {
       this.loading = true;
       return socketEmit('board:create', board, (ack: SocketAck) => {
@@ -79,6 +77,20 @@ export const useBoardStore = defineStore({
           this.boards[createdBoard.id] = createdBoard;
           useToasterStore().success(
             `Successfully created board '${createdBoard.name}' [${createdBoard.id}]`,
+          );
+        }
+        this.loading = false;
+      });
+    },
+
+    update(board: Board) {
+      this.loading = true;
+      return socketEmit('board:update', board, (ack: SocketAck) => {
+        if (ack.success) {
+          const updatedBoard = ack.success as Board;
+          this.boards[updatedBoard.id] = updatedBoard;
+          useToasterStore().success(
+            `Successfully update board '${updatedBoard.name}' [${updatedBoard.id}]`,
           );
         }
         this.loading = false;

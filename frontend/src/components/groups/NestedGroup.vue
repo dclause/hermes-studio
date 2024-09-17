@@ -10,7 +10,7 @@
       />
     </div>
     <div
-      v-else-if="group.children.length"
+      v-else-if="shouldDisplay(group)"
       :class="{ 'ml-5': group.level }"
       class="group pt-1 pb-2 pl-3 my-2"
     >
@@ -41,6 +41,18 @@ const emit = defineEmits<{
 }>();
 const onDelete = (item: Device) => {
   emit('delete', item);
+};
+
+const shouldDisplay = (group: NestedGroup) => {
+  // A group that have device should be displayed.
+  if (group.device) {
+    return true;
+  }
+  let display = false;
+  group.children.forEach((child) => {
+    display = display || shouldDisplay(child);
+  });
+  return display;
 };
 </script>
 
