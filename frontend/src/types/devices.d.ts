@@ -6,7 +6,7 @@ export declare type DeviceId = Branded<number, 'DeviceId'>;
 export declare type DeviceState = number;
 
 export declare type Device = Entity<DeviceId> & {
-  type: DeviceType;
+  type: keyof typeof DeviceType;
   bid: BoardId;
 
   [x: string]: unknown;
@@ -28,4 +28,13 @@ export declare type Servo = Actuator & {
   range: Range<number>;
   pwm_range: Range<number>;
   degree_range: Range<number>;
+};
+
+export declare type Mp3Player = Actuator & {
+  path: string;
+};
+
+export declare type Mp3PlayerFile = {
+  name: string;
+  path: string;
 };

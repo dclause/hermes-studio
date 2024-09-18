@@ -8,18 +8,20 @@
           <v-select
             v-model="device.bid"
             :items="boardItems"
+            item-title="name"
+            item-value="id"
             label="Board"
             required
             :rules="[Rule.REQUIRED]"
-            item-title="name"
-            item-value="id"
             :disabled="isEdit"
           />
         </v-col>
         <v-col class="align-self-center" cols="12" sm="6">
           <v-select
             v-model="device.type"
-            :items="Object.keys(DeviceType).filter((type) => type !== 'Unknown')"
+            :items="mapEnumToOptions(DeviceType, [DeviceType.Unknown])"
+            item-title="text"
+            item-value="value"
             label="Device type"
             required
             :rules="[Rule.REQUIRED, (value: DeviceType) => value != DeviceType.Unknown]"
@@ -72,7 +74,7 @@ import { useRoute } from 'vue-router';
 import { VForm } from 'vuetify/components';
 import { DeviceType, useDeviceEditComponent } from '@/composables/deviceComposables';
 import { Rule } from '@/composables/formComposables';
-import { logError, useRedirect } from '@/composables/globalComposables';
+import { logError, mapEnumToOptions, useRedirect } from '@/composables/globalComposables';
 import { useBoardStore } from '@/stores/boardStore';
 import { useDeviceStore } from '@/stores/deviceStore';
 

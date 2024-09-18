@@ -1,8 +1,9 @@
+import { ProtocolType } from '@/composables/boardComposables';
 import { Entity } from '@/types/core';
 import { Branded } from '@/types/hardware';
 
 export declare interface Protocol {
-  type: string;
+  type: keyof typeof ProtocolType;
 
   [x: string]: unknown;
 }

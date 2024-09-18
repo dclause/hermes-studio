@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use hermes_five::errors::Error;
-use hermes_five::protocols::{Hardware, Message, Protocol};
+use hermes_five::protocols::{Hardware, Protocol};
 use log::trace;
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};

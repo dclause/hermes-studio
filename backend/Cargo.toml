@@ -12,10 +12,11 @@ license = "MIT"
 # @todo use published crate
 hermes-five = { path = "../../hermes-five/hermes-five", features = ["serde"] }
 anyhow = "1.0.86"
-axum = { version = "0.7.5", default-features = false, features = ["form", "http1", "json", "matched-path", "original-uri", "query", "tokio"] }
+axum = { version = "0.7.5", default-features = false, features = ["form", "http1", "json", "matched-path", "multipart", "original-uri", "query", "tokio"] }
 clap = { version = "4.5.11", features = ["derive", "env"] }
 chrono = "0.4.38"
 colorful = "0.3.2"
+dyn-clone = "1.0.17"
 figment = { version = "0.10.19", features = ["env", "toml"] }
 log = "0.4.22"
 log4rs = { version = "1.3.0", default-features = false, features = ["console_appender", "rolling_file_appender", "compound_policy", "size_trigger", "fixed_window_roller", "config_parsing"] }
@@ -27,7 +28,7 @@ toml = "0.8.19"
 tower-http = { version = "0.5.2", features = ["cors", "fs"] }
 typetag = "0.2.17"
 serde_json = "1.0.121"
-dyn-clone = "1.0.17"
+
 
 [dev-dependencies]
 tempfile = "3.11.0"

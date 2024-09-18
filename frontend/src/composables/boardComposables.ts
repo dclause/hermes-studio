@@ -36,16 +36,18 @@ export const useBoardModelEditComponent = (model: BoardModel): Component | undef
 // -------------------------------------
 
 export enum ProtocolType {
-  Unknown = '',
-  Serial = 'SerialProtocol',
-  Raspi = 'RaspiProtocol',
+  UnknownProtocol = 'Unknown',
+  SerialProtocol = 'Serial protocol',
+  RaspiProtocol = 'Raspi protocol',
 }
 
-export const useProtocolEditComponent = (protocol: ProtocolType): Component | undefined => {
+export const useProtocolEditComponent = (
+  protocol: keyof typeof ProtocolType,
+): Component | undefined => {
   const mapping = {
-    [ProtocolType.Unknown]: DefaultProtocolEdit,
-    [ProtocolType.Serial]: SerialProtocolEdit,
-    [ProtocolType.Raspi]: RaspiProtocolEdit,
+    [ProtocolType.UnknownProtocol]: DefaultProtocolEdit,
+    [ProtocolType.SerialProtocol]: SerialProtocolEdit,
+    [ProtocolType.RaspiProtocol]: RaspiProtocolEdit,
   };
-  return mapping[protocol];
+  return mapping[ProtocolType[protocol]];
 };

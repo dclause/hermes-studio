@@ -2,7 +2,6 @@
 import type { BoardId } from '@/types/boards';
 import { defineStore } from 'pinia';
 import { Socket } from 'socket.io-client';
-import { DeviceType } from '@/composables/deviceComposables';
 import { useSocketIO } from '@/composables/socketComposables';
 import { Easing } from '@/composables/timelineComposables';
 import { useToasterStore } from '@/stores/toastStore';
@@ -73,7 +72,7 @@ export const useDeviceStore = defineStore({
         entity: 'Device',
         id: 0 as DeviceId,
         name: 'New device',
-        type: DeviceType.Unknown,
+        type: 'Unknown',
         bid,
         pin: 13,
         state: 0,

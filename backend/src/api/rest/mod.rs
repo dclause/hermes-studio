@@ -7,6 +7,7 @@ use crate::api::AppState;
 
 mod boards;
 mod config;
+mod devices;
 mod root;
 
 /// Generic pagination query parameters to be reused when needed across endpoints.
@@ -26,5 +27,6 @@ pub(crate) fn build_rest_routes() -> Router<AppState> {
         .nest("/", root::routes())
         .nest("/config", config::routes())
         .nest("/boards", boards::routes())
+        .nest("/devices", devices::routes())
     // .nest("/animations", animations::routes())
 }

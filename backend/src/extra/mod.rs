@@ -1,2 +1,2 @@
-mod mp3;
-mod raspi;
+pub mod mp3;
+pub mod raspi;

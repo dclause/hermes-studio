@@ -14,7 +14,7 @@
             <v-text-field
               v-model="socket.url"
               :disabled="socket.isConnected"
-              :rules="[Rule.REQUIRED]"
+              :rules="[Rule.REQUIRED, Rule.NON_EMPTY]"
               :hint="t('hint')"
               required
               type="url"
@@ -53,6 +53,7 @@ import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { Rule } from '@/composables/formComposables';
 import { useConnectionStore } from '@/stores/connectionStore';
+import { useToasterStore } from '@/stores/toastStore';
 
 const { t } = useI18n();
 const socket = useConnectionStore();
@@ -60,10 +61,20 @@ const socket = useConnectionStore();
 const form = defineModel<boolean>();
 const disabled = ref<boolean>(false);
 const loading = ref<boolean>(false);
+const toaster = useToasterStore();
 
-const onSubmit = () => {
+// const onValidate = (value) => !!value && !!data.value && !error.value && 'URL is incorrect';
+const onSubmit = async () => {
   disabled.value = loading.value = true;
-  socket.isConnected ? socket.close() : socket.open();
+  if (socket.isConnected) {
+    socket.close();
+  } else {
+    if ((await fetch(`${socket.url}/api`)).ok) {
+      socket.open();
+    } else {
+      toaster.error('Server connection failed.');
+    }
+  }
   loading.value = disabled.value = false;
 };
 </script>
@@ -75,14 +86,14 @@ const onSubmit = () => {
     "disconnect": "Disconnect",
     "title": "Connection settings",
     "description": "Configure connection settings to Hermes-Studio backend.",
-    "hint": "This URL should end with /ws"
+    "hint": "The URL given by hermes-studio executable when started. By default: localhost:4000"
   },
   "fr": {
     "connect": "Connecter",
     "disconnect": "Déconnecter",
     "title": "Paramètres de connexion",
     "description": "Configurer les informations de connection vers le backend Hermes-Studio.",
-    "hint": "Cette URL devrait terminer par /ws"
+    "hint": "L'URL donnée par l'application hermes-studio au démarrage. Par défaut: localhost:4000"
   }
 }
 </i18n>

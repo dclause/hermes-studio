@@ -3,7 +3,7 @@ use std::fmt::Debug;
 use anyhow::Result;
 use dyn_clone::DynClone;
 use hermes_five::animation::Track;
-use hermes_five::utils::Easing;
+use hermes_five::utils::{Easing, State};
 use serde::{Deserialize, Serialize};
 
 use crate::animation::group::Group;
@@ -60,10 +60,10 @@ impl_entity!(Device, {
 
 #[typetag::serde(tag = "type")]
 pub trait DeviceType: DynClone + Debug + Send + Sync {
-    fn reset(&mut self) -> Result<u16>;
+    fn reset(&mut self) -> Result<State>;
     fn set_board(&mut self, board: &Board) -> Result<()>;
-    fn set_state(&mut self, state: u16) -> Result<u16>;
-    fn animate(&mut self, state: u16, duration: u64, transition: Easing) -> Result<u16>;
+    fn set_state(&mut self, state: State) -> Result<State>;
+    fn animate(&mut self, state: State, duration: u64, transition: Easing) -> Result<State>;
     fn into_track(&self) -> Result<Track>;
 }
 dyn_clone::clone_trait_object!(DeviceType);
@@ -95,13 +95,13 @@ macro_rules! impl_device {
         #[typetag::serde]
         impl DeviceType for $struct_name {
 
-            fn animate(&mut self, state: u16, duration: u64, transition: hermes_five::utils::Easing) -> anyhow::Result<u16> {
-                self.inner.animate(state, duration, transition);
+            fn animate(&mut self, state: hermes_five::utils::State, duration: u64, transition: hermes_five::utils::Easing) -> anyhow::Result<hermes_five::utils::State> {
+                self.inner.animate(state.clone(), duration, transition);
                 Ok(state)
             }
 
-            fn set_state(&mut self, state: u16) -> anyhow::Result<u16> {
-                self.inner.set_state(state)?;
+            fn set_state(&mut self, state: hermes_five::utils::State) -> anyhow::Result<hermes_five::utils::State> {
+                self.inner.set_state(state.clone())?;
                 Ok(state)
             }
 
@@ -110,7 +110,7 @@ macro_rules! impl_device {
                 Ok(Track::new(device))
             }
 
-            fn reset(&mut self) -> Result<u16> {
+            fn reset(&mut self) -> Result<hermes_five::utils::State> {
                 let state = self.animate(self.inner.get_default(), 1000, hermes_five::utils::Easing::SineInOut)?;
                 Ok(state)
             }

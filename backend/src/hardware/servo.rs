@@ -16,7 +16,7 @@ impl_device!(Servo, {
         self.inner = hermes_five::devices::Servo::create(
             &board.inner,
             current.get_pin(),
-            current.get_default(),
+            current.get_default().as_integer() as u16,
             current.is_inverted(),
         )?
         .set_type(current.get_type())

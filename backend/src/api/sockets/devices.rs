@@ -25,7 +25,7 @@ pub fn register_device_events(socket: &SocketRef) {
         "device:mutate",
         |socket: SocketRef,
          State(database): State<ArcDb>,
-         Data((id, state)): Data<(Id, u16)>,
+         Data((id, state)): Data<(Id, hermes_five::utils::State)>,
          ack: AckSender| {
             debug!(
                 "Event received: [device:mutate]: device={}, state={:?}",
@@ -95,7 +95,7 @@ pub fn register_device_events(socket: &SocketRef) {
         "device:animate",
         |socket: SocketRef,
          State(database): State<ArcDb>,
-         Data((id, state, duration, transition)): Data<(Id, u16, u64, Easing)>,
+         Data((id, state, duration, transition)): Data<(Id, hermes_five::utils::State, u64, Easing)>,
          ack: AckSender| {
             debug!(
                 "Event received: [device:animate]: device={}, state={:?}, duration={}, transition={:?}",

@@ -1,7 +1,7 @@
 <template>
   <v-select
     v-model="model"
-    :items="models"
+    :items="mapEnumToOptions(RaspberryPiType)"
     item-title="text"
     item-value="value"
     label="Model"
@@ -26,18 +26,11 @@ export enum RaspberryPiType {
 <script lang="ts" setup>
 import { ref } from 'vue';
 import { Rule } from '@/composables/formComposables';
+import { mapEnumToOptions } from '@/composables/globalComposables';
 import { Board } from '@/types/boards';
 
 const board = defineModel<Board>({ required: true });
 const model = ref<string>((board.value.model as { RaspberryPi: string }).RaspberryPi);
-
-// List available protocols
-const models = Object.keys(RaspberryPiType)
-  .filter((key) => isNaN(Number(key))) // Filter out the numeric enum members (reverse mappings)
-  .map((key) => ({
-    text: (RaspberryPiType as any)[key],
-    value: key,
-  }));
 
 const onModelChange = (model: string) =>
   ((board.value.model as { RaspberryPi: string }).RaspberryPi = model);

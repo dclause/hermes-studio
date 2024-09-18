@@ -9,7 +9,9 @@
           <!-- Board type -->
           <v-select
             v-model="model"
-            :items="Object.keys(BoardType).filter((type) => type !== 'Unknown')"
+            :items="mapEnumToOptions(BoardType, [BoardType.Unknown])"
+            item-title="text"
+            item-value="value"
             label="Board type"
             required
             :rules="[Rule.REQUIRED, (value: BoardType) => value != BoardType.Unknown]"
@@ -27,12 +29,12 @@
           <!-- Protocol type -->
           <v-select
             v-model="board.protocol.type"
-            :items="protocols"
+            :items="mapEnumToOptions(ProtocolType, [ProtocolType.UnknownProtocol])"
             item-title="text"
             item-value="value"
             label="Protocol type"
             required
-            :rules="[Rule.REQUIRED, (value: ProtocolType) => value != ProtocolType.Unknown]"
+            :rules="[Rule.REQUIRED, (value: ProtocolType) => value != ProtocolType.UnknownProtocol]"
             hide-details
           />
         </v-col>
@@ -87,17 +89,9 @@ import {
   useProtocolEditComponent,
 } from '@/composables/boardComposables';
 import { Rule } from '@/composables/formComposables';
-import { logError, useRedirect } from '@/composables/globalComposables';
+import { logError, mapEnumToOptions, useRedirect } from '@/composables/globalComposables';
 import { useBoardStore } from '@/stores/boardStore';
 import { Board, BoardId } from '@/types/boards';
-
-// List available protocols
-const protocols = Object.keys(ProtocolType)
-  .filter((key) => isNaN(Number(key))) // Filter out the numeric enum members (reverse mappings)
-  .map((key) => ({
-    text: key,
-    value: (ProtocolType as any)[key], // Get the value of the enum for that key
-  }));
 
 const { redirect } = useRedirect();
 const route = useRoute();
@@ -129,9 +123,7 @@ const form = ref<VForm>();
 // Update the create/edit specific board type component.
 const editBoardTypeComponent = computed(() => useBoardModelEditComponent(model.value));
 // Update the create/edit specific board protocol component.
-const editProtocolComponent = computed(() =>
-  useProtocolEditComponent(board.value.protocol.type as ProtocolType),
-);
+const editProtocolComponent = computed(() => useProtocolEditComponent(board.value.protocol.type));
 
 // Validate and submit form
 const loading = ref<boolean>(false);

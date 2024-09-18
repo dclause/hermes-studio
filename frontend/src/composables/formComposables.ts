@@ -1,6 +1,6 @@
 export const Rule = {
-  REQUIRED: (value: unknown) => value !== null && value !== undefined,
-  NON_EMPTY: (value: unknown[]) => value.length > 0,
+  REQUIRED: (value: unknown) => (value !== null && value !== undefined) || 'Field is required',
+  NON_EMPTY: (value: unknown[]) => value.length > 0 || 'Field should not be empty',
 };
 
 export class DialogUtils<T> {
