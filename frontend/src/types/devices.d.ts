@@ -3,7 +3,7 @@ import type { Branded, Entity, Range } from '@/types/core';
 import { DeviceType } from '@/composables/deviceComposables';
 
 export declare type DeviceId = Branded<number, 'DeviceId'>;
-export declare type DeviceState = number;
+export declare type DeviceState = unknown;
 
 export declare type Device = Entity<DeviceId> & {
   type: keyof typeof DeviceType;
@@ -37,4 +37,9 @@ export declare type Mp3Player = Actuator & {
 export declare type Mp3PlayerFile = {
   name: string;
   path: string;
+};
+
+export declare type Mp3PlayerState = {
+  path: string;
+  status: number;
 };

@@ -63,8 +63,10 @@ const innerValue = computed<boolean>({
           if (ack.error) {
             state.value = getState(previousValue);
           }
-          loading.value = false;
           return null;
+        })
+        .finally(() => {
+          loading.value = false;
         })
         .catch(logError);
     }

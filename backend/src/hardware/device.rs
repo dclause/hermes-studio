@@ -101,7 +101,7 @@ macro_rules! impl_device {
             }
 
             fn set_state(&mut self, state: hermes_five::utils::State) -> anyhow::Result<hermes_five::utils::State> {
-                self.inner.set_state(state.clone())?;
+                let state = self.inner.set_state(state.clone())?;
                 Ok(state)
             }
 

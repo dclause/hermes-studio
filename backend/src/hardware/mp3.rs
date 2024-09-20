@@ -49,7 +49,7 @@ impl DeviceType for Mp3Player {
     }
 
     fn set_state(&mut self, state: State) -> anyhow::Result<State> {
-        self.inner.set_state(state.clone())?;
+        let state = self.inner.set_state(state.clone())?;
         Ok(state)
     }
 

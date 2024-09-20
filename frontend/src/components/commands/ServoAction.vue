@@ -68,17 +68,14 @@ const loading = ref<boolean>(false);
  */
 const innerValue = computed<number>({
   get() {
-    return state.value;
+    return state.value as number;
   },
   set(value) {
     if (props.mode === HardwareMode.REALTIME) {
       loading.value = true;
       deviceStore
         .mutate(props.device.id, value)
-        .then(() => {
-          loading.value = false;
-          return null;
-        })
+        .finally(() => (loading.value = false))
         .catch(logError);
     }
   },

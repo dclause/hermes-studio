@@ -7,21 +7,19 @@
       <svg-led class="ml-2 mr-3" width="30" />
     </template>
     <template #command>
-      <v-select :items="fileInfos" item-title="name" hide-details density="compact" />
-      <v-btn icon="mdi-play" variant="text" color="success" size="x-large" density="compact" />
-      <v-btn icon="mdi-stop" variant="text" color="success" size="x-large" density="compact" />
-      <v-btn icon="mdi-replay" variant="text" color="success" size="x-large" density="compact" />
+      <mp3-player-action v-model="state" :mode="mode" :device="device" :files="fileInfos" />
     </template>
   </default-command>
 </template>
 
 <script lang="ts" setup async>
 import { onBeforeMount, ref } from 'vue';
+import Mp3PlayerAction from '@/components/commands/Mp3PlayerAction.vue';
 import { useFetchMp3PlayerFileList } from '@/composables/deviceComposables';
 import { HardwareMode } from '@/composables/globalComposables';
-import { DeviceState, Mp3Player, Mp3PlayerFile } from '@/types/devices';
+import { Mp3Player, Mp3PlayerFile, Mp3PlayerState } from '@/types/devices';
 
-const state = defineModel<DeviceState>({ required: true });
+const state = defineModel<Mp3PlayerState>({ required: true });
 const props = withDefaults(
   defineProps<{
     device: Mp3Player;
@@ -30,7 +28,8 @@ const props = withDefaults(
   { mode: HardwareMode.REALTIME },
 );
 
-const fileInfos = ref<Mp3PlayerFile[]>();
+// Retrieve the mp3Player file info.
+const fileInfos = ref<Mp3PlayerFile[]>([]);
 onBeforeMount(async () => {
   fileInfos.value = await useFetchMp3PlayerFileList(props.device);
 });
