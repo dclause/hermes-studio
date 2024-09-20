@@ -7,23 +7,16 @@
       <svg-led class="ml-2 mr-3" width="30" />
     </template>
     <template #command>
-      <boolean-action
-        v-model="state"
-        class="ml-2"
-        :mode="mode"
-        :device="device"
-        :true="device.intensity"
-        :false="0"
-      />
+      <boolean-action v-model="state" class="ml-2" :mode="mode" :device="device" />
     </template>
   </default-command>
 </template>
 
 <script lang="ts" setup>
 import { HardwareMode } from '@/composables/globalComposables';
-import { DeviceState, Led } from '@/types/devices';
+import { Led } from '@/types/devices';
 
-const state = defineModel<DeviceState>({ required: true });
+const state = defineModel<boolean>({ required: true });
 withDefaults(
   defineProps<{
     device: Led;

@@ -2,7 +2,7 @@
   <generic-action v-model="state" class="action-servo" :device="device" :mode="mode">
     <template #action>
       <v-slider
-        v-model="state"
+        v-model="innerValue"
         class="action-slider d-none ma-0"
         color="primary"
         :disabled="loading"
@@ -50,14 +50,15 @@
 import { computed, ref } from 'vue';
 import { HardwareMode, logError } from '@/composables/globalComposables';
 import { useDeviceStore } from '@/stores/deviceStore';
-import { DeviceState, Servo } from '@/types/devices';
+import { Servo } from '@/types/devices';
+import { SocketAck } from '@/types/socket';
 
-const state = defineModel<DeviceState>({ required: true });
+const state = defineModel<number>({ required: true });
 const props = defineProps<{
   mode: HardwareMode;
   device: Servo;
-  min: DeviceState;
-  max: DeviceState;
+  min: number;
+  max: number;
 }>();
 
 const deviceStore = useDeviceStore();
@@ -68,18 +69,27 @@ const loading = ref<boolean>(false);
  */
 const innerValue = computed<number>({
   get() {
-    return state.value as number;
+    return state.value;
   },
   set(value) {
+    previousState = innerValue.value;
     if (props.mode === HardwareMode.REALTIME) {
       loading.value = true;
       deviceStore
         .mutate(props.device.id, value)
+        .then((ack: SocketAck) => {
+          if (ack.error) {
+            state.value = previousState;
+          }
+          return null;
+        })
         .finally(() => (loading.value = false))
         .catch(logError);
     }
+    state.value = value;
   },
 });
+let previousState = innerValue.value;
 
 const onSlider = (value: number) => {
   innerValue.value = value;

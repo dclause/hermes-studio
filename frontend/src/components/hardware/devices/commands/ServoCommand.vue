@@ -20,9 +20,9 @@
 
 <script lang="ts" setup>
 import { HardwareMode } from '@/composables/globalComposables';
-import { DeviceState, Servo } from '@/types/devices'; // const device = defineModel<Servo>({ required: true });
+import { Servo } from '@/types/devices'; // const device = defineModel<Servo>({ required: true });
 
-const state = defineModel<DeviceState>({ required: true });
+const state = defineModel<number>({ required: true });
 withDefaults(
   defineProps<{
     device: Servo;
