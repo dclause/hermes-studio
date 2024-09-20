@@ -51,7 +51,7 @@
       <v-col class="py-0">
         <v-label>{{ t('default', { default: device.default }) }}</v-label>
         <v-slider
-          v-model="device.default"
+          v-model="device.default as number"
           :min="device.range[0]"
           :max="device.range[1]"
           step="1"

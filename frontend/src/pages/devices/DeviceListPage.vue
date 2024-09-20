@@ -3,22 +3,6 @@
     <h1 class="text-h5 text-md-h4 flex-grow-1">
       <v-icon icon="mdi-cog-transfer" />
       {{ t('devices') }}
-
-      <v-tooltip location="bottom">
-        <template #activator="{ props }">
-          <v-btn
-            v-bind="props"
-            size="large"
-            rounded="xl"
-            class="ml-4 pa-0"
-            variant="text"
-            icon="mdi-refresh"
-            density="comfortable"
-            @click="boardStore.reset_all()"
-          />
-        </template>
-        <span>{{ $t('form.reset') }}</span>
-      </v-tooltip>
     </h1>
     <v-btn color="primary" :icon="$vuetify.display.xs === true" class="mr-5" @click="onCreateGroup">
       <v-icon>mdi-plus</v-icon>

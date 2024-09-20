@@ -31,8 +31,9 @@ const state = computed({
   set(value) {
     loading.value = true;
     if (mode.value === HardwareMode.REALTIME) {
-      boardStore[value ? 'open' : 'close'](board.value.id).catch(logError);
-      loading.value = false;
+      boardStore[value ? 'open' : 'close'](board.value.id)
+        .finally(() => (loading.value = false))
+        .catch(logError);
     }
   },
 });

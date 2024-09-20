@@ -9,18 +9,14 @@
         @delete="onDelete"
       />
     </div>
-    <div
-      v-else-if="shouldDisplay(group)"
-      :class="{ 'ml-5': group.level }"
-      class="group pt-1 pb-2 pl-3 my-2"
-    >
-      <div class="d-flex flex-1-1-100 align-center mb-2">
+    <div v-else-if="shouldDisplay(group)" :class="{ 'ml-5': group.level }" class="group pb-2 my-2">
+      <div class="d-flex flex-1-1-100 align-center my-2 py-1 px-2 group-header">
         <v-icon class="mr-3" icon="mdi-select-group" size="30" />
         <div class="group-label font-weight-bold">
           {{ group.name }}
         </div>
       </div>
-      <nested-group v-model="group.children" @delete="onDelete" />
+      <nested-group v-model="group.children" class="pl-3" @delete="onDelete" />
     </div>
   </div>
 </template>
@@ -61,8 +57,12 @@ const shouldDisplay = (group: NestedGroup) => {
   border-left: 4px double rgb(var(--v-theme-primary));
 }
 
+.group-header {
+  background: #c8ebfb;
+  border-top: 2px rgb(var(--v-theme-primary)) solid;
+}
+
 .group-label {
-  width: 10rem;
   text-overflow: ellipsis;
   display: block;
 }
