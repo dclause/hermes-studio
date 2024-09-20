@@ -32,7 +32,7 @@ impl DerefMut for Mp3Player {
 
 #[typetag::serde]
 impl DeviceType for Mp3Player {
-    fn set_board(&mut self, board: &Board) -> anyhow::Result<()> {
+    fn set_board(&mut self, board: &Board) -> Result<()> {
         let current = self.inner.clone();
         self.inner = crate::extra::mp3::Mp3Player::new(&board.inner)?.set_path(current.get_path());
         Ok(())
@@ -48,7 +48,7 @@ impl DeviceType for Mp3Player {
         Ok(state)
     }
 
-    fn set_state(&mut self, state: State) -> anyhow::Result<State> {
+    fn set_state(&mut self, state: State) -> Result<State> {
         let state = self.inner.set_state(state.clone())?;
         Ok(state)
     }

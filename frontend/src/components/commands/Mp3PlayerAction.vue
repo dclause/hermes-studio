@@ -5,6 +5,7 @@
         v-model="state.path"
         :items="files"
         item-title="name"
+        item-value="path"
         hide-details
         density="compact"
         @update:model-value="onCommand"
