@@ -111,7 +111,7 @@ macro_rules! impl_device {
             }
 
             fn reset(&mut self) -> Result<hermes_five::utils::State> {
-                let state = self.animate(self.inner.get_default(), 1000, hermes_five::utils::Easing::SineInOut)?;
+                let state = self.animate(self.inner.get_default(), 500, hermes_five::utils::Easing::SineInOut)?;
                 Ok(state)
             }
 

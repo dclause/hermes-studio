@@ -53,14 +53,17 @@ pub fn register_board_events(socket: &SocketRef) {
             let devices = database.read().list::<Device>().and_then(|mut devices| {
                 for (_, device) in &mut devices {
                     if device.bid == id {
-                        device.inner.reset()?;
+                        device.inner.reset().and_then(|mutation| {
+                            broadcast_to_all("device:mutated", Ok((device.id, mutation)), &socket);
+                            Ok(())
+                        })?;
                     }
                 }
 
                 Ok(devices)
             });
             database.write().set_autosave(true);
-            broadcast_to_all("device:list", devices, &socket);
+            // broadcast_to_all("device:list", devices, &socket);
         },
     );
 
