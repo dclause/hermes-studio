@@ -1,8 +1,8 @@
 <template>
   <div class="d-flex align-center mb-4">
     <h1 class="text-h5 text-md-h4 flex-grow-1">
-      <v-icon icon="mdi-camera-control" />
-      {{ t('title') }}
+      <v-icon icon="mdi-cog-transfer" />
+      {{ t('devices') }}
 
       <v-tooltip location="bottom">
         <template #activator="{ props }">
@@ -35,6 +35,17 @@
     </v-btn>
   </div>
 
+  <v-tabs v-model="tab">
+    <v-tab value="boards" @click="router.push({ name: 'board.list' })">
+      {{ t('boards') }}
+    </v-tab>
+    <v-tab value="devices" @click="router.push({ name: 'device.list' })">
+      {{ t('devices') }}
+    </v-tab>
+  </v-tabs>
+
+  <v-spacer class="my-3" />
+
   <nested-draggable-group
     v-model="draggables"
     :disabled="loading"
@@ -52,6 +63,7 @@ import { storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useFlatToNested, useNestedToFlat } from '@/composables/groupComposables';
+import router from '@/plugins/router';
 import { useBoardStore } from '@/stores/boardStore';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { useGroupStore } from '@/stores/groupStore';
@@ -62,6 +74,10 @@ const { t } = useI18n();
 const groupStore = useGroupStore();
 const deviceStore = useDeviceStore();
 const boardStore = useBoardStore();
+
+// Selected tab.
+const tab = ref('controls');
+tab.value = 'devices';
 
 const { groups, loading } = storeToRefs(groupStore);
 const draggables = ref<NestedGroup[]>(useFlatToNested(groups.value));
@@ -112,13 +128,15 @@ const onConfirmCreateOrEdit = () => {
 <i18n>
 {
   "en": {
-    "title": "Groups & Controls",
+    "boards": "Boards",
+    "devices": "Groups & Controls",
     "new_group": "New group",
     "new_device": "New device",
     "empty": "No group or device configured yet."
   },
   "fr": {
-    "title": "Groups et contrôles",
+    "boards": "Cartes",
+    "devices": "Groups et contrôles",
     "new_group": "Nouveau groupe",
     "new_device": "Nouveau device",
     "empty": "Aucune groupe ou device configurée pour le moment."

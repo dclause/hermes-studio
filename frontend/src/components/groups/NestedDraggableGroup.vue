@@ -16,7 +16,7 @@
     @edit="onEdit"
   >
     <template #item="{ element }">
-      <div v-if="element.device">
+      <span v-if="element.device" class="ma-3">
         <component
           :is="useDeviceComponent(devices[element.device].type)"
           v-if="devices[element.device]"
@@ -26,6 +26,7 @@
           :class="{ disabled: element.disabled }"
           class="my-2 pl-3"
           :rounded="0"
+          variant="chip"
           @delete="onDelete"
         >
           <template #prefix>
@@ -34,14 +35,14 @@
             </div>
           </template>
         </component>
-      </div>
+      </span>
       <div v-else class="wrapper my-2 pl-3 mr-0" :class="{ disabled: element.disabled }">
         <div class="handler handler-group">
           <v-icon icon="mdi-cursor-move" />
         </div>
         <div>
-          <div class="d-flex flex-1-1-100 align-center">
-            <div class="d-flex flex-1-1-100 align-center my-2">
+          <div class="d-flex flex-1-1-100 align-center group-header">
+            <div class="d-flex align-center my-2">
               <v-icon class="ml-2 mr-3" icon="mdi-select-group" size="30" />
               <div class="group-label font-weight-bold">
                 {{ element.name }}
@@ -107,9 +108,13 @@ const onEdit = (item: NestedGroup) => {
 
 <style lang="scss" scoped>
 .group-label {
-  width: 10rem;
   text-overflow: ellipsis;
   display: block;
+}
+
+.group-header {
+  background: #c8ebfb;
+  border-top: 2px rgb(var(--v-theme-primary)) solid;
 }
 
 .ghost {

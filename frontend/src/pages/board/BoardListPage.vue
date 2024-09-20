@@ -2,7 +2,7 @@
   <div class="d-flex justify-space-between align-center mb-4">
     <h1 class="text-h5 text-md-h4">
       <v-icon icon="mdi-cog-transfer" />
-      {{ t('title') }}
+      {{ t('boards') }}
     </h1>
     <v-btn color="primary" :icon="$vuetify.display.xs === true" :to="{ name: 'board.new' }">
       <v-icon>mdi-plus</v-icon>
@@ -10,7 +10,16 @@
     </v-btn>
   </div>
 
-  <v-spacer />
+  <v-tabs v-model="tab">
+    <v-tab value="boards" @click="router.push({ name: 'board.list' })">
+      {{ t('boards') }}
+    </v-tab>
+    <v-tab value="devices" @click="router.push({ name: 'device.list' })">
+      {{ t('devices') }}
+    </v-tab>
+  </v-tabs>
+
+  <v-spacer class="my-3" />
 
   <v-data-table
     v-model:items="items"
@@ -81,6 +90,7 @@ import type { Board } from '@/types/boards';
 import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import router from '@/plugins/router';
 import { useBoardStore } from '@/stores/boardStore';
 
 const { t } = useI18n();
@@ -88,6 +98,10 @@ const { t } = useI18n();
 const boardStore = useBoardStore();
 const { loading, boards } = storeToRefs(boardStore);
 const items = computed<Board[]>(() => Object.values(boards.value));
+
+// Selected tab.
+const tab = ref('controls');
+tab.value = 'boards';
 
 // Delete a board.
 const toBeDeleted = ref<Board | null>(null);
@@ -150,7 +164,8 @@ const headers = [
 <i18n>
 {
   "en": {
-    "title": "My cards",
+    "boards": "Cards",
+    "devices": "Groupes and Devices",
     "headers": {
       "status": "Status",
       "name": "Name",
@@ -162,7 +177,8 @@ const headers = [
     "empty": "No card configured yet."
   },
   "fr": {
-    "title": "Mes cartes",
+    "boards": "Cartes",
+    "devices": "Groupes et Contrôles ",
     "headers": {
       "status": "Status",
       "name": "Nom",

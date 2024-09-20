@@ -1,6 +1,11 @@
 <template>
   <v-card
-    class="wrapper d-flex flex-1-1-100 align-center mt-2 overflow-visible"
+    class="wrapper flex-1-1-100 align-center mt-2 overflow-visible"
+    :class="{
+      'd-flex': variant != 'chip',
+      'd-inline-flex': variant == 'chip',
+      [variant]: true,
+    }"
     :variant="cardVariant"
   >
     <slot name="prefix" />
@@ -23,20 +28,23 @@
         </slot>
       </v-label>
 
-      <div class="command-pin ml-2 mr-2 text-lowercase font-italic d-none d-sm-block">
+      <div
+        v-if="variant != 'chip'"
+        class="command-pin ml-2 mr-2 text-lowercase font-italic d-none d-sm-block"
+      >
         <slot name="info">
           {{ $t('command.pin') }}: {{ device.pin ?? '??' }}
         </slot>
       </div>
 
-      <slot name="command" class="flex-grow-1">
+      <slot v-if="variant != 'chip'" name="command" class="flex-grow-1">
         <div class="font-italic text-error-lighten-1">
           {{ $t('command.none') }}
         </div>
       </slot>
     </div>
 
-    <div v-if="variant !== 'minimal'" class="d-flex">
+    <div v-if="variant !== 'minimal' && variant !== 'chip'" class="d-flex">
       <v-btn
         icon="mdi-refresh"
         size="small"
@@ -115,6 +123,14 @@ const cardVariant = computed(() => {
   @media (min-width: 460px) {
     width: 10rem;
     flex: none;
+  }
+}
+
+.chip {
+  padding-right: 1em;
+
+  .command-label {
+    width: auto;
   }
 }
 
