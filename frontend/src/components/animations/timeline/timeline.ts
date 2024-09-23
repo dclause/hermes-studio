@@ -1,7 +1,7 @@
 import { TimelineEvents } from '@/components/animations/timeline/timeline.events';
 import TimelineRenderer from '@/components/animations/timeline/timeline.renderer';
 import TimelineUtils from '@/components/animations/timeline/timeline.utils';
-import { Keyframe } from '@/types/animation';
+import { Keyframe } from '@/types/animations';
 import {
   HTMLTimelineElement,
   Point,
@@ -449,10 +449,12 @@ export default class Timeline extends TimelineRenderer {
       // Create positions for subtracks tracks.
       const recursiveBuildTrackPositions = (track: Track) => {
         if (track.device) {
-          positions.push({
+          const new_position = {
             device: track.device,
             target: 0, // @todo: how to get default value here ?
-          });
+          };
+          this._emit(TimelineEvents.createKeyFrame, new_position);
+          positions.push(new_position);
         } else {
           track.children.forEach((child) => recursiveBuildTrackPositions(child));
         }

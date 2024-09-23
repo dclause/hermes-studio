@@ -1,5 +1,5 @@
 import { Branded } from '@/modules/hardware/types/hardware';
-import { DeviceId } from '@/types/devices';
+import { DeviceId, DeviceState } from '@/types/devices';
 import { GroupId } from '@/types/groups';
 
 export declare type AnimationId = Branded<number, 'AnimationId'>;
@@ -28,5 +28,5 @@ export declare interface Keyframe {
 
 export declare interface Position {
   device: DeviceId;
-  target: number;
+  target: DeviceState;
 }

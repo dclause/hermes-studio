@@ -1,6 +1,6 @@
 import Timeline from '@/components/animations/timeline/timeline';
 import TimelineRenderer from '@/components/animations/timeline/timeline.renderer.ts_';
-import { Keyframe } from '@/types/animation';
+import { Keyframe } from '@/types/animations';
 import { NestedGroup } from '@/types/groups';
 
 export declare type TimelineItemCallback =

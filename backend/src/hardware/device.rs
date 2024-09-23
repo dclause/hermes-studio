@@ -10,7 +10,6 @@ use crate::animation::group::Group;
 use crate::hardware::board::Board;
 use crate::impl_entity;
 use crate::utils::database::Database;
-use crate::utils::entity::Entity;
 use crate::utils::entity::Id;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

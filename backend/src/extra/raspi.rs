@@ -82,7 +82,7 @@ impl Protocol for RaspiProtocol {
     ///
     /// # Notes
     /// This function blocks until the write operation is complete. Ensure proper error handling in calling code.
-    fn write(&mut self, buf: &[u8]) -> Result<(), Error> {
+    fn write(&mut self, _buf: &[u8]) -> Result<(), Error> {
         todo!()
     }
 
@@ -97,7 +97,7 @@ impl Protocol for RaspiProtocol {
     ///
     /// # Notes
     /// This function blocks until the buffer is filled or an error occurs. Ensure proper error handling in calling code.
-    fn read_exact(&mut self, buf: &mut [u8]) -> Result<(), Error> {
+    fn read_exact(&mut self, _buf: &mut [u8]) -> Result<(), Error> {
         todo!()
     }
 }

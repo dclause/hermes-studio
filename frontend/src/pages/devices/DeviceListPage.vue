@@ -4,18 +4,13 @@
       <v-icon icon="mdi-cog-transfer" />
       {{ t('devices') }}
     </h1>
-    <v-btn color="primary" :icon="$vuetify.display.xs === true" class="mr-5" @click="onCreateGroup">
+    <v-btn color="primary" class="mr-5" @click="onCreateGroup">
       <v-icon>mdi-plus</v-icon>
-      <span class="d-none d-sm-block">{{ t('new_group') }}</span>
+      <span class="d-none d-md-block ml-2">{{ t('new_group') }}</span>
     </v-btn>
-    <v-btn
-      color="primary"
-      variant="tonal"
-      :icon="$vuetify.display.xs === true"
-      :to="{ name: 'device.new' }"
-    >
+    <v-btn color="primary" variant="tonal" class="d-none d-md-flex" :to="{ name: 'device.new' }">
       <v-icon>mdi-plus</v-icon>
-      <span class="d-none d-sm-block">{{ t('new_device') }}</span>
+      <span class="d-none d-md-block ml-2">{{ t('new_device') }}</span>
     </v-btn>
   </div>
 
@@ -48,7 +43,6 @@ import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useFlatToNested, useNestedToFlat } from '@/composables/groupComposables';
 import router from '@/plugins/router';
-import { useBoardStore } from '@/stores/boardStore';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { useGroupStore } from '@/stores/groupStore';
 import { Device } from '@/types/devices';
@@ -57,11 +51,9 @@ import { FlatGroup, NestedGroup } from '@/types/groups';
 const { t } = useI18n();
 const groupStore = useGroupStore();
 const deviceStore = useDeviceStore();
-const boardStore = useBoardStore();
 
 // Selected tab.
-const tab = ref('controls');
-tab.value = 'devices';
+const tab = ref('devices');
 
 const { groups, loading } = storeToRefs(groupStore);
 const draggables = ref<NestedGroup[]>(useFlatToNested(groups.value));

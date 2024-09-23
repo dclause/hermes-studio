@@ -2,7 +2,7 @@
   <div class="d-flex align-center mb-4">
     <h1 class="text-h5 text-md-h4 flex-grow-1">
       <v-icon icon="mdi-camera-control" />
-      {{ t('title') }}
+      {{ t('controls') }}
 
       <v-tooltip location="bottom">
         <template #activator="{ props }">
@@ -20,18 +20,32 @@
         <span>{{ $t('form.reset') }}</span>
       </v-tooltip>
     </h1>
+    <v-btn color="primary" :to="{ name: 'posture.new' }">
+      <v-icon>mdi-content-save</v-icon>
+      <span class="d-none d-md-block ml-2">{{ t('new') }}</span>
+    </v-btn>
   </div>
+
+  <v-tabs v-model="tab">
+    <v-tab value="controls" @click="router.push({ name: 'posture.control' })">
+      {{ t('controls') }}
+    </v-tab>
+    <v-tab value="postures" @click="router.push({ name: 'posture.list' })">
+      {{ t('postures') }}
+    </v-tab>
+  </v-tabs>
 
   <v-spacer class="my-3" />
 
-  <nested-group v-model="nestedGroups" :disabled="loading" />
+  <nested-group v-model="nestedGroups" />
 </template>
 
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useFlatToNested } from '@/composables/groupComposables';
+import router from '@/plugins/router';
 import { useBoardStore } from '@/stores/boardStore';
 import { useGroupStore } from '@/stores/groupStore';
 
@@ -39,7 +53,10 @@ const { t } = useI18n();
 const groupStore = useGroupStore();
 const boardStore = useBoardStore();
 
-const { groups, loading } = storeToRefs(groupStore);
+// Selected tab.
+const tab = ref('controls');
+
+const { groups } = storeToRefs(groupStore);
 const nestedGroups = computed(() => {
   return useFlatToNested(groups.value);
 });
@@ -48,11 +65,15 @@ const nestedGroups = computed(() => {
 <i18n>
 {
   "en": {
-    "title": "Robot control",
+    "controls": "Robot control",
+    "postures": "Postures",
+    "new": "Save as posture",
     "empty": "No controls configured yet."
   },
   "fr": {
-    "title": "Contrôle du robot",
+    "controls": "Contrôle du robot",
+    "postures": "Postures",
+    "new": "Sauvegarder la posture",
     "empty": "Aucune contrôle configurée pour le moment."
   }
 }

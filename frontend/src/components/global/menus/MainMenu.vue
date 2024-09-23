@@ -34,9 +34,9 @@ const mainMenuLinks: NavigationItem[] = [
     icon: 'mdi-cog-transfer',
   },
   {
-    to: { name: 'position.list' },
-    id: 'position.list',
-    label: t('position.list'),
+    to: { name: 'posture.control' },
+    id: 'posture.control',
+    label: t('posture.control'),
     icon: 'mdi-camera-control',
   },
   {
@@ -52,12 +52,12 @@ const mainMenuLinks: NavigationItem[] = [
 {
   "en": {
     "board.list": "Hardware configuration",
-    "position.list": "Robot control",
+    "posture.control": "Robot control",
     "animation.list": "Animations"
   },
   "fr": {
     "board.list": "Configuration matérielle",
-    "position.list": "Contrôle du robot",
+    "posture.control": "Contrôle du robot",
     "animation.list": "Animations"
   }
 }

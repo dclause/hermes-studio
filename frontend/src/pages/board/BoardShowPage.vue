@@ -22,13 +22,9 @@
           <span>{{ $t('form.reset') }}</span>
         </v-tooltip>
       </h1>
-      <v-btn
-        color="primary"
-        :icon="$vuetify.display.xs === true"
-        :to="{ name: 'device.new', query: { board: board.id } }"
-      >
+      <v-btn color="primary" :to="{ name: 'device.new', query: { board: board.id } }">
         <v-icon>mdi-plus</v-icon>
-        <span class="d-none d-sm-block">{{ t('new_device') }}</span>
+        <span class="d-none d-md-block ml-2">{{ t('new_device') }}</span>
       </v-btn>
     </div>
     <div class="ml-2 text-overline">

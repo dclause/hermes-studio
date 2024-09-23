@@ -11,6 +11,7 @@
         @update:model-value="onCommand"
       />
       <v-btn
+        v-if="variant !== 'minimal'"
         :icon="state.status <= 0 ? 'mdi-play' : 'mdi-pause'"
         variant="text"
         color="success"
@@ -19,6 +20,7 @@
         @click="state.status <= 0 ? onCommand(1) : onCommand(0)"
       />
       <v-btn
+        v-if="variant !== 'minimal'"
         :disabled="state.status < 0"
         icon="mdi-stop"
         variant="text"
@@ -42,6 +44,7 @@ const state = defineModel<Mp3PlayerState>({ required: true });
 const props = defineProps<{
   mode: HardwareMode;
   device: Actuator;
+  variant?: string;
   files: Mp3PlayerFile[];
 }>();
 

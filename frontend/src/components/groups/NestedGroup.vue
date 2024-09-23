@@ -5,6 +5,7 @@
         :is="useDeviceComponent(devices[group.device].type)"
         v-if="devices[group.device]"
         v-model="(devices[group.device] as Actuator).state"
+        class="ml-2"
         :device="devices[group.device] as Actuator"
         @delete="onDelete"
       />
@@ -16,7 +17,7 @@
           {{ group.name }}
         </div>
       </div>
-      <nested-group v-model="group.children" class="pl-3" @delete="onDelete" />
+      <nested-group v-model="group.children" @delete="onDelete" />
     </div>
   </div>
 </template>

@@ -1,5 +1,5 @@
 // Register socket events.
-import type { Animation, AnimationId } from '@/types/animation';
+import type { Animation, AnimationId } from '@/types/animations';
 import { defineStore } from 'pinia';
 import { Socket } from 'socket.io-client';
 import { useSocketIO } from '@/composables/socketComposables';

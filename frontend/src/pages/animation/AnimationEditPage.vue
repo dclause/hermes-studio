@@ -138,7 +138,7 @@ import { VForm } from 'vuetify/components';
 import { Rule } from '@/composables/formComposables';
 import { logError } from '@/composables/globalComposables';
 import { useAnimationStore } from '@/stores/animationStore';
-import { AnimationId, Keyframe } from '@/types/animation';
+import { AnimationId, Keyframe } from '@/types/animations';
 import { Track } from '@/types/timeline';
 
 const { t } = useI18n();

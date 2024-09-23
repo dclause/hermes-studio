@@ -4,7 +4,6 @@ use serde::{Deserialize, Serialize};
 use crate::hardware::device::Device;
 use crate::impl_entity;
 use crate::utils::database::Database;
-use crate::utils::entity::Entity;
 use crate::utils::entity::Id;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

@@ -54,7 +54,7 @@ import { useDeviceComponent } from '@/composables/deviceComposables';
 import { HardwareMode } from '@/composables/globalComposables';
 import { useBoardStore } from '@/stores/boardStore';
 import { useDeviceStore } from '@/stores/deviceStore';
-import { Keyframe } from '@/types/animation';
+import { Keyframe } from '@/types/animations';
 import { Track } from '@/types/timeline';
 
 const { t } = useI18n();

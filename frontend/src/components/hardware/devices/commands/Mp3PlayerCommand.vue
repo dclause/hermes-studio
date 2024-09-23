@@ -1,13 +1,22 @@
 <template>
-  <default-command :device="device" class="command-led">
+  <default-command :device="device" class="command-mp3" :variant="variant">
     <template #prefix>
       <slot name="prefix" />
     </template>
     <template #icon>
-      <svg-led class="ml-2 mr-3" width="30" />
+      <v-icon icon="mdi-music" class="ml-2 mr-3" width="30" />
+    </template>
+    <template #info>
+      {{}}
     </template>
     <template #command>
-      <mp3-player-action v-model="state" :mode="mode" :device="device" :files="fileInfos" />
+      <mp3-player-action
+        v-model="state"
+        :mode="mode"
+        :device="device"
+        :files="fileInfos"
+        :variant="variant"
+      />
     </template>
   </default-command>
 </template>
@@ -24,6 +33,7 @@ const props = withDefaults(
   defineProps<{
     device: Mp3Player;
     mode?: HardwareMode;
+    variant?: string;
   }>(),
   { mode: HardwareMode.REALTIME },
 );

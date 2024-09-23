@@ -49,7 +49,7 @@ import { useTimeline } from '@/composables/timelineComposables';
 import { useBoardStore } from '@/stores/boardStore';
 import { useConfigStore } from '@/stores/configurationStore';
 import { useDeviceStore } from '@/stores/deviceStore';
-import { Keyframe } from '@/types/animation';
+import { Keyframe } from '@/types/animations';
 import { Track } from '@/types/timeline';
 
 const { timeline } = useTimeline();

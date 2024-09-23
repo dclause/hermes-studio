@@ -4,9 +4,9 @@
       <v-icon icon="mdi-cog-transfer" />
       {{ t('boards') }}
     </h1>
-    <v-btn color="primary" :icon="$vuetify.display.xs === true" :to="{ name: 'board.new' }">
+    <v-btn color="primary" :to="{ name: 'board.new' }">
       <v-icon>mdi-plus</v-icon>
-      <span class="d-none d-sm-block">{{ t('new') }}</span>
+      <span class="d-none d-md-block ml-2">{{ t('new') }}</span>
     </v-btn>
   </div>
 
@@ -100,8 +100,7 @@ const { loading, boards } = storeToRefs(boardStore);
 const items = computed<Board[]>(() => Object.values(boards.value));
 
 // Selected tab.
-const tab = ref('controls');
-tab.value = 'boards';
+const tab = ref('boards');
 
 // Delete a board.
 const toBeDeleted = ref<Board | null>(null);
@@ -148,15 +147,9 @@ const headers = [
     width: 30px;
     text-align: center;
   }
-}
-</style>
 
-<style lang="scss" scoped>
-.board-list {
-  .col-icon,
-  .col-status {
-    width: 30px;
-    text-align: center;
+  .col-actions {
+    width: 120px;
   }
 }
 </style>

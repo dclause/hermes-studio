@@ -1,4 +1,4 @@
-import positionRoutes from '@/routes/positionRoutes';
+import postureRoutes from '@/routes/postureRoutes';
 import animationRoutes from './animationRoutes';
 import boardRoutes from './boardRoutes';
 import coreRoutes from './coreRoutes';
@@ -8,6 +8,6 @@ export const routes = [
   ...coreRoutes,
   ...boardRoutes,
   ...deviceRoutes,
-  ...positionRoutes,
+  ...postureRoutes,
   ...animationRoutes,
 ];

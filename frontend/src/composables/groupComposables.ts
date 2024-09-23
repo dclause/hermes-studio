@@ -1,6 +1,6 @@
 // Nested to Flat Conversion
 import TimelineUtils from '@/components/animations/timeline/timeline.utils';
-import { Keyframe } from '@/types/animation';
+import { Keyframe } from '@/types/animations';
 import { FlatGroup, GroupId, NestedGroup } from '@/types/groups';
 
 // Convert from nested to flat representation

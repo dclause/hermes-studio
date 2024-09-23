@@ -2,7 +2,7 @@ import { computed } from 'vue';
 import { ThemeDefinition, useTheme } from 'vuetify';
 import Timeline from '@/components/animations/timeline/timeline';
 import { useFlatToNested } from '@/composables/groupComposables';
-import { Animation } from '@/types/animation';
+import { Animation } from '@/types/animations';
 import { FlatGroup, GroupId } from '@/types/groups';
 import { TimelineConfig, Track } from '@/types/timeline';
 

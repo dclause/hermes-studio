@@ -50,7 +50,7 @@ pub fn register_board_events(socket: &SocketRef) {
             debug!("Event received: [board:reset]: board:{}", id);
 
             database.write().set_autosave(false);
-            let devices = database.read().list::<Device>().and_then(|mut devices| {
+            let _ = database.read().list::<Device>().and_then(|mut devices| {
                 for (_, device) in &mut devices {
                     if device.bid == id {
                         device.inner.reset().and_then(|mutation| {
@@ -63,7 +63,6 @@ pub fn register_board_events(socket: &SocketRef) {
                 Ok(devices)
             });
             database.write().set_autosave(true);
-            // broadcast_to_all("device:list", devices, &socket);
         },
     );
 

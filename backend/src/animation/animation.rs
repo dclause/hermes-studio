@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use anyhow::Result;
 use hermes_five::animation::Track;
-use hermes_five::utils::Easing;
+use hermes_five::utils::{Easing, State};
 use log::{debug, trace};
 use serde::{Deserialize, Serialize};
 
@@ -13,7 +13,6 @@ use crate::hardware::board::Board;
 use crate::hardware::device::Device;
 use crate::impl_entity;
 use crate::utils::database::Database;
-use crate::utils::entity::Entity;
 use crate::utils::entity::Id;
 
 /// Defines the structure of an animation entity.
@@ -96,7 +95,7 @@ impl Animation {
                     // 4. Add the position as a new hermes-keyframe on the hermes-track.
                     let track = track.with_keyframe(
                         hermes_five::animation::Keyframe::new(
-                            position.target,
+                            position.target.clone(),
                             keyframe.start,
                             keyframe.end,
                         )
@@ -138,6 +137,6 @@ pub struct Keyframe {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Position {
-    device: Id,
-    target: u16,
+    pub device: Id,
+    pub target: State,
 }

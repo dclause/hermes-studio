@@ -31,8 +31,9 @@ import { logError } from '@/composables/globalComposables';
 import { useNestedToFlat } from '@/composables/groupComposables';
 import { useTimeline } from '@/composables/timelineComposables';
 import { useAnimationStore } from '@/stores/animationStore';
+import { useDeviceStore } from '@/stores/deviceStore';
 import { useGroupStore } from '@/stores/groupStore';
-import { Animation, Keyframe } from '@/types/animation';
+import { Animation, Keyframe, Position } from '@/types/animations';
 import { FlatGroup, GroupId } from '@/types/groups';
 import { Track } from '@/types/timeline';
 
@@ -118,6 +119,11 @@ timeline.on(TimelineEvents.selectKeyframe, (item, track) => {
 });
 timeline.on(TimelineEvents.scroll, (scrollTop) => {
   tracksContainer.value!.scrollTop = scrollTop;
+});
+timeline.on(TimelineEvents.createKeyFrame, (position: Position) => {
+  position.target =
+    Object.values(useDeviceStore().devices).find((device) => device.id === position.device)
+      ?.state ?? 0;
 });
 
 /** Saves the animation handler. */

@@ -1,9 +1,9 @@
 <template>
   <v-card class="mx-auto pa-4" variant="elevated" max-width="600" width="100%">
     <v-form ref="form" :disabled="loading" :loading="loading" @submit.prevent="onSubmit">
-      <v-text-field v-model="animation.name" label="Name" required :rules="[Rule.REQUIRED]" />
+      <v-text-field v-model="posture.name" label="Name" required :rules="[Rule.REQUIRED]" />
 
-      <v-textarea v-model="animation.description" label="Description" />
+      <v-textarea v-model="posture.description" label="Description" />
 
       <!-- Submit -->
       <v-row>
@@ -39,38 +39,43 @@
   </v-card>
 </template>
 <script setup lang="ts">
-import type { Animation } from '@/types/animations';
+import type { Posture } from '@/types/postures';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { VForm } from 'vuetify/components';
 import { Rule } from '@/composables/formComposables';
 import { logError } from '@/composables/globalComposables';
-import { useAnimationStore } from '@/stores/animationStore';
+import { useDeviceStore } from '@/stores/deviceStore';
+import { usePostureStore } from '@/stores/postureStore';
+import { Actuator, Device } from '@/types/devices';
 import { SocketAck } from '@/types/socket';
 
 const router = useRouter();
 
-/** Retrieve the animation from the URL parameter */
-const animationStore = useAnimationStore();
-const animation = ref(animationStore.default());
+/** Retrieve the posture from the URL parameter */
+const postureStore = usePostureStore();
+const posture = ref(postureStore.default());
+posture.value.positions = Object.values(useDeviceStore().devices).map((device: Device) => {
+  return { device: device.id, target: (device as Actuator).state };
+});
 
 // Create new form.
 const form = ref<VForm>();
 
-// Save the newly created animation.
+// Save the newly created device.
 const loading = ref<boolean>(false);
 const onSubmit = async () => {
   const { valid } = await form.value!.validate();
   if (valid) {
     loading.value = true;
-    animationStore
-      .create(animation.value)
+    postureStore
+      .create(posture.value)
       .then((ack: SocketAck) => {
         if (ack.success) {
-          const createdAnimation = ack.success as Animation;
+          const createdPosture = ack.success as Posture;
           router.push({
-            name: 'animation.edit',
-            params: { id: createdAnimation.id },
+            name: 'posture.edit',
+            params: { id: createdPosture.id },
           });
         }
         return;
@@ -82,6 +87,6 @@ const onSubmit = async () => {
 
 // Cancel: return to previous page
 const onCancel = () => {
-  return router.push({ name: 'animation.list' });
+  return router.push({ name: 'posture.list' });
 };
 </script>

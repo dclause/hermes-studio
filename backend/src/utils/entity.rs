@@ -82,7 +82,7 @@ pub(crate) mod private_entity {
 macro_rules! impl_entity {
     ($struct_name:ident $(, { $($additional_impl:item)* })?) => {
         #[typetag::serde]
-        impl Entity for $struct_name {
+        impl crate::utils::entity::Entity for $struct_name {
             fn get_id(&self) -> Id {
                 self.id
             }

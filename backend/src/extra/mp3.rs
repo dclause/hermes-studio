@@ -1,6 +1,6 @@
 use std::fmt::{Debug, Display, Formatter};
 use std::fs::File;
-use std::io::{BufReader, Read};
+use std::io::BufReader;
 use std::ops::Deref;
 use std::sync::Arc;
 
@@ -86,8 +86,6 @@ pub struct Mp3Player {
     /// The Mp3Player default value.
     default: Mp3PlayerState,
 
-    #[serde(skip)]
-    protocol: Box<dyn Protocol>,
     /// The mp3 controller (play/pause/stop)
     #[serde(skip)]
     control: Arc<RwLock<Option<Sink>>>,
@@ -97,12 +95,10 @@ pub struct Mp3Player {
 }
 
 impl Mp3Player {
-    pub fn new(board: &Board) -> Result<Self, Error> {
-        let protocol = board.get_protocol();
+    pub fn new(_board: &Board) -> Result<Self, Error> {
         Ok(Self {
             state: Arc::new(Default::default()),
             default: Default::default(),
-            protocol,
             control: Arc::new(RwLock::new(None)),
             events: Default::default(),
         })
@@ -123,7 +119,7 @@ impl Mp3Player {
                 control.play();
             }
         } else {
-            let mut self_clone = self.clone();
+            let self_clone = self.clone();
             task::run(async move {
                 // Start playing the current file
                 // Get an output stream handle to the default physical sound device
@@ -199,7 +195,7 @@ impl Mp3Player {
     }
 
     /// Set the path (this does not change the current playing file).
-    pub fn set_path<P: Into<String>>(mut self, path: P) -> Self {
+    pub fn set_path<P: Into<String>>(self, path: P) -> Self {
         self.state.write().path = path.into();
         self
     }
@@ -229,7 +225,7 @@ impl Device for Mp3Player {}
 
 #[typetag::serde]
 impl Actuator for Mp3Player {
-    fn animate<S: Into<State>>(&mut self, state: S, duration: u64, transition: Easing)
+    fn animate<S: Into<State>>(&mut self, state: S, _duration: u64, _transition: Easing)
     where
         Self: Sized,
     {
@@ -238,9 +234,7 @@ impl Actuator for Mp3Player {
                 if let Some(path) = state.get("path") {
                     self.state.write().path = path.as_string();
                 }
-                if let Some(status) = state.get("status") {
-                    let _ = self.set_state(status.clone());
-                }
+                let _ = self.play();
             }
             state => {
                 let _ = self.set_state(state.clone());
@@ -265,7 +259,14 @@ impl Actuator for Mp3Player {
             State::Float(_) => {}
             State::String(path) => self.state.write().path = path,
             State::Array(_) => {}
-            State::Object(_) => {}
+            State::Object(state) => {
+                if let Some(path) = state.get("path") {
+                    self.state.write().path = path.as_string();
+                }
+                if let Some(status) = state.get("status") {
+                    let _ = self.set_state(status.clone());
+                }
+            }
         };
         let new_state = self.state.read().clone();
         Ok(State::into_state(new_state))
@@ -289,7 +290,7 @@ impl Actuator for Mp3Player {
 
 impl Display for Mp3Player {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        todo!()
+        write!(f, "Mp3Player [path={}]", self.state.read().path)
     }
 }
 
