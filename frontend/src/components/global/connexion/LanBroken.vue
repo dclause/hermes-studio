@@ -2,8 +2,15 @@
   <v-layout class="mt-10">
     <v-card class="mx-auto pa-5 h-auto" flat>
       <div class="align-center d-flex flex-no-wrap">
-        <v-avatar class="pa-2 d-none d-sm-block" rounded="0" size="125">
-          <svg-robot-broken />
+        <v-avatar
+          class="pa-2 d-none d-sm-block"
+          rounded="0"
+          size="125"
+          variant="outlined"
+          border="0"
+        >
+          <!--          <svg-robot-broken />-->
+          <v-icon icon="mdi-robot-dead" size="110" color="primary" />
         </v-avatar>
         <div>
           <v-card-title class="text-h5 pt-0 pb-0">

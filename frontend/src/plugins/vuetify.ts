@@ -19,18 +19,26 @@ export default createVuetify({
       darken: 2,
     },
     themes: {
-      RealTimeModeTheme: {
-        dark: false,
-        colors: {
-          'primary-lighten': colors.blue.lighten4,
-          'timeline-border': '#737070',
-        },
-      },
       OffModeTheme: {
         dark: false,
         colors: {
           primary: '#48a9a6',
           'primary-lighten': colors.teal.lighten4,
+          'timeline-border': '#737070',
+        },
+      },
+      PartialModeTheme: {
+        dark: false,
+        colors: {
+          primary: colors.orange.darken1,
+          'primary-lighten': colors.orange.lighten4,
+          'timeline-border': '#737070',
+        },
+      },
+      OnModeTheme: {
+        dark: false,
+        colors: {
+          'primary-lighten': colors.blue.lighten4,
           'timeline-border': '#737070',
         },
       },

@@ -6,7 +6,7 @@
     </v-app-bar-title>
 
     <template #append>
-      <robot-mode-switcher class="align-self-center" />
+      <robot-status-switcher class="align-self-center" />
 
       <v-divider vertical inset opacity="0.5" />
 

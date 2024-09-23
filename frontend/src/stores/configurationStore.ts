@@ -22,18 +22,18 @@ export const useConfigStore = defineStore({
   id: 'configuration',
   state: () => ({
     locale: 'en',
-    mode: HardwareMode.OFF,
+    mode: HardwareMode.REALTIME,
   }),
   actions: {
     refresh() {
-      socketEmit('config:get', (ack: SocketAck) => {
+      return socketEmit('config:get', (ack: SocketAck) => {
         if (ack.success) {
           this.$patch(ack.success);
         }
       });
     },
     update(partial: any) {
-      socketEmit('config:set', { ...this.$state, ...partial }, (ack: SocketAck) => {
+      return socketEmit('config:set', { ...this.$state, ...partial }, (ack: SocketAck) => {
         if (ack.success) {
           this.$patch(ack.success);
         }

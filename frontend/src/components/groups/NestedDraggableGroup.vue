@@ -113,7 +113,7 @@ const onEdit = (item: NestedGroup) => {
 }
 
 .group-header {
-  background: #c8ebfb;
+  background: rgb(var(--v-theme-primary-lighten));
   border-top: 2px rgb(var(--v-theme-primary)) solid;
 }
 

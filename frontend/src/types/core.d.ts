@@ -11,4 +11,5 @@ export declare type Range<T> = [T, T];
 export declare interface Entity<Id> {
   id: Id;
   name: string;
+  loading?: bool;
 }

@@ -2,8 +2,9 @@
   <v-layout class="align-center h-100">
     <v-card class="mx-auto pa-5" variant="elevated">
       <div class="align-center d-flex flex-no-wrap">
-        <v-avatar class="pa-2" rounded="0" size="125">
-          <svg-robot-broken />
+        <v-avatar class="pa-2" rounded="0" size="125" variant="outlined" border="0">
+          <!--          <svg-robot-broken />-->
+          <v-icon icon="mdi-robot-confused" size="110" color="primary" />
         </v-avatar>
         <div>
           <v-card-title class="text-h5">

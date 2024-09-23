@@ -116,20 +116,24 @@ export const useBoardStore = defineStore({
     },
 
     open(id: BoardId) {
+      this.boards[id].loading = true;
       return socketEmit('board:open', id, (ack: SocketAck) => {
         if (ack.success) {
           useDeviceStore().refresh();
           const board = ack.success as Board;
           this.boards[board.id] = board;
         }
+        this.boards[id].loading = false;
       });
     },
     close(id: BoardId) {
+      this.boards[id].loading = true;
       return socketEmit('board:close', id, (ack: SocketAck) => {
         if (ack.success) {
           const board = ack.success as Board;
           this.boards[board.id] = board;
         }
+        this.boards[id].loading = false;
       });
     },
 

@@ -1,11 +1,20 @@
-import { Component } from 'vue';
+import { storeToRefs } from 'pinia';
+import { Component, computed } from 'vue';
+import { useTheme } from 'vuetify';
 import ArduinoBoardEdit from '@/components/hardware/boards/edit/ArduinoBoardEdit.vue';
 import DefaultBoardEdit from '@/components/hardware/boards/edit/DefaultBoardEdit.vue';
 import RaspberryPiBoardEdit from '@/components/hardware/boards/edit/RaspberryPiBoardEdit.vue';
 import DefaultProtocolEdit from '@/components/hardware/protocols/edit/DefaultProtocolEdit.vue';
 import RaspiProtocolEdit from '@/components/hardware/protocols/edit/RaspiProtocolEdit.vue';
 import SerialProtocolEdit from '@/components/hardware/protocols/edit/SerialProtocolEdit.vue';
+import { useBoardStore } from '@/stores/boardStore';
 import { BoardModel } from '@/types/boards';
+
+export enum RobotStatus {
+  OFF = 0,
+  PARTIAL = 1,
+  ON = 2,
+}
 
 export enum BoardType {
   Unknown = '',
@@ -51,3 +60,22 @@ export const useProtocolEditComponent = (
   };
   return mapping[ProtocolType[protocol]];
 };
+
+export function useBoardMode() {
+  const theme = useTheme();
+  const { boards } = storeToRefs(useBoardStore());
+  return computed(() => {
+    const all_boards = Object.values(boards.value);
+    const connected_boards = all_boards.filter((board) => board.connected);
+    if (connected_boards.length === 0) {
+      theme.global.name.value = 'OffModeTheme';
+      return RobotStatus.OFF;
+    } else if (connected_boards.length === all_boards.length) {
+      theme.global.name.value = 'OnModeTheme';
+      return RobotStatus.ON;
+    } else {
+      theme.global.name.value = 'PartialModeTheme';
+      return RobotStatus.PARTIAL;
+    }
+  });
+}
