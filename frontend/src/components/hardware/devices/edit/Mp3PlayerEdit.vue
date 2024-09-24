@@ -57,10 +57,11 @@ import { Mp3Player } from '@/types/devices';
 const { t } = useI18n();
 const device = defineModel<Mp3Player>({ required: true });
 device.value.pin = 0;
-device.value.path = '';
+device.value.default = { path: '', status: -1 };
+device.value.state = device.value.default;
 
 // Compute URLs
-const { url: baseUrl, isConnected } = storeToRefs(useConnectionStore());
+const { url: baseUrl } = storeToRefs(useConnectionStore());
 
 const fileInfos = ref<{ name: string; path: string }[]>([]);
 const currentFile = ref<File | null>(null);
@@ -104,7 +105,7 @@ xhr.onerror = () => {
 // Handle file selection.
 const onUploadFile = () => {
   if (!currentFile.value) {
-    error.value = t('no_file_empty');
+    error.value = t('no_file_error');
     return;
   }
   error.value = '';

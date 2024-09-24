@@ -17,6 +17,7 @@
         color="success"
         size="x-large"
         density="compact"
+        :disabled="!state.path"
         @click="state.status <= 0 ? onCommand(1) : onCommand(0)"
       />
       <v-btn

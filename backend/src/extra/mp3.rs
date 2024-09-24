@@ -8,7 +8,6 @@ use anyhow::Result;
 use hermes_five::Board;
 use hermes_five::devices::{Actuator, Device};
 use hermes_five::errors::Error;
-use hermes_five::protocols::Protocol;
 use hermes_five::utils::{Easing, State, task};
 use hermes_five::utils::events::{EventHandler, EventManager};
 use parking_lot::RwLock;
