@@ -3,6 +3,21 @@
     <h1 class="text-h5 text-md-h4">
       <v-icon icon="mdi-movie-open" />
       {{ t('title') }}
+      <v-tooltip location="bottom">
+        <template #activator="{ props }">
+          <v-btn
+            v-bind="props"
+            size="large"
+            rounded="xl"
+            class="ml-4 pa-0"
+            variant="text"
+            icon="mdi-refresh"
+            density="comfortable"
+            @click="boardStore.reset_all()"
+          />
+        </template>
+        <span>{{ $t('form.reset') }}</span>
+      </v-tooltip>
     </h1>
     <v-btn color="primary" :to="{ name: 'animation.new' }">
       <v-icon>mdi-plus</v-icon>
@@ -102,11 +117,13 @@ import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { HardwareMode } from '@/composables/globalComposables';
 import { useAnimationStore } from '@/stores/animationStore';
+import { useBoardStore } from '@/stores/boardStore';
 import { useConfigStore } from '@/stores/configurationStore';
 import { Animation } from '@/types/animations';
 
 const { t } = useI18n();
 const { mode } = storeToRefs(useConfigStore());
+const boardStore = useBoardStore();
 
 // Get all animations.
 const animationStore = useAnimationStore();
