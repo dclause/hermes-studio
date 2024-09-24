@@ -44,7 +44,7 @@ export const useFetchMp3PlayerFileList = async (device: Device): Promise<Mp3Play
   if (isConnected.value) {
     const data = await fetch(`${url.value}/api/devices/mp3player/${device.id}/files`);
     if (data.ok) {
-      return (await data.json()) as Mp3PlayerFile[];
+      return [{ path: '', name: '---' }, ...((await data.json()) as Mp3PlayerFile[])];
     }
   }
   return [];

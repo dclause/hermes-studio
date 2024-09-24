@@ -16,12 +16,15 @@ export function useRedirect() {
   const router = useRouter();
 
   return {
-    redirect: () => {
+    redirect: (route_name: string | undefined = undefined, force: boolean = false) => {
       const redirection = route.query.destination as string;
-      if (redirection) {
+      if (force && route_name) {
+        return router.push({ name: route_name });
+      } else if (redirection) {
         return router.push({ path: redirection });
-      }
-      return router.go(-1);
+      } else if (route_name) {
+        return router.push({ name: route_name });
+      } else return router.go(-1);
     },
   };
 }

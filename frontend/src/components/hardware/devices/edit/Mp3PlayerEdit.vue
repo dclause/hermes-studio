@@ -52,7 +52,7 @@ import { useI18n } from 'vue-i18n';
 import { useFetchMp3PlayerFileList } from '@/composables/deviceComposables';
 import { useConnectionStore } from '@/stores/connectionStore';
 import { useToasterStore } from '@/stores/toastStore';
-import { Mp3Player } from '@/types/devices';
+import { Mp3Player, Mp3PlayerFile } from '@/types/devices';
 
 const { t } = useI18n();
 const device = defineModel<Mp3Player>({ required: true });
@@ -63,7 +63,12 @@ device.value.state = device.value.default;
 // Compute URLs
 const { url: baseUrl } = storeToRefs(useConnectionStore());
 
-const fileInfos = ref<{ name: string; path: string }[]>([]);
+// Retrieve the mp3Player file info.
+const fileInfos = ref<Mp3PlayerFile[]>([]);
+onBeforeMount(async () => {
+  fileInfos.value = await useFetchMp3PlayerFileList(device.value);
+});
+
 const currentFile = ref<File | null>(null);
 const progress = ref<number>(0);
 const error = ref<string>('');
@@ -92,7 +97,7 @@ xhr.onload = async () => {
     progress.value = 0;
     error.value = '';
     currentFile.value = null;
-    await useFetchMp3PlayerFileList(device.value);
+    fileInfos.value = await useFetchMp3PlayerFileList(device.value);
     useToasterStore().success(t('file_uploaded'));
   } else {
     error.value = `Error: ${xhr.status} ${xhr.statusText}`;
@@ -117,7 +122,6 @@ const onUploadFile = () => {
   );
   xhr.send(formData);
 };
-onBeforeMount(async () => await useFetchMp3PlayerFileList(device.value));
 
 // Delete a file.
 const toBeDeleted = ref();
@@ -131,7 +135,7 @@ const onConfirmDelete = async () => {
       },
     );
     if (data.ok) {
-      await useFetchMp3PlayerFileList(device.value);
+      fileInfos.value = await useFetchMp3PlayerFileList(device.value);
       useToasterStore().success(t('file_deleted'));
     }
   }
