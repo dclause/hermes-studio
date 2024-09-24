@@ -1,4 +1,5 @@
 use anyhow::{anyhow, bail};
+use hermes_five::pause_sync;
 use log::debug;
 use socketioxide::extract::{AckSender, Data, SocketRef, State, TryData};
 
@@ -58,6 +59,27 @@ pub fn register_board_events(socket: &SocketRef) {
                             Ok(())
                         })?;
                     }
+                }
+
+                Ok(devices)
+            });
+            database.write().set_autosave(true);
+        },
+    );
+
+    socket.on(
+        "board:reset_all",
+        |socket: SocketRef, State(database): State<ArcDb>| {
+            debug!("Event received: [board:reset_all]");
+
+            database.write().set_autosave(false);
+            let _ = database.read().list::<Device>().and_then(|mut devices| {
+                for (_, device) in &mut devices {
+                    device.inner.reset().and_then(|mutation| {
+                        broadcast_to_all("device:mutated", Ok((device.id, mutation)), &socket);
+                        Ok(())
+                    })?;
+                    pause_sync!(100);
                 }
 
                 Ok(devices)

@@ -142,7 +142,7 @@ export const useBoardStore = defineStore({
     },
 
     reset_all() {
-      Object.values(this.boards).forEach((board) => socketEmit('board:reset', board.id));
+      return socketEmit('board:reset_all');
     },
   },
 });
