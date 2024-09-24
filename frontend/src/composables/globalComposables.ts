@@ -7,6 +7,13 @@ export enum HardwareMode {
   REALTIME,
 }
 
+export enum CommandMode {
+  NONE,
+  KEYFRAME,
+  COMMAND,
+  FULL,
+}
+
 export function logError(error: Error) {
   console.error(error);
 }

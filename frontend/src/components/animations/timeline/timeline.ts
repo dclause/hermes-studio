@@ -402,7 +402,8 @@ export default class Timeline extends TimelineRenderer {
       if (event.ctrlKey && event.key === 'v') {
         event.preventDefault();
         // Read and check data from the clipboard.
-        const keyframesToPaste = JSON.parse(await navigator.clipboard.readText());
+        const serializedKeyframes = await navigator.clipboard.readText();
+        const keyframesToPaste = JSON.parse(serializedKeyframes);
         if (
           !Array.isArray(keyframesToPaste) ||
           !keyframesToPaste.every((item) => item.type === 'keyframe')
@@ -453,7 +454,7 @@ export default class Timeline extends TimelineRenderer {
             device: track.device,
             target: 0, // @todo: how to get default value here ?
           };
-          // this._emit(TimelineEvents.createKeyFrame, new_position);
+          this._emit(TimelineEvents.createKeyFrame, new_position);
           positions.push(new_position);
         } else {
           track.children.forEach((child) => recursiveBuildTrackPositions(child));

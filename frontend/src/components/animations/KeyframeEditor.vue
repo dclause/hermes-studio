@@ -37,7 +37,7 @@
             :is="useDeviceComponent(devices[position.device].type)"
             v-model="position.target"
             :device="devices[position.device] as Actuator"
-            variant="minimal"
+            :variant="CommandMode.KEYFRAME"
             hide-label
           />
         </div>
@@ -50,6 +50,7 @@ import type { Actuator } from '@/types/devices';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useDeviceComponent } from '@/composables/deviceComposables';
+import { CommandMode } from '@/composables/globalComposables';
 import { useBoardStore } from '@/stores/boardStore';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { Keyframe } from '@/types/animations';

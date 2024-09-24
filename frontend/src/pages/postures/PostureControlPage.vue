@@ -37,13 +37,14 @@
 
   <v-spacer class="my-3" />
 
-  <nested-group v-model="nestedGroups" variant="minimal" />
+  <nested-group v-model="nestedGroups" :variant="CommandMode.COMMAND" />
 </template>
 
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { CommandMode } from '@/composables/globalComposables';
 import { useFlatToNested } from '@/composables/groupComposables';
 import router from '@/plugins/router';
 import { useBoardStore } from '@/stores/boardStore';

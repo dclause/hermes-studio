@@ -1,5 +1,5 @@
 <template>
-  <default-command :device="device" class="command-servo">
+  <default-command :device="device" class="command-servo" :mode="mode" :variant="variant">
     <template #prefix>
       <slot name="prefix" />
     </template>
@@ -9,25 +9,27 @@
     <template #command>
       <servo-action
         v-model="state"
-        :mode="mode"
         :device="device"
         :min="device.range[0]"
         :max="device.range[1]"
+        :mode="mode"
+        :variant="variant"
       />
     </template>
   </default-command>
 </template>
 
 <script lang="ts" setup>
-import { HardwareMode } from '@/composables/globalComposables';
-import { Servo } from '@/types/devices'; // const device = defineModel<Servo>({ required: true });
+import { CommandMode, HardwareMode } from '@/composables/globalComposables';
+import { Servo } from '@/types/devices';
 
 const state = defineModel<number>({ required: true });
 withDefaults(
   defineProps<{
     device: Servo;
     mode?: HardwareMode;
+    variant?: CommandMode;
   }>(),
-  { mode: HardwareMode.REALTIME },
+  { mode: HardwareMode.REALTIME, variant: CommandMode.FULL },
 );
 </script>

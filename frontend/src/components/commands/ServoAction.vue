@@ -1,5 +1,11 @@
 <template>
-  <generic-action v-model="state" class="action-servo" :device="device" :mode="mode">
+  <generic-action
+    v-model="state"
+    class="action-servo"
+    :device="device"
+    :mode="mode"
+    :variant="variant"
+  >
     <template #action>
       <v-slider
         v-model="innerValue"
@@ -48,18 +54,25 @@
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
-import { HardwareMode, logError } from '@/composables/globalComposables';
+import { CommandMode, HardwareMode, logError } from '@/composables/globalComposables';
 import { useDeviceStore } from '@/stores/deviceStore';
-import { Servo } from '@/types/devices';
+import { Actuator } from '@/types/devices';
 import { SocketAck } from '@/types/socket';
 
 const state = defineModel<number>({ required: true });
-const props = defineProps<{
-  mode: HardwareMode;
-  device: Servo;
-  min: number;
-  max: number;
-}>();
+const props = withDefaults(
+  defineProps<{
+    mode?: HardwareMode;
+    variant?: CommandMode;
+    device: Actuator;
+    min: number;
+    max: number;
+  }>(),
+  {
+    mode: HardwareMode.REALTIME,
+    variant: CommandMode.FULL,
+  },
+);
 
 const deviceStore = useDeviceStore();
 const loading = ref<boolean>(false);

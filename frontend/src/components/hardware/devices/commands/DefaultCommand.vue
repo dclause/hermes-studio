@@ -2,13 +2,13 @@
   <v-card
     class="wrapper flex-1-1-100 align-center mt-2 overflow-visible"
     :class="{
-      'd-flex': variant != 'chip',
-      'd-inline-flex': variant == 'chip',
+      'd-flex': !isChip,
+      'd-inline-flex': isChip,
       [variant]: true,
     }"
     :variant="cardVariant"
   >
-    <slot name="prefix" />
+    <slot name="prefix" v-bind="{ isEditable: isEditable, isChip: isChip }" />
 
     <div class="d-flex flex-1-1-100 align-center mt-2 mb-2 command">
       <div class="d-none d-sm-block">
@@ -17,7 +17,7 @@
         </slot>
       </div>
 
-      <v-label v-if="variant !== 'minimal' || hideLabel" class="command-label ml-2">
+      <v-label v-if="!isChip || hideLabel" class="command-label ml-2">
         <slot name="label">
           <div class="font-weight-bold">
             {{ device.name }}
@@ -29,7 +29,7 @@
       </v-label>
 
       <div
-        v-if="variant != 'chip'"
+        v-if="!isChip"
         class="command-pin ml-2 mr-2 text-lowercase font-italic d-none d-sm-block"
       >
         <slot name="info">
@@ -37,14 +37,14 @@
         </slot>
       </div>
 
-      <slot v-if="variant != 'chip'" name="command" class="flex-grow-1">
+      <slot v-if="!isChip" name="command" class="flex-grow-1">
         <div class="font-italic text-error-lighten-1">
           {{ $t('command.none') }}
         </div>
       </slot>
     </div>
 
-    <div v-if="variant !== 'chip'" class="d-flex">
+    <div v-if="!isChip" class="d-flex">
       <v-btn
         icon="mdi-refresh"
         size="small"
@@ -54,7 +54,7 @@
       />
 
       <v-btn
-        v-if="variant !== 'minimal'"
+        v-if="isEditable"
         icon="mdi-pencil"
         size="small"
         :to="{
@@ -65,7 +65,7 @@
       />
 
       <v-btn
-        v-if="variant !== 'minimal'"
+        v-if="isEditable"
         icon="mdi-trash-can"
         size="small"
         variant="text"
@@ -77,6 +77,7 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue';
+import { CommandMode } from '@/composables/globalComposables';
 import { useBoardStore } from '@/stores/boardStore';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { Actuator } from '@/types/devices';
@@ -84,11 +85,13 @@ import { Actuator } from '@/types/devices';
 const props = withDefaults(
   defineProps<{
     device: Actuator;
-    variant?: string;
+    variant?: CommandMode;
     hideLabel?: false;
   }>(),
-  { variant: 'normal', hideLabel: false },
+  { variant: CommandMode.FULL, hideLabel: false },
 );
+const isChip = computed(() => props.variant === CommandMode.NONE);
+const isEditable = computed(() => props.variant === CommandMode.FULL);
 
 const boardStore = useBoardStore();
 const deviceStore = useDeviceStore();
@@ -97,9 +100,10 @@ const board = computed(() => boardStore.get(props.device.bid));
 
 const cardVariant = computed(() => {
   switch (props.variant) {
-    case 'minimal':
+    case CommandMode.COMMAND:
+    case CommandMode.KEYFRAME:
       return 'flat';
-    case 'normal':
+    case CommandMode.FULL:
     default:
       return 'elevated';
   }

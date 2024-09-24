@@ -1,5 +1,5 @@
 <template>
-  <default-command :device="device" class="command-mp3" :variant="variant">
+  <default-command :device="device" class="command-mp3" :mode="mode" :variant="variant">
     <template #prefix>
       <slot name="prefix" />
     </template>
@@ -12,9 +12,9 @@
     <template #command>
       <mp3-player-action
         v-model="state"
-        :mode="mode"
         :device="device"
         :files="fileInfos"
+        :mode="mode"
         :variant="variant"
       />
     </template>
@@ -25,7 +25,7 @@
 import { onBeforeMount, ref } from 'vue';
 import Mp3PlayerAction from '@/components/commands/Mp3PlayerAction.vue';
 import { useFetchMp3PlayerFileList } from '@/composables/deviceComposables';
-import { HardwareMode } from '@/composables/globalComposables';
+import { CommandMode, HardwareMode } from '@/composables/globalComposables';
 import { Mp3Player, Mp3PlayerFile, Mp3PlayerState } from '@/types/devices';
 
 const state = defineModel<Mp3PlayerState>({ required: true });
@@ -33,9 +33,9 @@ const props = withDefaults(
   defineProps<{
     device: Mp3Player;
     mode?: HardwareMode;
-    variant?: string;
+    variant?: CommandMode;
   }>(),
-  { mode: HardwareMode.REALTIME },
+  { mode: HardwareMode.REALTIME, variant: CommandMode.FULL },
 );
 
 // Retrieve the mp3Player file info.
