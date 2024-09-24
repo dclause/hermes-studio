@@ -444,7 +444,7 @@ export default class Timeline extends TimelineRenderer {
       return lastKeyframe;
     }, null);
 
-    const positions = lastKeyframe?.positions ?? [];
+    const positions = TimelineUtils.deepClone(lastKeyframe?.positions ?? []);
     if (!lastKeyframe?.positions) {
       // Create positions for subtracks tracks.
       const recursiveBuildTrackPositions = (track: Track) => {
@@ -453,7 +453,7 @@ export default class Timeline extends TimelineRenderer {
             device: track.device,
             target: 0, // @todo: how to get default value here ?
           };
-          this._emit(TimelineEvents.createKeyFrame, new_position);
+          // this._emit(TimelineEvents.createKeyFrame, new_position);
           positions.push(new_position);
         } else {
           track.children.forEach((child) => recursiveBuildTrackPositions(child));
@@ -466,7 +466,7 @@ export default class Timeline extends TimelineRenderer {
       start: time,
       end: time + 200,
       transition: lastKeyframe?.transition ?? 'Linear',
-      positions: positions ?? [],
+      positions: positions,
     });
     this._pushToHistory();
   };

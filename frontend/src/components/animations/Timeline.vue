@@ -26,6 +26,7 @@ import { storeToRefs } from 'pinia';
 import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { TimelineEvents } from '@/components/animations/timeline/timeline.events';
+import TimelineUtils from '@/components/animations/timeline/timeline.utils';
 import { DialogUtils } from '@/composables/formComposables';
 import { logError } from '@/composables/globalComposables';
 import { useNestedToFlat } from '@/composables/groupComposables';
@@ -121,9 +122,10 @@ timeline.on(TimelineEvents.scroll, (scrollTop) => {
   tracksContainer.value!.scrollTop = scrollTop;
 });
 timeline.on(TimelineEvents.createKeyFrame, (position: Position) => {
-  position.target =
-    Object.values(useDeviceStore().devices).find((device) => device.id === position.device)
-      ?.state ?? 0;
+  const matchingPosition = Object.values(useDeviceStore().devices).find(
+    (device) => device.id === position.device,
+  );
+  position.target = TimelineUtils.deepClone(matchingPosition?.state) ?? 0;
 });
 
 /** Saves the animation handler. */

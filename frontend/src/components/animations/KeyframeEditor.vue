@@ -39,7 +39,6 @@
             :device="devices[position.device] as Actuator"
             variant="minimal"
             hide-label
-            :mode="HardwareMode.OFF"
           />
         </div>
       </div>
@@ -51,7 +50,6 @@ import type { Actuator } from '@/types/devices';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useDeviceComponent } from '@/composables/deviceComposables';
-import { HardwareMode } from '@/composables/globalComposables';
 import { useBoardStore } from '@/stores/boardStore';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { Keyframe } from '@/types/animations';
