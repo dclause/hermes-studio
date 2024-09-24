@@ -109,8 +109,11 @@ export const usePostureStore = defineStore({
       });
     },
 
-    play(posture: Posture) {
-      return socketEmit('posture:play', posture.id);
+    play(id: PostureId) {
+      this.postures[id].loading = true;
+      return socketEmit('posture:play', id, () => {
+        this.postures[id].loading = false;
+      });
     },
   },
 });

@@ -19,33 +19,6 @@
       <v-icon style="margin-left: -10px" icon="mdi-controller" @click="openAllBoards" />
     </template>
   </v-switch>
-
-  <!--  <v-slider-->
-  <!--    :loading="loading"-->
-  <!--    :model-value="slider"-->
-  <!--    class="mode-switcher"-->
-  <!--    density="comfortable"-->
-  <!--    width="120"-->
-  <!--    min="0"-->
-  <!--    max="2"-->
-  <!--    step="1"-->
-  <!--    tick-size="1"-->
-  <!--    track-size="35"-->
-  <!--    thumb-color="white"-->
-  <!--    thumb-size="25"-->
-  <!--    track-fill-color="transparent"-->
-  <!--    color="primary-light-1"-->
-  <!--    rounded="pill"-->
-  <!--    hide-details-->
-  <!--    @click="onChangeSlider"-->
-  <!--  >-->
-  <!--    <template #prepend>-->
-  <!--      <v-icon style="margin-right: 5px" icon="mdi-controller-off" @click="closeAllBoards" />-->
-  <!--    </template>-->
-  <!--    <template #append>-->
-  <!--      <v-icon style="margin-left: 5px" icon="mdi-controller" @click="openAllBoards" />-->
-  <!--    </template>-->
-  <!--  </v-slider>-->
 </template>
 
 <script setup lang="ts">

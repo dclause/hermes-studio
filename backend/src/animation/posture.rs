@@ -1,3 +1,5 @@
+use hermes_five::pause_sync;
+use hermes_five::utils::Easing;
 use serde::{Deserialize, Serialize};
 
 use crate::animation::animation::Position;
@@ -31,13 +33,15 @@ impl Posture {
                                 None => Ok(()), // Should not happen ?
                                 Some(board) => match board.connected {
                                     false => Ok(()), // Do not bother with none connected boards.
-                                    true => {
-                                        device.inner.set_state(position.target.clone()).map(|_| ())
-                                    }
+                                    true => device
+                                        .inner
+                                        .animate(position.target.clone(), 500, Easing::SineInOut)
+                                        .map(|_| ()),
                                 },
                             })
                     }
                 })?;
+            pause_sync!(100);
         }
         Ok(())
     }

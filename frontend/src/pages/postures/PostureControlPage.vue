@@ -37,7 +37,7 @@
 
   <v-spacer class="my-3" />
 
-  <nested-group v-model="nestedGroups" />
+  <nested-group v-model="nestedGroups" variant="minimal" />
 </template>
 
 <script lang="ts" setup>

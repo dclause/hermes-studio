@@ -67,10 +67,10 @@
         icon="mdi-play"
         size="small"
         variant="outlined"
-        :loading="loading"
-        :disabled="loading || mode == HardwareMode.OFF"
+        :loading="item.loading"
+        :disabled="item.loading || mode == HardwareMode.OFF"
         color="primary"
-        @click="postureStore.play(item)"
+        @click="postureStore.play(item.id)"
       />
     </template>
 

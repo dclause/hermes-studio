@@ -6,7 +6,7 @@
       ref="form"
       :disabled="loading"
       :loading="loading"
-      class="d-flex flex-column pa-8"
+      class="d-flex flex-column pa-8 position-relative"
       @submit.prevent="onSave"
     >
       <h1 class="text-h5 text-md-h4">
@@ -37,20 +37,12 @@
         </v-expansion-panel>
       </v-expansion-panels>
 
-      <div v-if="Object.values(devices).length">
-        <div v-for="device in devices" :key="device.id">
-          <component
-            :is="useDeviceComponent(device.type)"
-            v-model="device.state"
-            class="pr-4"
-            :device="device as Actuator"
-            variant="minimal"
-          />
-        </div>
-      </div>
+      <nested-group v-model="nestedGroups" variant="minimal" />
+
+      <v-spacer class="mb-5" />
 
       <!-- Submit -->
-      <v-row class="my-5 mx-10">
+      <v-row class="position-fixed sticky-save">
         <v-col class="align-self-center" cols="12" sm="6">
           <v-btn
             block
@@ -73,16 +65,16 @@
   </div>
 </template>
 <script setup lang="ts">
-import type { Actuator } from '@/types/devices';
 import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import { VForm } from 'vuetify/components';
-import { useDeviceComponent } from '@/composables/deviceComposables';
 import { Rule } from '@/composables/formComposables';
 import { logError, useRedirect } from '@/composables/globalComposables';
+import { useFlatToNested } from '@/composables/groupComposables';
 import { useDeviceStore } from '@/stores/deviceStore';
+import { useGroupStore } from '@/stores/groupStore';
 import { usePostureStore } from '@/stores/postureStore';
 import { PostureId } from '@/types/postures';
 
@@ -96,17 +88,24 @@ const { redirect } = useRedirect();
 const route = useRoute();
 const id = Number(route.params.id) as PostureId;
 const posture = computed(() => {
-  const newPosture = postureStore.get(id);
-  if (newPosture) {
+  const postureFromStore = postureStore.get(id);
+  if (postureFromStore) {
     // Reset to this posture
-    postureStore.play(newPosture);
+    postureStore.play(postureFromStore.id);
   }
   // Force work on copy
-  return { ...newPosture };
+  return { ...postureFromStore };
 });
 
 // Selected panel.
 const panel = ref([]);
+
+// Build nested view.
+const groupStore = useGroupStore();
+const { groups } = storeToRefs(groupStore);
+const nestedGroups = computed(() => {
+  return useFlatToNested(groups.value);
+});
 
 const onCancel = () => {
   panel.value = [];
@@ -131,7 +130,7 @@ const onSave = async () => {
       .update(posture.value)
       .then(() => {
         panel.value = [];
-        return redirect();
+        return redirect('posture.list', true);
       })
       .catch(logError);
     loading.value = false;
@@ -139,6 +138,16 @@ const onSave = async () => {
 };
 </script>
 
+<style lang="scss" scoped>
+.sticky-save {
+  background-color: rgba(var(--v-theme-surface), 0.5) !important;
+  left: var(--v-layout-left);
+  bottom: 0;
+  width: calc(100% - var(--v-layout-left));
+  margin: 0;
+  padding-inline: 20em;
+}
+</style>
 <i18n>
 {
   "en": {

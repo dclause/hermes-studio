@@ -44,7 +44,7 @@
       </slot>
     </div>
 
-    <div v-if="variant !== 'minimal' && variant !== 'chip'" class="d-flex">
+    <div v-if="variant !== 'chip'" class="d-flex">
       <v-btn
         icon="mdi-refresh"
         size="small"
@@ -54,6 +54,7 @@
       />
 
       <v-btn
+        v-if="variant !== 'minimal'"
         icon="mdi-pencil"
         size="small"
         :to="{
@@ -63,25 +64,15 @@
         variant="text"
       />
 
-      <v-btn icon="mdi-trash-can" size="small" variant="text" @click="emit('delete', device)" />
+      <v-btn
+        v-if="variant !== 'minimal'"
+        icon="mdi-trash-can"
+        size="small"
+        variant="text"
+        @click="emit('delete', device)"
+      />
     </div>
   </v-card>
-  <!-- Normal variant -->
-  <!--  <v-card v-else>-->
-  <!--    <v-card-title class="d-flex">-->
-  <!--      {{ device.name }}-->
-  <!--      <v-spacer />-->
-  <!--      <slot name="icon">-->
-  <!--        <v-icon class="ml-2 mr-3" icon="mdi-progress-question" width="30" />-->
-  <!--      </slot>-->
-  <!--    </v-card-title>-->
-  <!--    <v-card-subtitle>{{ board.name }}</v-card-subtitle>-->
-  <!--    <v-card-text>-->
-  <!--      <slot name="command">-->
-  <!--        <unknown-action />-->
-  <!--      </slot>-->
-  <!--    </v-card-text>-->
-  <!--  </v-card>-->
 </template>
 
 <script lang="ts" setup>
