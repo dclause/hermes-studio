@@ -38,7 +38,6 @@
             v-model="position.target"
             :device="devices[position.device] as Actuator"
             :variant="CommandMode.KEYFRAME"
-            hide-label
           />
         </div>
       </div>

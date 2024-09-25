@@ -4,7 +4,9 @@ import { useSocketIO } from '@/composables/socketComposables';
 
 const STORAGE_KEY = 'hermes-backend';
 const storedUrl = sessionStorage.getItem(STORAGE_KEY);
-const defaultUrl = import.meta.env.PROD ? `${window.location.host}` : `http://localhost:4000`;
+const defaultUrl = import.meta.env.PROD
+  ? `${window.location.protocol}//${window.location.host}`
+  : `http://localhost:4000`;
 
 const { socketOpen, socketClose, socketRegister } = useSocketIO();
 

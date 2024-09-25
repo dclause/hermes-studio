@@ -184,6 +184,7 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
           const area: Area = { x1: left, y1: trackTop, x2: right, y2: trackBottom };
           let isTrackAtPosition = TimelineUtils.isIntersect(pos, area);
 
+          const doneKeyframeHandler = false;
           for (const keyframe of track.keyframes) {
             const handleLeft = this.valToPxPosition(keyframe.start) - 6;
             const handleRight = handleLeft + 12;
@@ -211,8 +212,21 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
             });
             // if (isKeyFrameAtPosition) this._scrollContainer!.style.cursor = "ew-resize";
             if (isKeyFrameAtPosition) this._scrollContainer!.style.cursor = 'move';
-            if (onKeyFrame)
-              onKeyFrame(keyframe as unknown as TimelineItem, isKeyFrameAtPosition, track);
+            if (onKeyFrame) {
+              const done = onKeyFrame(
+                keyframe as unknown as TimelineItem,
+                isKeyFrameAtPosition,
+                track,
+              ) as boolean;
+              console.log('DONE', done);
+              // doneKeyframeHandler =
+              //   doneKeyframeHandler ||
+              //   (onKeyFrame(
+              //     keyframe as unknown as TimelineItem,
+              //     isKeyFrameAtPosition,
+              //     track,
+              //   ) as boolean);
+            }
 
             const isResizerAtPosition = TimelineUtils.isIntersect(pos, {
               x1: resizerLeft,

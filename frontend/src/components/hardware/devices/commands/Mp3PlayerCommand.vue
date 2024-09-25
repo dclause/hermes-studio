@@ -1,5 +1,11 @@
 <template>
-  <default-command :device="device" class="command-mp3" :mode="mode" :variant="variant">
+  <default-command
+    :device="device"
+    class="command-mp3"
+    :mode="mode"
+    :variant="variant"
+    @reset="onReset"
+  >
     <template #prefix>
       <slot name="prefix" />
     </template>
@@ -26,7 +32,7 @@ import { onBeforeMount, ref } from 'vue';
 import Mp3PlayerAction from '@/components/commands/Mp3PlayerAction.vue';
 import { useFetchMp3PlayerFileList } from '@/composables/deviceComposables';
 import { CommandMode, HardwareMode } from '@/composables/globalComposables';
-import { Mp3Player, Mp3PlayerFile, Mp3PlayerState } from '@/types/devices';
+import { DeviceState, Mp3Player, Mp3PlayerFile, Mp3PlayerState } from '@/types/devices';
 
 const state = defineModel<Mp3PlayerState>({ required: true });
 const props = withDefaults(
@@ -43,4 +49,8 @@ const fileInfos = ref<Mp3PlayerFile[]>([]);
 onBeforeMount(async () => {
   fileInfos.value = await useFetchMp3PlayerFileList(props.device);
 });
+
+const onReset = (value: DeviceState) => {
+  state.value = value as Mp3PlayerState;
+};
 </script>

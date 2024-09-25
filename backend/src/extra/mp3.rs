@@ -5,10 +5,10 @@ use std::ops::Deref;
 use std::sync::Arc;
 
 use anyhow::Result;
-use hermes_five::Board;
+use hermes_five::{Board, pause_sync};
 use hermes_five::devices::{Actuator, Device};
 use hermes_five::errors::Error;
-use hermes_five::utils::{Easing, State, task};
+use hermes_five::utils::{Easing, State};
 use hermes_five::utils::events::{EventHandler, EventManager};
 use parking_lot::RwLock;
 use rodio::{Decoder, OutputStream, Sink, Source};
@@ -107,19 +107,20 @@ impl Mp3Player {
     pub fn change_track<P: Into<String>>(&mut self, path: P) -> Result<(), Error> {
         self.stop();
         self.state.write().path = path.into();
-        self.play()
+        self.play(u64::MAX)
     }
 
     /// Plays the current song.
-    pub fn play(&mut self) -> Result<(), Error> {
+    pub fn play(&mut self, duration: u64) -> Result<(), Error> {
         // Resume control if the song is not done.
         if let Some(control) = self.control.read().as_ref() {
             if !control.empty() {
                 control.play();
             }
-        } else {
+        } else if !self.state.read().path.is_empty() {
             let self_clone = self.clone();
-            task::run(async move {
+
+            tokio::task::spawn_blocking(move || {
                 // Start playing the current file
                 // Get an output stream handle to the default physical sound device
                 let (_stream, stream_handle) =
@@ -137,6 +138,11 @@ impl Mp3Player {
                         info: err.to_string(),
                     })?
                     .convert_samples::<f32>();
+                let duration = source
+                    .total_duration()
+                    .unwrap()
+                    .as_millis()
+                    .min(duration as u128);
 
                 // Play the sound directly on the device
                 let sink =
@@ -144,27 +150,24 @@ impl Mp3Player {
                         info: err.to_string(),
                     })?;
                 sink.append(source);
-                *self_clone.control.write() = Some(sink);
 
                 self_clone
                     .events
                     .emit(Mp3PlayerEvent::OnStart, self_clone.clone());
 
-                // Wait until the sound is done playing
-                self_clone
-                    .control
-                    .read()
-                    .as_ref()
-                    .unwrap()
-                    .sleep_until_end();
+                // Save the sink for later control.
+                *self_clone.control.write() = Some(sink);
 
+                pause_sync!(duration);
+
+                // Delete the sink now that it is not needed anymore.
                 *self_clone.control.write() = None;
                 self_clone
                     .events
                     .emit(Mp3PlayerEvent::OnEnd, self_clone.clone());
 
-                Ok(())
-            })?;
+                Ok::<(), Error>(())
+            });
         }
 
         self.state.write().status = Mp3Command::PLAY;
@@ -178,15 +181,6 @@ impl Mp3Player {
             Some(control) => control.pause(),
         };
         self.state.write().status = Mp3Command::PAUSE;
-    }
-
-    /// Plays the current song.
-    pub fn stop(&mut self) {
-        match self.control.read().deref() {
-            None => {}
-            Some(control) => control.stop(),
-        };
-        self.state.write().status = Mp3Command::STOP;
     }
 
     pub fn get_path(&self) -> String {
@@ -224,7 +218,7 @@ impl Device for Mp3Player {}
 
 #[typetag::serde]
 impl Actuator for Mp3Player {
-    fn animate<S: Into<State>>(&mut self, state: S, _duration: u64, _transition: Easing)
+    fn animate<S: Into<State>>(&mut self, state: S, duration: u64, _transition: Easing)
     where
         Self: Sized,
     {
@@ -233,7 +227,7 @@ impl Actuator for Mp3Player {
                 if let Some(path) = state.get("path") {
                     self.state.write().path = path.as_string();
                 }
-                let _ = self.play();
+                let _ = self.play(duration);
             }
             state => {
                 let _ = self.set_state(state.clone());
@@ -241,17 +235,27 @@ impl Actuator for Mp3Player {
         }
     }
 
+    /// Stops the current song.
+    fn stop(&self) {
+        // match self.control.read().deref() {
+        //     None => {}
+        //     Some(control) => control.stop(),
+        // };
+        *self.control.write() = None;
+        self.state.write().status = Mp3Command::STOP;
+    }
+
     fn set_state(&mut self, state: State) -> Result<State, Error> {
         match state.clone() {
             State::Null => {}
             State::Boolean(_) => {}
             State::Integer(command) => match Mp3Command::from(command as i8) {
-                Mp3Command::PLAY => self.play()?,
+                Mp3Command::PLAY => self.play(u64::MAX)?,
                 Mp3Command::PAUSE => self.pause(),
                 Mp3Command::STOP => self.stop(),
             },
             State::Signed(command) => match Mp3Command::from(command as i8) {
-                Mp3Command::PLAY => self.play()?,
+                Mp3Command::PLAY => self.play(u64::MAX)?,
                 Mp3Command::PAUSE => self.pause(),
                 Mp3Command::STOP => self.stop(),
             },
@@ -283,6 +287,13 @@ impl Actuator for Mp3Player {
         match self.control.read().as_ref() {
             None => false,
             Some(control) => !control.empty(),
+        }
+    }
+
+    fn scale_state(&mut self, previous: State, target: State, progress: f32) -> State {
+        match progress > 0.01 {
+            true => State::Null,
+            _ => target,
         }
     }
 }

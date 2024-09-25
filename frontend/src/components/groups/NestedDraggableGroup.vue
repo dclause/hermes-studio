@@ -26,7 +26,8 @@
           :class="{ disabled: element.disabled }"
           class="my-2 pl-3"
           :rounded="0"
-          variant="chip"
+          :mode="mode"
+          :variant="variant"
           @delete="onDelete"
         >
           <template #prefix>
@@ -54,6 +55,8 @@
           <nested-draggable-group
             v-if="!element.device"
             v-model="element.children"
+            :mode="mode"
+            :variant="variant"
             @change="onChange"
             @delete="onDelete"
             @edit="onEdit"
@@ -71,6 +74,7 @@ import { MoveEvent } from 'sortablejs';
 import { ref } from 'vue';
 import draggable from 'vuedraggable';
 import { useDeviceComponent } from '@/composables/deviceComposables';
+import { CommandMode, HardwareMode } from '@/composables/globalComposables';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { NestedGroup } from '@/types/groups';
 
@@ -83,6 +87,16 @@ const emit = defineEmits<{
   delete: [item: NestedGroup | Device];
 }>();
 const groups = defineModel<NestedGroup[]>({ required: true });
+withDefaults(
+  defineProps<{
+    mode?: HardwareMode;
+    variant?: CommandMode;
+  }>(),
+  {
+    mode: HardwareMode.REALTIME,
+    variant: CommandMode.FULL,
+  },
+);
 
 // Flag indicating the user is currently dragging (used to display dropzone).
 const isDragging = ref<boolean>(false);

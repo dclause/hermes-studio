@@ -23,6 +23,7 @@ export default class Timeline extends TimelineRenderer {
   /** History for tracks */
   protected _tracksHistoryIndex: number = -1;
   protected _tracksHistory: Array<Track[]> = [];
+  protected _clipboard: string = '';
 
   /**
    * Initializes Timeline.
@@ -242,23 +243,42 @@ export default class Timeline extends TimelineRenderer {
           if (item.move_previous_position) {
             offsetX = this._mousePositionOnCanvas.x - item.move_previous_position;
             const newTime = Math.max(0, keyframe.start + this.pxToVal(offsetX));
-            const intersectingKeyframe = track.keyframes
-              .filter((kf) => kf.start !== keyframe.start)
-              .find((kf) =>
-                TimelineUtils.isIntersect(
-                  { x1: kf.start, y1: 0, x2: kf.end, y2: 50 },
-                  {
-                    x1: newTime,
-                    y1: 0,
-                    x2: newTime + duration,
-                    y2: 50,
-                  },
-                ),
-              );
-            if (!intersectingKeyframe) {
+
+            // If multiple items are moved: authorize the move (regarless colision)
+            // @todo handle collision with multi-select
+            if (
+              track.keyframes.find(
+                (kf) =>
+                  (kf as unknown as TimelineItem).move_previous_position &&
+                  kf.start !== keyframe.start,
+              )
+            ) {
               keyframe.start = newTime;
               keyframe.end = keyframe.start + duration;
               item.move_previous_position = this._mousePositionOnCanvas.x;
+            }
+            // If one item is selected only: check collision
+            else {
+              offsetX = this._mousePositionOnCanvas.x - item.move_previous_position;
+              const newTime = Math.max(0, keyframe.start + this.pxToVal(offsetX));
+              const intersectingKeyframe = track.keyframes
+                .filter((kf) => kf.start !== keyframe.start)
+                .find((kf) =>
+                  TimelineUtils.isIntersect(
+                    { x1: kf.start, y1: 0, x2: kf.end, y2: 50 },
+                    {
+                      x1: newTime,
+                      y1: 0,
+                      x2: newTime + duration,
+                      y2: 50,
+                    },
+                  ),
+                );
+              if (!intersectingKeyframe) {
+                keyframe.start = newTime;
+                keyframe.end = keyframe.start + duration;
+                item.move_previous_position = this._mousePositionOnCanvas.x;
+              }
             }
           }
           maxTime = Math.max(maxTime, keyframe.end);
@@ -394,7 +414,8 @@ export default class Timeline extends TimelineRenderer {
             }
           },
         );
-        await navigator.clipboard.writeText(JSON.stringify(keyframesToCopy));
+        // await navigator.clipboard.writeText(JSON.stringify(keyframesToCopy));
+        this._clipboard = JSON.stringify(keyframesToCopy);
         return;
       }
 
@@ -402,8 +423,10 @@ export default class Timeline extends TimelineRenderer {
       if (event.ctrlKey && event.key === 'v') {
         event.preventDefault();
         // Read and check data from the clipboard.
-        const serializedKeyframes = await navigator.clipboard.readText();
-        const keyframesToPaste = JSON.parse(serializedKeyframes);
+        // const serializedKeyframes = await navigator.clipboard.readText();
+        // const keyframesToPaste = JSON.parse(serializedKeyframes);
+        const keyframesToPaste = JSON.parse(this._clipboard);
+
         if (
           !Array.isArray(keyframesToPaste) ||
           !keyframesToPaste.every((item) => item.type === 'keyframe')

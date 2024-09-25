@@ -28,6 +28,7 @@
   <nested-draggable-group
     v-model="draggables"
     :disabled="loading"
+    :variant="CommandMode.NONE"
     @change="onChange"
     @edit="onEditRequest"
     @delete="onDeleteRequest"
@@ -41,6 +42,7 @@
 import { storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { CommandMode } from '@/composables/globalComposables';
 import { useFlatToNested, useNestedToFlat } from '@/composables/groupComposables';
 import router from '@/plugins/router';
 import { useDeviceStore } from '@/stores/deviceStore';

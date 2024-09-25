@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use anyhow::Result;
 use hermes_five::animation::Track;
 use hermes_five::utils::{Easing, State};
-use log::{debug, trace};
+use log::debug;
 use serde::{Deserialize, Serialize};
 
 use crate::animation::group::Group;
@@ -119,7 +119,7 @@ impl Animation {
     pub fn play(&mut self, database: &Database) -> Result<()> {
         self.build(database)?;
         debug!("{}", self.inner);
-        trace!("{:#?}", self.inner);
+        // trace!("{:#?}", self.inner);
         self.inner.play();
         Ok(())
     }

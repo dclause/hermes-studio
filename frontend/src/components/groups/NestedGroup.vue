@@ -7,6 +7,7 @@
         v-model="(devices[group.device] as Actuator).state"
         class="ml-2"
         :device="devices[group.device] as Actuator"
+        :mode="mode"
         :variant="variant"
         @delete="onDelete"
       />
@@ -18,7 +19,7 @@
           {{ group.name }}
         </div>
       </div>
-      <nested-group v-model="group.children" :variant="variant" @delete="onDelete" />
+      <nested-group v-model="group.children" :mode="mode" :variant="variant" @delete="onDelete" />
     </div>
   </div>
 </template>
@@ -27,17 +28,23 @@
 import type { NestedGroup } from '@/types/groups';
 import { storeToRefs } from 'pinia';
 import { useDeviceComponent } from '@/composables/deviceComposables';
-import { HardwareMode } from '@/composables/globalComposables';
+import { CommandMode, HardwareMode } from '@/composables/globalComposables';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { Actuator, Device } from '@/types/devices';
 
 const deviceStore = useDeviceStore();
 const { devices } = storeToRefs(deviceStore);
 const groups = defineModel<NestedGroup[]>({ required: true });
-defineProps<{
-  mode?: HardwareMode;
-  variant?: string;
-}>();
+withDefaults(
+  defineProps<{
+    mode?: HardwareMode;
+    variant?: CommandMode;
+  }>(),
+  {
+    mode: HardwareMode.REALTIME,
+    variant: CommandMode.FULL,
+  },
+);
 
 const emit = defineEmits<{
   delete: [item: Device];

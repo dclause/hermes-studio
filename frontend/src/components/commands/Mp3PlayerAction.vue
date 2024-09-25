@@ -70,6 +70,7 @@ const onCommand = (command: string | number) => {
   if (props.mode === HardwareMode.REALTIME) {
     loading.value = true;
     if (props.variant === CommandMode.KEYFRAME && typeof command === 'string') {
+      deviceStore.mutate(props.device.id, -1);
       newState = { path: command, status: 2 };
     }
     deviceStore

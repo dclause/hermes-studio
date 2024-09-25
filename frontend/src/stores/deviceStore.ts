@@ -128,7 +128,11 @@ export const useDeviceStore = defineStore({
     },
 
     reset(id: DeviceId) {
-      return socketEmit('device:reset', id);
+      return socketEmit('device:reset', id, (ack: SocketAck) => {
+        if (ack.success) {
+          console.log('resetted', ack.success);
+        }
+      });
     },
 
     mutate(id: DeviceId, state: DeviceState) {

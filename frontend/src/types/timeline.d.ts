@@ -4,7 +4,7 @@ import { Keyframe } from '@/types/animations';
 import { NestedGroup } from '@/types/groups';
 
 export declare type TimelineItemCallback =
-  | ((item: TimelineItem, isAtPosition: boolean, track: Track) => void)
+  | ((item: TimelineItem, isAtPosition: boolean, track: Track) => boolean | void)
   | null;
 
 export declare type TimelineEvent = {

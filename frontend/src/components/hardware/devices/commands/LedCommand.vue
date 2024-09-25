@@ -1,5 +1,11 @@
 <template>
-  <default-command :device="device" class="command-led" :mode="mode" :variant="variant">
+  <default-command
+    :device="device"
+    class="command-led"
+    :mode="mode"
+    :variant="variant"
+    @reset="onReset"
+  >
     <template #prefix>
       <slot name="prefix" />
     </template>
@@ -20,7 +26,7 @@
 
 <script lang="ts" setup>
 import { CommandMode, HardwareMode } from '@/composables/globalComposables';
-import { Led } from '@/types/devices';
+import { DeviceState, Led } from '@/types/devices';
 
 const state = defineModel<boolean | number>({ required: true });
 withDefaults(
@@ -31,4 +37,8 @@ withDefaults(
   }>(),
   { mode: HardwareMode.REALTIME, variant: CommandMode.FULL },
 );
+
+const onReset = (value: DeviceState) => {
+  state.value = value as boolean;
+};
 </script>

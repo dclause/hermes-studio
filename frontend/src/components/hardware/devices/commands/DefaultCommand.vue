@@ -17,7 +17,7 @@
         </slot>
       </div>
 
-      <v-label v-if="!isChip || hideLabel" class="command-label ml-2">
+      <v-label class="command-label ml-2">
         <slot name="label">
           <div class="font-weight-bold">
             {{ device.name }}
@@ -50,7 +50,7 @@
         size="small"
         variant="text"
         :disabled="!board.connected"
-        @click="deviceStore.reset(device.id)"
+        @click="onReset(device)"
       />
 
       <v-btn
@@ -80,22 +80,21 @@ import { computed } from 'vue';
 import { CommandMode } from '@/composables/globalComposables';
 import { useBoardStore } from '@/stores/boardStore';
 import { useDeviceStore } from '@/stores/deviceStore';
-import { Actuator } from '@/types/devices';
+import { Actuator, Device, DeviceState } from '@/types/devices';
 
+const emit = defineEmits<{ delete: [item: Actuator]; reset: [value: DeviceState] }>();
 const props = withDefaults(
   defineProps<{
     device: Actuator;
     variant?: CommandMode;
-    hideLabel?: false;
   }>(),
-  { variant: CommandMode.FULL, hideLabel: false },
+  { variant: CommandMode.FULL },
 );
 const isChip = computed(() => props.variant === CommandMode.NONE);
 const isEditable = computed(() => props.variant === CommandMode.FULL);
 
 const boardStore = useBoardStore();
-const deviceStore = useDeviceStore();
-const emit = defineEmits<{ delete: [item: Actuator] }>();
+
 const board = computed(() => boardStore.get(props.device.bid));
 
 const cardVariant = computed(() => {
@@ -108,6 +107,13 @@ const cardVariant = computed(() => {
       return 'elevated';
   }
 });
+
+// Reset button
+const deviceStore = useDeviceStore();
+const onReset = (device: Device) => {
+  deviceStore.reset(device.id);
+  emit('reset', device.default);
+};
 </script>
 
 <style lang="scss" scoped>

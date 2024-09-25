@@ -37,7 +37,7 @@
         </v-expansion-panel>
       </v-expansion-panels>
 
-      <nested-group v-model="nestedGroups" variant="minimal" />
+      <nested-group v-model="nestedGroups" :variant="CommandMode.COMMAND" />
 
       <v-spacer class="mb-5" />
 
@@ -66,35 +66,47 @@
 </template>
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
-import { computed, ref } from 'vue';
+import { computed, onBeforeMount, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import { VForm } from 'vuetify/components';
 import { Rule } from '@/composables/formComposables';
-import { logError, useRedirect } from '@/composables/globalComposables';
+import { CommandMode, logError, useRedirect } from '@/composables/globalComposables';
 import { useFlatToNested } from '@/composables/groupComposables';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { useGroupStore } from '@/stores/groupStore';
 import { usePostureStore } from '@/stores/postureStore';
-import { PostureId } from '@/types/postures';
+import { Posture, PostureId } from '@/types/postures';
 
 const { t } = useI18n();
 const { devices } = storeToRefs(useDeviceStore());
 
 /** Retrieve the posture from the URL parameter */
 const postureStore = usePostureStore();
+const { postures } = storeToRefs(postureStore);
 
 const { redirect } = useRedirect();
 const route = useRoute();
 const id = Number(route.params.id) as PostureId;
-const posture = computed(() => {
-  const postureFromStore = postureStore.get(id);
-  if (postureFromStore) {
-    // Reset to this posture
-    postureStore.play(postureFromStore.id);
+const posture = ref<Posture>({ ...postureStore.get(id) });
+
+// Reset posture if needed
+onBeforeMount(async () => {
+  if (posture.value?.id) {
+    await postureStore.play(posture.value.id);
+  } else {
+    const stopWatch = watch(
+      postures,
+      (postures, before) => {
+        if (!before.length && postures) {
+          stopWatch();
+          posture.value = { ...postureStore.get(id) };
+          postureStore.play(posture.value.id);
+        }
+      },
+      { once: true },
+    );
   }
-  // Force work on copy
-  return { ...postureFromStore };
 });
 
 // Selected panel.
