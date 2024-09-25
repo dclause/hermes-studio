@@ -37,6 +37,7 @@
       </v-slider>
       <v-text-field
         v-model.number="state"
+        type="number"
         class="action-input flex-0-0"
         density="compact"
         :disabled="loading"
@@ -45,7 +46,6 @@
         :min="min"
         :max="max"
         single-line
-        type="number"
         @change="onUserInput"
       />
     </template>

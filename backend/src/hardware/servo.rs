@@ -22,7 +22,9 @@ impl_device!(Servo, {
         .set_type(current.get_type())
         .set_pwn_range(current.get_pwn_range())?
         .set_degree_range(current.get_degree_range())
-        .set_range(current.get_range());
+        .set_range(current.get_range())
+        .set_auto_detach(current.is_auto_detach())
+        .set_detach_delay(current.get_detach_delay());
         Ok(())
     }
 });

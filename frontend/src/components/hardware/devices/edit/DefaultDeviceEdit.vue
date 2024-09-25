@@ -1,8 +1,8 @@
 <template>
   <v-text-field
     v-model.number="device.pin"
-    :label="t('pin')"
     type="number"
+    :label="t('pin')"
     required
     :rules="[Rule.REQUIRED]"
   />

@@ -290,7 +290,7 @@ impl Actuator for Mp3Player {
         }
     }
 
-    fn scale_state(&mut self, previous: State, target: State, progress: f32) -> State {
+    fn scale_state(&mut self, _previous: State, target: State, progress: f32) -> State {
         match progress > 0.01 {
             true => State::Null,
             _ => target,

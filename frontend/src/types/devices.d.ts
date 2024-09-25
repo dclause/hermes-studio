@@ -28,6 +28,9 @@ export declare type Servo = Actuator & {
   range: Range<number>;
   pwm_range: Range<number>;
   degree_range: Range<number>;
+  inverted: boolean;
+  auto_detach: boolean;
+  detach_delay: number;
 };
 
 export declare type Mp3Player = Actuator & {
