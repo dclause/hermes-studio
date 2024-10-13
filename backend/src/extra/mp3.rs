@@ -236,7 +236,7 @@ impl Actuator for Mp3Player {
     }
 
     /// Stops the current song.
-    fn stop(&self) {
+    fn stop(&mut self) {
         // match self.control.read().deref() {
         //     None => {}
         //     Some(control) => control.stop(),

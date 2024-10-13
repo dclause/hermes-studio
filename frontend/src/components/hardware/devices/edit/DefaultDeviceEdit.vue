@@ -16,7 +16,6 @@ import { Device } from '@/types/devices';
 
 const { t } = useI18n();
 const device = defineModel<Device>({ required: true });
-device.value.intensity = 255;
 </script>
 
 <i18n>

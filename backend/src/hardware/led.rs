@@ -13,8 +13,12 @@ use crate::impl_device;
 impl_device!(Led, {
     fn set_board(&mut self, board: &Board) -> Result<()> {
         let current = self.inner.clone();
-        self.inner = hermes_five::devices::Led::new(&board.inner, current.get_pin())?
-            .set_intensity(current.get_intensity())?;
+        self.inner = hermes_five::devices::Led::new(
+            &board.inner,
+            current.get_pin(),
+            current.get_default().as_boolean(),
+        )?
+        .set_brightness(current.get_brightness())?;
         Ok(())
     }
 });

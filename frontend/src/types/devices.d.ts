@@ -19,7 +19,7 @@ export declare type Actuator = Device & {
 
 export declare type Led = Actuator & {
   pin: number;
-  intensity: number;
+  brightness: number;
 };
 
 export declare type Servo = Actuator & {

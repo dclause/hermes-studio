@@ -6,5 +6,5 @@
 import { Led } from '@/types/devices';
 
 const device = defineModel<Led>({ required: true });
-device.value.intensity = 255;
+device.value.brightness = 255;
 </script>

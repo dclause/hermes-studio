@@ -106,7 +106,7 @@ pub fn register_animation_events(socket: &SocketRef) {
                             _ => {
                                 let cloned_socket = socket.clone();
                                 let clone_animation = animation.clone();
-                                animation.inner.on(hermes_five::animation::AnimationEvent::OnEnd, move|animation: hermes_five::animation::Animation| {
+                                animation.inner.on(hermes_five::animation::AnimationEvent::OnComplete, move|animation: hermes_five::animation::Animation| {
                                     // How to avoid theses double clones ?
                                     let cloned_socket = cloned_socket.clone();
                                     let mut clone_animation = clone_animation.clone();
