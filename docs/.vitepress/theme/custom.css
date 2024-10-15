@@ -1,0 +1,22 @@
+html:not(.dark) .logo,
+html:not(.dark) img#icon,
+html:not(.dark) img.icon {
+    filter: invert(37%) sepia(13%) saturate(3060%) hue-rotate(183deg) brightness(90%) contrast(94%);
+}
+.logo,
+img#icon,
+img.icon {
+    filter: invert(80%) sepia(44%) saturate(3728%) hue-rotate(195deg) brightness(102%) contrast(103%);
+}
+
+@media (min-width: 640px) {
+    .VPHomeHero .text {
+        line-height: 46px;
+        font-size: 40px;
+    }
+}
+@media (min-width: 960px) {
+    .VPHomeHero .name {
+        margin-bottom: 15px !important;
+    }
+}

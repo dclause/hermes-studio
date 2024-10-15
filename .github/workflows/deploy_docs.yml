@@ -31,7 +31,7 @@ jobs:
         uses: actions/setup-node@v4
 
       - name: Install pnpm
-        working-directory: ./documentation
+        working-directory: ./docs
         run: npm install --global pnpm
 
       - name: Cache .pnpm-store
@@ -46,17 +46,17 @@ jobs:
         uses: actions/configure-pages@v4
 
       - name: Install dependencies
-        working-directory: ./documentation
+        working-directory: ./docs
         run: pnpm install
 
       - name: Build with VitePress
-        working-directory: ./documentation
+        working-directory: ./docs
         run: pnpm run docs:build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./documentation/.vitepress/dist
+          path: ./docs/.vitepress/dist
 
   # Deployment job
   deploy:

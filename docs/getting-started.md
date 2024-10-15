@@ -4,7 +4,7 @@ outline: deep
 
 # Getting started
 
-Welcome to HermesStudio documentation.
+Welcome to Hermes-Studio documentation.
 
 ## Installation
 
