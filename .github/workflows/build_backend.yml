@@ -21,6 +21,13 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4
 
+      - name: Install required packages
+        working-directory: ./backend
+        run: |
+          sudo apt update
+          sudo apt install -y pkg-config libudev-dev libasound2-dev
+        if: contains(matrix.os, 'ubuntu')
+
       - name: Run BACKEND cargo build
         working-directory: ./backend
         run: cargo build --verbose
