@@ -1,0 +1,30 @@
+name: 'FRONTEND build composite action'
+description: 'Builds the frontend'
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+
+    - name: Install pnpm
+      working-directory: ./frontend
+      shell: bash
+      run: npm install --global pnpm
+
+    - name: Cache .pnpm-store
+      uses: actions/cache@v4
+      with:
+        path: ~/.pnpm-store
+        key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-
+
+    - name: Install dependencies
+      working-directory: ./frontend
+      shell: bash
+      run: pnpm install
+
+    - name: Run FRONTEND pnpm build
+      working-directory: ./frontend
+      shell: bash
+      run: pnpm build

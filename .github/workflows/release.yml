@@ -1,0 +1,214 @@
+name: Release
+
+on:
+  push:
+    branches: [ "releases" ]
+    tags:
+      # Regex for a version number such as 0.2.1
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      tagname:
+        description: "Tag name for release"
+        required: false
+        default: nightly
+
+jobs:
+
+  # Build the tagname and branch
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.output.outputs.version }}
+      branch: ${{ steps.output.outputs.branch }}
+    steps:
+      # Manual input on 'workflow_dispatch'
+      - if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "VERSION=${{ github.event.inputs.tagname }}" | tee -a $GITHUB_ENV
+          echo "BRANCH=develop" | tee -a $GITHUB_ENV
+
+      # Based on tag name when pushed on 'releases' branch.
+      - if: github.event_name == 'push'
+        run: |
+          TAGNAME=${{ github.ref }}
+          echo "VERSION=${TAGNAME#refs/tags/}" | tee -a $GITHUB_ENV
+          echo "BRANCH=releases" | tee -a $GITHUB_ENV
+
+      - id: output
+        run: |
+          echo "version=$VERSION" | tee -a $GITHUB_OUTPUT
+          echo "branch=$BRANCH" | tee -a $GITHUB_OUTPUT
+
+  website:
+    name: Build FRONTEND
+    runs-on: windows-latest
+    needs: prepare
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.branch }}
+
+      - uses: ./.github/actions/build_frontend
+
+      - name: Upload Frontend
+        uses: actions/upload-artifact@v4
+        with:
+          name: website
+          path: ./frontend/dist/
+          retention-days: 1
+  backend:
+    name: Cross-platform build BACKEND
+    runs-on: ${{ matrix.os }}
+    needs:
+      - prepare
+      - website
+    env:
+      CARGO_TERM_COLOR: always
+      CROSS_CONFIG: ./backend/Cross.toml
+
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            cross: true
+          - target: x86_64-apple-darwin
+            os: macos-latest
+            cross: false
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            cross: false
+          - target: aarch64-unknown-linux-gnu # raspberryPI OS 64bits
+            os: ubuntu-latest
+            cross: true
+          - target: armv7-unknown-linux-gnueabihf # raspberryPI OS 32bits
+            os: ubuntu-latest
+            cross: true
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.branch }}
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          target: ${{ matrix.target }}
+          toolchain: stable
+          override: true
+          profile: minimal
+
+      - name: Update Cross
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          use-cross: false
+          args: cross --git https://github.com/cross-rs/cross
+
+      - name: Compile BACKEND
+        uses: actions-rs/cargo@v1
+        with:
+          use-cross: ${{ matrix.cross }}
+          command: build
+          args: --verbose --release --manifest-path "./backend/Cargo.toml" --target ${{ matrix.target }}
+
+      - name: Download website
+        uses: actions/download-artifact@v4
+        with:
+          name: website
+          path: website
+          merge-multiple: true
+
+      - name: Build archive
+        shell: bash
+        run: |
+          binary_name="hermes-studio"
+
+          # Build a directory for this version
+          dirname="$binary_name--${{ needs.prepare.outputs.version }}--${{ matrix.target }}"
+          mkdir "$dirname"
+          ls -la
+
+          # Move the FRONTEND website into the directory
+          mv "website" "$dirname"
+
+          # Move the release binary (BACKEND) into the directory
+          if [[ "${{ matrix.target }}" == *"windows"* ]]; then
+            mv "./backend/target/${{ matrix.target }}/release/$binary_name.exe" "$dirname"
+          else
+            mv "./backend/target/${{ matrix.target }}/release/$binary_name" "$dirname"
+          fi
+          
+          # Compress the directory
+          if [[ "${{ matrix.target }}" == *"windows"* ]]; then
+            7z a "$dirname.zip" "$dirname"
+            echo "ASSET=$dirname.zip" >> $GITHUB_ENV
+          else
+            tar -czf "$dirname.tar.gz" "$dirname"
+            echo "ASSET=$dirname.tar.gz" >> $GITHUB_ENV
+          fi
+
+      - name: Upload the archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ASSET }}
+          path: ${{ env.ASSET }}
+          retention-days: 1
+
+  publish:
+    name: Publish release
+    runs-on: ubuntu-latest
+    env:
+      GH_REPO: ${{ github.repository }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      contents: write
+    needs:
+      - prepare
+      - backend
+    steps:
+      # Must perform checkout first, since it deletes the target directory
+      # before running, and would therefore delete the downloaded artifacts
+      - uses: actions/checkout@v4
+
+      - name: Retrieve all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: hermes-studio--*
+          merge-multiple: true
+
+      - if: needs.prepare.outputs.version == 'nightly'
+        run: |
+          ls -la
+          echo "SUBJECT=Hermes-Studio nightly build" | tee -a $GITHUB_ENV
+          echo "PRERELEASE=true" | tee -a $GITHUB_ENV
+          echo "DRAFT=false" | tee -a $GITHUB_ENV
+          gh release delete nightly --yes || true
+          git tag -d nightly || true
+          git push origin :refs/tags/nightly || true
+          git tag -f nightly || true
+          git push --force origin nightly || true
+
+      - if: needs.prepare.outputs.version != 'nightly'
+        run: |
+          VERSION=${{ needs.prepare.outputs.version }}
+          echo "SUBJECT=$$VERSION" | tee -a $GITHUB_ENV
+          echo "PRERELEASE=false" | tee -a $GITHUB_ENV
+          echo "DRAFT=false" | tee -a $GITHUB_ENV
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ needs.prepare.outputs.version }}
+          files: hermes-studio--*
+          generate_release_notes: true
+          draft: ${{ env.DRAFT }}
+          name: ${{ env.SUBJECT }}
+          prerelease: ${{ env.PRERELEASE }}
