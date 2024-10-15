@@ -1,13 +1,17 @@
 name: Release
 
 on:
+  # Runs this workflow when a tag is done to releases branch.
   push:
-    branches: [ "releases" ]
     tags:
       # Regex for a version number such as 0.2.1
       - "v[0-9]+.[0-9]+.[0-9]+"
 
-  # Allows you to run this workflow manually from the Actions tab
+  # Runs this workflow every night at midnight.
+  schedule:
+    - cron: 0 0 * * *
+
+  # Allows to run this workflow manually from the Actions tab.
   workflow_dispatch:
     inputs:
       tagname:
@@ -17,31 +21,39 @@ on:
 
 jobs:
 
-  # Build the tagname and branch
+  # Build the tagname and branch.
   prepare:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.output.outputs.version }}
       branch: ${{ steps.output.outputs.branch }}
     steps:
+
+      # Hardcoded on 'schedule'
+      - if: github.event_name == 'schedule'
+        run: |
+          echo "VERSION=nightly" >> $GITHUB_ENV
+          echo "BRANCH=develop" >> $GITHUB_ENV
+
       # Manual input on 'workflow_dispatch'
       - if: github.event_name == 'workflow_dispatch'
         run: |
-          echo "VERSION=${{ github.event.inputs.tagname }}" | tee -a $GITHUB_ENV
-          echo "BRANCH=develop" | tee -a $GITHUB_ENV
+          echo "VERSION=${{ github.event.inputs.tagname }}" >> $GITHUB_ENV
+          echo "BRANCH=develop" >> $GITHUB_ENV
 
       # Based on tag name when pushed on 'releases' branch.
       - if: github.event_name == 'push'
         run: |
           TAGNAME=${{ github.ref }}
-          echo "VERSION=${TAGNAME#refs/tags/}" | tee -a $GITHUB_ENV
-          echo "BRANCH=releases" | tee -a $GITHUB_ENV
+          echo "VERSION=${TAGNAME#refs/tags/}" >> $GITHUB_ENV
+          echo "BRANCH=releases" >> $GITHUB_ENV
 
       - id: output
         run: |
-          echo "version=$VERSION" | tee -a $GITHUB_OUTPUT
-          echo "branch=$BRANCH" | tee -a $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
 
+  # Builds the frontend using the reusable action.
   website:
     name: Build FRONTEND
     runs-on: windows-latest
@@ -60,6 +72,8 @@ jobs:
           name: website
           path: ./frontend/dist/
           retention-days: 1
+
+  # Builds multiple version of the backend and package them.
   backend:
     name: Cross-platform build BACKEND
     runs-on: ${{ matrix.os }}
@@ -69,23 +83,27 @@ jobs:
     env:
       CARGO_TERM_COLOR: always
       CROSS_CONFIG: ./backend/Cross.toml
-
     strategy:
       matrix:
         include:
-          - target: x86_64-unknown-linux-gnu
+          - name: linux-x86_64
+            target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
             cross: true
-          - target: x86_64-apple-darwin
+          - name: darwin-x86_64
+            target: x86_64-apple-darwin
             os: macos-latest
             cross: false
-          - target: x86_64-pc-windows-msvc
+          - name: windows-x86_64
+            target: x86_64-pc-windows-msvc
             os: windows-latest
             cross: false
-          - target: aarch64-unknown-linux-gnu # raspberryPI OS 64bits
+          - name: raspberryPi-64bits
+            target: aarch64-unknown-linux-gnu # raspberryPI OS 64bits
             os: ubuntu-latest
             cross: true
-          - target: armv7-unknown-linux-gnueabihf # raspberryPI OS 32bits
+          - name: raspberryPi-32bits
+            target: armv7-unknown-linux-gnueabihf # raspberryPI OS 32bits
             os: ubuntu-latest
             cross: true
 
@@ -130,7 +148,7 @@ jobs:
           binary_name="hermes-studio"
 
           # Build a directory for this version
-          dirname="$binary_name--${{ needs.prepare.outputs.version }}--${{ matrix.target }}"
+          dirname="$binary_name--${{ matrix.name }}"
           mkdir "$dirname"
           ls -la
 
@@ -185,9 +203,10 @@ jobs:
       - if: needs.prepare.outputs.version == 'nightly'
         run: |
           ls -la
-          echo "SUBJECT=Hermes-Studio nightly build" | tee -a $GITHUB_ENV
-          echo "PRERELEASE=true" | tee -a $GITHUB_ENV
-          echo "DRAFT=false" | tee -a $GITHUB_ENV
+          echo "SUBJECT=Hermes-Studio nightly build" >> $GITHUB_ENV
+          echo "PRERELEASE=true" >> $GITHUB_ENV
+          echo "DRAFT=false" >> $GITHUB_ENV
+          echo "BODY=Unstable nightly release: built from the latest status of the develop branch." >> $GITHUB_ENV
           gh release delete nightly --yes || true
           git tag -d nightly || true
           git push origin :refs/tags/nightly || true
@@ -197,9 +216,10 @@ jobs:
       - if: needs.prepare.outputs.version != 'nightly'
         run: |
           VERSION=${{ needs.prepare.outputs.version }}
-          echo "SUBJECT=$$VERSION" | tee -a $GITHUB_ENV
-          echo "PRERELEASE=false" | tee -a $GITHUB_ENV
-          echo "DRAFT=false" | tee -a $GITHUB_ENV
+          echo "SUBJECT=$VERSION" >> $GITHUB_ENV
+          echo "PRERELEASE=false" >> $GITHUB_ENV
+          echo "DRAFT=false" >> $GITHUB_ENV
+          echo "BODY=" >> $GITHUB_ENV
 
       - name: Publish release
         uses: softprops/action-gh-release@v2
@@ -211,4 +231,6 @@ jobs:
           generate_release_notes: true
           draft: ${{ env.DRAFT }}
           name: ${{ env.SUBJECT }}
+          body: ${{ env.BODY }}
           prerelease: ${{ env.PRERELEASE }}
+          latest: true
