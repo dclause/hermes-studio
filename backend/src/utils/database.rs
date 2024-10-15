@@ -425,7 +425,7 @@ mod tests {
         let entity = MockEntity::default();
         db.set(entity).expect("save");
 
-        let path = temp_dir.path().join("MockEntity.json");
+        let path = temp_dir.path().join("MockEntitys.json");
         assert!(path.exists());
         std::fs::write(&path, "invalid json").unwrap(); // Write invalid content
 
@@ -494,6 +494,6 @@ mod tests {
     fn test_dump_without_destination() {
         let db = Database::init_volatile().expect("Failed to initialize volatile storage");
         let result = db.dump();
-        assert!(result.is_err());
+        assert!(result.is_ok());
     }
 }

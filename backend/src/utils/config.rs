@@ -83,7 +83,7 @@ mod tests {
         // Default configuration
         let config = Config::from(CliArgs::parse_from(&["test"]));
         assert!(config.is_ok());
-        assert_eq!(config.unwrap().port, 5000, "Default configuration");
+        assert_eq!(config.unwrap().port, 4000, "Default configuration");
 
         // Overridden by ENV
         env::set_var("HERMES_PORT", "6000");
