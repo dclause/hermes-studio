@@ -86,7 +86,7 @@
       </v-col>
     </v-row>
     <v-row class="my-0">
-      <v-col class="py-0" cols="12" sm="6">
+      <v-col class="py-0" cols="12">
         <v-checkbox
           v-model="device.auto_detach"
           :label="t('auto_detach')"
@@ -94,7 +94,7 @@
           density="compact"
         />
       </v-col>
-      <v-col class="py-0" cols="12" sm="6">
+      <v-col class="py-0" cols="12">
         <v-text-field
           v-if="device.auto_detach"
           v-model.number="device.detach_delay"
@@ -131,7 +131,7 @@ device.value.pwm_range = device.value.pwm_range ?? [600, 2400];
     "restriction": "Servo restrictions: between {min}° and {max}°",
     "default": "Default position: {default}°",
     "inverted": "Invert servo direction",
-    "auto_detach": "Delay (in ms.) before 'auto-detach'"
+    "auto_detach": "Delay (in ms) before 'auto-detach'"
   },
   "fr": {
     "type": "Type de servo",

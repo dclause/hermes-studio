@@ -2,7 +2,7 @@
   <div class="d-flex justify-space-between align-center mb-4">
     <h1 class="text-h5 text-md-h4">
       <v-icon icon="mdi-cog-transfer" />
-      {{ t('boards') }}
+      {{ t('title') }}
     </h1>
     <v-btn color="primary" :to="{ name: 'board.new' }">
       <v-icon>mdi-plus</v-icon>
@@ -157,8 +157,9 @@ const headers = [
 <i18n>
 {
   "en": {
-    "boards": "Cards",
-    "devices": "Groupes and Devices",
+    "title": "Manage boards",
+    "boards": "Boards",
+    "devices": "Groups & Devices",
     "headers": {
       "status": "Status",
       "name": "Name",
@@ -166,12 +167,13 @@ const headers = [
       "protocol": "Communication protocol",
       "actions": "Actions"
     },
-    "new": "Add a card",
-    "empty": "No card configured yet."
+    "new": "New Board",
+    "empty": "No board configured yet."
   },
   "fr": {
+    "title": "Configuration des cartes",
     "boards": "Cartes",
-    "devices": "Groupes et Contrôles ",
+    "devices": "Groupes",
     "headers": {
       "status": "Status",
       "name": "Nom",
@@ -179,7 +181,7 @@ const headers = [
       "protocol": "Protocol de communication",
       "actions": "Actions"
     },
-    "new": "Ajouter une carte",
+    "new": "Nouvelle Carte",
     "empty": "Aucune carte configurée pour le moment."
   }
 }

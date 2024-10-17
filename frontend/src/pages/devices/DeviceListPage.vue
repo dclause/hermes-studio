@@ -2,7 +2,7 @@
   <div class="d-flex align-center mb-4">
     <h1 class="text-h5 text-md-h4 flex-grow-1">
       <v-icon icon="mdi-cog-transfer" />
-      {{ t('devices') }}
+      {{ t('title') }}
     </h1>
     <v-btn color="primary" class="mr-5" @click="onCreateGroup">
       <v-icon>mdi-plus</v-icon>
@@ -106,18 +106,20 @@ const onConfirmCreateOrEdit = () => {
 <i18n>
 {
   "en": {
+    "title": "Manage groups",
     "boards": "Boards",
-    "devices": "Groups & Controls",
+    "devices": "Groups & Devices",
     "new_group": "New group",
     "new_device": "New device",
     "empty": "No group or device configured yet."
   },
   "fr": {
+    "title": "Configuration des groupes",
     "boards": "Cartes",
-    "devices": "Groups et contrôles",
+    "devices": "Groupes et Composants",
     "new_group": "Nouveau groupe",
-    "new_device": "Nouveau device",
-    "empty": "Aucune groupe ou device configurée pour le moment."
+    "new_device": "Nouveau composant",
+    "empty": "Aucune groupe ou composant configuré pour le moment."
   }
 }
 </i18n>
