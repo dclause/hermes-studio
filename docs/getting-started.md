@@ -28,8 +28,8 @@ The easiest way to get started with Hermes-Studio is by:
 _In this example, we will download **hermes-studio--linux-x86_64.tar.gz** archive for our Ubuntu computer and decompress it to the desktop, in a folder named **hermes-studio** :_
 ```shell
 cd /home/dclause/Desktop
-curl -O https://github.com/dclause/hermes-studio/releases/download/nightly/hermes-studio--linux-x86_64.tar.gz
-tar -zxvf hermes-studio--linux-x86_64.tar.gz && mv hermes-studio--linux-x86_64.tar.gz hermes-studio
+wget https://github.com/dclause/hermes-studio/releases/download/nightly/hermes-studio--linux-x86_64.tar.gz
+tar -zxvf hermes-studio--linux-x86_64.tar.gz && mv hermes-studio--linux-x86_64 hermes-studio
 ```
 :::
 
