@@ -173,7 +173,7 @@ const headers = [
   "fr": {
     "title": "Configuration des cartes",
     "boards": "Cartes",
-    "devices": "Groupes",
+    "devices": "Groupes & Composants",
     "headers": {
       "status": "Status",
       "name": "Nom",

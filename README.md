@@ -25,6 +25,11 @@ You can find pre-built releases for Windows, Linux, macOS and
 raspberryPiOS [here](https://github.com/dclause/hermes-studio/releases). If you'd like to compile from source,
 you can follow the compilation guide.
 
+> [!CAUTION]  
+> All Arduino boards used in the project must be configured to use
+> the [StandardFirmataPlus.ino](https://github.com/firmata/arduino/blob/main/examples/StandardFirmataPlus/StandardFirmataPlus.ino)
+> sketch.
+
 ## Features
 
 **Hermes-Studio** provides both an API (REST + WebSocket) and an Interface to remote control your Arduino (and

@@ -116,7 +116,7 @@ const onConfirmCreateOrEdit = () => {
   "fr": {
     "title": "Configuration des groupes",
     "boards": "Cartes",
-    "devices": "Groupes et Composants",
+    "devices": "Groupes & Composants",
     "new_group": "Nouveau groupe",
     "new_device": "Nouveau composant",
     "empty": "Aucune groupe ou composant configuré pour le moment."

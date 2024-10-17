@@ -48,9 +48,9 @@ Navigate to the directory where you uncompressed the Hermes-Studio folder and ru
 
 - Open your favorite browser and navigate to the address given to you: `http://localhost:4000` by default.
 - Make sure the website appears, and the "server is connected" indicator is checked.
-![connection-status.png](/userguide/connection-status.png)
+![Connection status indicator](/userguide/connection_status.png)
 
-## What's Next?
+## What's next?
 
 The getting-started page is now complete.
 
