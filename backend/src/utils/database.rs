@@ -89,6 +89,7 @@ impl Database {
         Ok(storage)
     }
 
+    /// Sets or remove auto-save.
     pub fn set_autosave(&mut self, autosave: bool) {
         self.autosave = autosave;
     }
@@ -115,19 +116,17 @@ impl Database {
             for file in files {
                 let file = file?.path();
 
-                // Skip non json files.
-                if file.extension().is_none() || file.extension().unwrap() != "json" {
-                    continue;
-                }
-
-                let entity_type: EntityType = file
-                    .file_stem()
-                    .unwrap()
+                // Skip non ".entities.json" file, otherwise retrieve the entity_type from filename.
+                let entity_type = match file
+                    .file_name()
+                    .ok_or(anyhow::anyhow!("Missing file name"))?
                     .to_str()
-                    .unwrap()
-                    .strip_suffix('s')
-                    .unwrap()
-                    .to_string();
+                    .ok_or(anyhow::anyhow!("Invalid UTF-8 in file name"))?
+                    .strip_suffix(".entities.json")
+                {
+                    None => continue,
+                    Some(name) => name.to_string(),
+                };
 
                 // Deserialize data from the current entity_type file in the storage folder.
                 let data = std::fs::read_to_string(file)?;
@@ -183,24 +182,6 @@ impl Database {
 
         Ok(entities)
     }
-
-    // pub fn list<T: Entity + Clone + 'static>(&self) -> Result<HashMap<Id, T>> {
-    //     let entity_type = T::get_entity_type();
-    //     let entities = self
-    //         .entities
-    //         .get(&entity_type)
-    //         .map_or(HashMap::new(), |entities| {
-    //             entities
-    //                 .iter()
-    //                 .map(|(id, entity)| {
-    //                     let entity = entity.deref().as_any().downcast_ref::<T>();
-    //                     (*id, entity.unwrap().clone())
-    //                 })
-    //                 .collect()
-    //         });
-    //
-    //     Ok(entities)
-    // }
 
     /// Retrieves an entity stored in the storage.
     ///
@@ -336,7 +317,7 @@ impl Database {
 
         let serialized_entities = serde_json::to_string_pretty(&entities)?;
 
-        let entity_filepath = path.join(format!("{}s.json", entity_type));
+        let entity_filepath = path.join(format!("{}.entities.json", entity_type));
         let mut file = OpenOptions::new()
             .write(true)
             .truncate(true)
@@ -345,6 +326,34 @@ impl Database {
         file.write_all(serialized_entities.as_ref())?;
 
         Ok(())
+    }
+
+    /// Writes a whole content into the database storage (only in persistent mode).
+    pub fn write_file<P: AsRef<Path>, S: Into<String>>(
+        &self,
+        filename: P,
+        content: S,
+    ) -> Result<()> {
+        let path = self
+            .destination
+            .as_ref()
+            .ok_or_else(|| anyhow!("Destination folder undefined."))?;
+
+        std::fs::write(path.join(filename), content.into())?;
+
+        Ok(())
+    }
+
+    /// Reads the whole content of a stored file from the database storage (only in persistent mode).
+    pub fn read_file<P: AsRef<Path>>(&self, filename: P) -> Result<String> {
+        let path = self
+            .destination
+            .as_ref()
+            .ok_or_else(|| anyhow!("Destination folder undefined."))?;
+
+        let content = std::fs::read_to_string(path.join(filename))?;
+
+        Ok(content)
     }
 }
 
@@ -400,7 +409,7 @@ mod tests {
         db.set(entity.clone()).expect("Failed to set entity");
 
         // Reinitialize and load the existing storage
-        let mut db_loaded = Database::init_persistent(temp_dir.path(), false, false)
+        let db_loaded = Database::init_persistent(temp_dir.path(), false, false)
             .expect("Failed to initialize persistent storage");
         let entities: HashMap<Id, MockEntity> = db_loaded.list().expect("Failed to list entities");
         assert_eq!(entities.len(), 1);
@@ -425,7 +434,7 @@ mod tests {
         let entity = MockEntity::default();
         db.set(entity).expect("save");
 
-        let path = temp_dir.path().join("MockEntitys.json");
+        let path = temp_dir.path().join("MockEntity.entities.json");
         assert!(path.exists());
         std::fs::write(&path, "invalid json").unwrap(); // Write invalid content
 
@@ -442,6 +451,7 @@ mod tests {
         let retrieved_entity = db
             .get::<MockEntity>(&saved_entity.get_id())
             .expect("Failed to get entity");
+        assert!(retrieved_entity.is_some())
     }
 
     #[test]
@@ -483,7 +493,7 @@ mod tests {
         db.dump().expect("Failed to dump storage");
 
         // Reload database
-        let mut db_reloaded = Database::init_persistent(temp_dir.path(), false, false)
+        let db_reloaded = Database::init_persistent(temp_dir.path(), false, false)
             .expect("Failed to initialize persistent storage");
         let entities: HashMap<Id, MockEntity> =
             db_reloaded.list().expect("Failed to list entities");

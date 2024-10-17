@@ -93,7 +93,7 @@ impl Logger {
         // =======================================================================
         // Build and use a logfile appender: log in file.
         if self.config.logfile {
-            let log_path = Path::new(&self.config.logpath);
+            let log_path = Path::new(&self.config.logfile_path);
             let trigger = Box::new(SizeTrigger::new(2 * 1024 * 1024)); // 2MB
             let roller = Box::new(
                 FixedWindowRoller::builder().base(1).build(
@@ -214,7 +214,7 @@ mod tests {
         config.console = true;
         config.loglevel = Level::Trace;
         config.logfile = true;
-        config.logpath = PathBuf::from(log_path);
+        config.logfile_path = PathBuf::from(log_path);
         let logger = Logger::from(config).init();
         assert!(logger.is_ok());
         assert!(logger.unwrap().is_some());
@@ -231,7 +231,7 @@ mod tests {
         config.console = false;
         config.loglevel = Level::Trace;
         config.logfile = false;
-        config.logpath = PathBuf::from(log_path);
+        config.logfile_path = PathBuf::from(log_path);
         let logger = Logger::from(config).init();
         assert!(logger.is_ok());
         assert!(logger.unwrap().is_none());
@@ -242,7 +242,7 @@ mod tests {
     fn test_failing_logger() {
         let mut config = Config::default();
         config.logfile = true;
-        config.logpath = PathBuf::from(".");
+        config.logfile_path = PathBuf::from(".");
         let logger = Logger::from(config).init();
         assert!(logger.is_err());
     }

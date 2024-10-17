@@ -4,7 +4,7 @@ use std::path::PathBuf;
 
 use anyhow::Result;
 use figment::Figment;
-use figment::providers::{Env, Format, Serialized, Toml};
+use figment::providers::{Env, Format, Json, Serialized};
 use log::Level;
 use serde::{Deserialize, Serialize};
 
@@ -19,12 +19,14 @@ pub struct Config {
     pub console: bool,
     /// Activates logs to file if set to TRUE.
     pub logfile: bool,
-    /// Customizes the path to log file.
-    pub logpath: PathBuf,
     /// Host to expose the application.
     pub host: IpAddr,
     /// Port to expose the application.
     pub port: u16,
+    /// The log file path.
+    pub logfile_path: PathBuf,
+    /// The config directory path.
+    pub config_dir_path: PathBuf,
     /// The database path.
     pub database_path: PathBuf,
     /// The website path.
@@ -39,9 +41,10 @@ impl Default for Config {
             loglevel: Level::Error,
             console: false,
             logfile: false,
-            logpath: current_path.join("logs/debug.log"),
             host: IpAddr::from([0, 0, 0, 0]),
             port: 4000,
+            config_dir_path: current_path.clone(),
+            logfile_path: current_path.join("logs/debug.log"),
             database_path: current_path.join("database"),
             website_path: current_path.join("website"),
         }
@@ -54,15 +57,16 @@ impl Config {
     /// Configurations are set by order of priorities:
     ///  - cli args
     ///  - env variables
-    ///  - toml file (depending on profile, by default "configs/default")
+    ///  - json file (depending on profile, by default "config.json")
     ///  - default configuration
     pub fn from(args: CliArgs) -> Result<Config> {
         // TOML file path.
-        let config_path = PathBuf::from("./configs").join("config.toml");
+        let default_config = Config::default();
+        let config_path = default_config.config_dir_path.join("config.json");
 
         let config: Config = Figment::new()
             .merge(Serialized::defaults(Config::default()))
-            .merge(Toml::file(config_path))
+            .merge(Json::file(config_path))
             .merge(Env::prefixed("HERMES_"))
             .merge(Serialized::defaults(args))
             .extract()?;
@@ -88,7 +92,9 @@ mod tests {
         assert_eq!(config.unwrap().port, 4000, "Default configuration");
 
         // Overridden by ENV
-        env::set_var("HERMES_PORT", "6000");
+        unsafe {
+            env::set_var("HERMES_PORT", "6000");
+        }
         let config = Config::from(CliArgs::parse_from(&["test"]));
         assert!(config.is_ok());
         assert_eq!(config.unwrap().port, 6000, "ENV configuration");

@@ -1,25 +1,30 @@
 use log::debug;
 use serde_json::Value;
-use socketioxide::extract::{AckSender, Data, SocketRef};
+use socketioxide::extract::{AckSender, Data, SocketRef, State};
 
 use crate::api::sockets::ack::Ack;
 use crate::api::sockets::broadcast_and_ack;
-use crate::utils::converter::json_to_toml;
+use crate::utils::database::ArcDb;
 use crate::utils::interface::Interface;
 
 pub fn register_config_events(socket: &SocketRef) {
-    socket.on("config:get", |ack: AckSender| {
-        debug!("Event received: [config:get]");
-        let config = Interface::get_config();
-        ack.send(Ack::from(config)).ok();
-    });
+    socket.on(
+        "config:get",
+        |ack: AckSender, State(database): State<ArcDb>| {
+            debug!("Event received: [config:get]");
+            let config = Interface::get_config_from_db(database);
+            ack.send(Ack::from(config)).ok();
+        },
+    );
 
     socket.on(
         "config:set",
-        |socket: SocketRef, Data(value): Data<Value>, ack: AckSender| {
+        |socket: SocketRef,
+         State(database): State<ArcDb>,
+         Data(config): Data<Value>,
+         ack: AckSender| {
             debug!("Event received: [config:set]");
-            let config_as_toml: toml::Value = json_to_toml(value).unwrap();
-            let config = Interface::set_config(config_as_toml);
+            let config = Interface::set_config_to_db(database, config);
             broadcast_and_ack("config:updated", config, &socket, ack);
         },
     );

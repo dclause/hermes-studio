@@ -1,21 +1,24 @@
-use std::path::Path;
-
 use anyhow::Result;
-use toml::Value as Toml;
+use serde_json::Value;
+
+use crate::utils::database::ArcDb;
 
 pub struct Interface {}
 impl Interface {
-    pub fn get_config() -> Result<Toml> {
-        let config_path = Path::new("./configs").join("interface.toml");
-        let file_as_string =
-            std::fs::read_to_string(config_path).unwrap_or_else(|_| String::default());
-        let config: Toml = toml::from_str(&*file_as_string)?;
+    pub fn get_config_from_db(database: ArcDb) -> Result<Value> {
+        let config_as_string = database
+            .read()
+            .read_file("interface.json")
+            .unwrap_or_else(|_| String::from("{}"));
+        let config = serde_json::from_str(&*config_as_string)?;
         Ok(config)
     }
-    pub fn set_config(config: Toml) -> Result<Toml> {
-        let config_path = Path::new("./configs").join("interface.toml");
-        let config_as_string = toml::to_string_pretty(&config).unwrap();
-        std::fs::write(config_path, config_as_string).unwrap();
+    pub fn set_config_to_db(database: ArcDb, config: Value) -> Result<Value> {
+        let config_as_string = serde_json::to_string_pretty(&config).unwrap();
+        database
+            .write()
+            .write_file("interface.json", config_as_string)
+            .unwrap();
         Ok(config)
     }
 }

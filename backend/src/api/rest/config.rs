@@ -4,7 +4,7 @@ use axum::{Json, Router};
 use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::routing::get;
-use toml::Value;
+use serde_json::Value;
 
 use crate::api::AppState;
 use crate::utils::interface::Interface;
@@ -16,15 +16,15 @@ pub fn routes() -> Router<AppState> {
 
 /// GET /:version/config.
 /// Retrieves all interface configurations.
-async fn get_config() -> impl IntoResponse {
-    let config = Interface::get_config().unwrap();
+async fn get_config(State(state): State<AppState>) -> impl IntoResponse {
+    let config = Interface::get_config_from_db(state.database).unwrap();
     Json(config)
 }
 
 /// POST /:version/config.
 /// Save all interface configurations.
-async fn set_config(State(state): State<AppState>, Json(input): Json<Value>) -> impl IntoResponse {
-    let config = Interface::set_config(input).unwrap();
+async fn set_config(State(state): State<AppState>, Json(config): Json<Value>) -> impl IntoResponse {
+    let config = Interface::set_config_to_db(state.database, config).unwrap();
     state.socket.emit("config:get", config.clone()).unwrap();
     Json(config)
 }
