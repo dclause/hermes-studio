@@ -21,7 +21,7 @@ socketRegister((socket: Socket) => {
 export const useConfigStore = defineStore({
   id: 'configuration',
   state: () => ({
-    locale: '',
+    locale: navigator.language.split('-')[0],
     mode: HardwareMode.REALTIME,
   }),
   actions: {
