@@ -11,7 +11,7 @@
 robot in minutes. No programming skills required.**
 
 _Written as a decoupled backend in Rust and frontend in Vue, the whole project serves as an advanced demonstration of
-the power of the [Hermes-Five](https://dclause.github.io/hermes-five/) API for remote control of IoT boards._
+the power of the [Hermes-Five](https://github.com/dclause/hermes-five) API for remote control of IoT boards._
 
 _I personally use this project to control my homemade [InMoov](http://inmoov.fr/) robot._
 
