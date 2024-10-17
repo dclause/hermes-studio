@@ -18,6 +18,7 @@ pub struct RaspiProtocol {
 
 impl RaspiProtocol {
     /// Constructs a new `RaspiProtocol` instance for controlling a raspberry board.
+    #[allow(dead_code)]
     pub fn new<P: Into<String>>() -> Self {
         Self {
             connected: false,

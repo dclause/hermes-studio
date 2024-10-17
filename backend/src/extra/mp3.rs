@@ -104,6 +104,7 @@ impl Mp3Player {
     }
 
     /// Changes the current song (and play it if currently playing).
+    #[allow(dead_code)]
     pub fn change_track<P: Into<String>>(&mut self, path: P) -> Result<(), Error> {
         self.stop();
         self.state.write().path = path.into();
@@ -202,6 +203,7 @@ impl Mp3Player {
     /// * `OnStart` | `start`: Triggered when the song starts. To use it, register though the [`Self::on()`] method.
     /// * `OnEnd` | `end`: Triggered when the song ends. To use it, register though the [`Self::on()`] method.
     /// ```
+    #[allow(dead_code)]
     pub fn on<S, F, T, Fut>(&self, event: S, callback: F) -> EventHandler
     where
         S: Into<String>,

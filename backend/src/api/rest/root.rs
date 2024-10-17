@@ -12,7 +12,6 @@ pub(crate) fn routes() -> Router<AppState> {
 }
 
 /// Structure of health check response.
-#[cfg_attr(feature = "swagger", derive(utoipa::ToSchema))]
 #[derive(Serialize)]
 pub struct Version {
     /// Semantic version of the current build (taken from cargo.tml)
