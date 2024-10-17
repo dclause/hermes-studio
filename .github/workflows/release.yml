@@ -161,9 +161,6 @@ jobs:
           else
             mv "./backend/target/${{ matrix.target }}/release/$binary_name" "$dirname"
           fi
-          
-          # Move the config folder into the directory
-          mv "./backend/configs" "$dirname"
 
           # Compress the directory
           if [[ "${{ matrix.target }}" == *"windows"* ]]; then

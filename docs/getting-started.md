@@ -6,7 +6,6 @@
 
 The following page assumes you have a basic understanding of what Hermes-Studio does. You may want to read more on the subject, but here are the basics. 
 - You need a device (computer, raspberryPi, phone) able to run Hermes-Studio, referred as "_the backend_"
-- You need at least one board connected to it through one of the supported methods (currently Serial port). Those boards together are referred to as "_the robot_".
 
 During the **Introduction** chapter, we will take the example of an Ubuntu (64bits) computer with an Arduino Mega board connected by a USB cable. For the purpose of demonstration,
 we will consider using the embedded red LED that this board have, as well as a simple servo (reference KY66 but it does not matter) connected in the most trivial way. 
@@ -37,10 +36,10 @@ tar -zxvf hermes-studio--linux-x86_64.tar.gz && mv hermes-studio--linux-x86_64 h
 
 Once downloaded and uncompressed, you should get an executable named _hermes-studio_ as well as a folder called _website_. Overall the project structure is the following: 
 - `hermes-studio[.exe]`: A CLI (command-line) executable compatible with your _backend_ machine.
-- `configs`: a folder where default configuration can be edited. Learn more in the [Advanced Configuration](/advanced/configuration) page.
 - `website`: a folder containing the web-client (DO NOT EDIT OR MODIFY).
 - `database` (auto-created): a folder containing the JSON data of everything your will configure using the web interface. It will be auto-created when you will use the application for the first time.
 - `logs` (auto-created): a folder containing all logs - provided you enabled those.
+- `config.json` (optional): a manually created file where your can set advanced default configurations. Learn more in the [Advanced Configuration](/advanced/configuration) page.
 
 ## Up and Running
 
