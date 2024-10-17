@@ -14,12 +14,24 @@
           </router-link>
         </v-avatar>
       </template>
-      <span>{{ $t('app.slogan') }}</span>
+      <span>{{ t('app.slogan') }}</span>
     </v-tooltip>
     <v-divider class="mx-3 my-5" />
 
     <main-menu />
+
+    <template #append>
+      <div class="text-subtitle-2 text-center font-weight-bold">
+        {{ semVersion }}
+      </div>
+    </template>
   </v-navigation-drawer>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+import { useI18n } from 'vue-i18n';
+import { version } from '@/../package.json';
+
+const { t } = useI18n();
+const semVersion = version;
+</script>

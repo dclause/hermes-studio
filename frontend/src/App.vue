@@ -39,7 +39,6 @@ const configStore = useConfigStore();
 const { locale } = storeToRefs(configStore);
 watch(locale, (locale) => {
   app!.appContext.config.globalProperties.$i18n.locale = locale;
-  // current.value = locale;
 });
 </script>
 
