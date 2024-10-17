@@ -32,5 +32,6 @@ features:
       class: icon
     title: Usage guide
     details: Learn more about Hermes-Studio and how to use it.
+    link: userguide
 ---
 

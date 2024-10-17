@@ -19,6 +19,12 @@ _I personally use this project to control my homemade [InMoov](http://inmoov.fr/
 
 To check out docs, visit [Github Pages](https://dclause.github.io/hermes-studio/).
 
+## Installation
+
+You can find pre-built releases for Windows, Linux, macOS and
+raspberryPiOS [here](https://github.com/dclause/hermes-studio/releases). If you'd like to compile from source,
+you can follow the compilation guide.
+
 ## Features
 
 **Hermes-Studio** provides both an API (REST + WebSocket) and an Interface to remote control your Arduino (and
