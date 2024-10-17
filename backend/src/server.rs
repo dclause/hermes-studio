@@ -101,8 +101,8 @@ impl Server {
             // @todo add a --no-ui option ?
             .nest_service(
                 "/",
-                ServeDir::new("./website")
-                    .not_found_service(ServeFile::new("./website/index.html")),
+                ServeDir::new(self.config.website_path.clone())
+                    .not_found_service(ServeFile::new(self.config.website_path.join("index.html"))),
             )
             .layer(socket_layer)
             .layer(CorsLayer::permissive())

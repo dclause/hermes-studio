@@ -33,15 +33,17 @@ pub struct Config {
 
 impl Default for Config {
     fn default() -> Self {
+        let mut current_path = std::env::current_exe().unwrap();
+        current_path.pop();
         Config {
             loglevel: Level::Error,
             console: false,
             logfile: false,
-            logpath: PathBuf::from("./logs/debug.log"),
+            logpath: current_path.join("logs/debug.log"),
             host: IpAddr::from([0, 0, 0, 0]),
             port: 4000,
-            database_path: PathBuf::from("./database"),
-            website_path: PathBuf::from("../dist/website"),
+            database_path: current_path.join("database"),
+            website_path: current_path.join("website"),
         }
     }
 }
