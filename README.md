@@ -1,11 +1,16 @@
-# Hermes-Studio
+<h1 align="center">
+<img src="/docs/public/samples/splashscreen.png" />
+Hermes-Studio
+</h1>
+
+<div align="center">
 
 [![License](https://img.shields.io/github/license/dclause/hermes-studio?color=success)](https://github.com/dclause/hermes-studio/blob/develop/LICENSE)
 [![Documentation](https://img.shields.io/badge/documentation-_online-success)](https://dclause.github.io/hermes-studio/)
 [![Build FRONTEND](https://github.com/dclause/hermes-studio/actions/workflows/build_frontend.yml/badge.svg)](https://github.com/dclause/hermes-studio/actions/workflows/build_frontend.yml)
 [![Build BACKEND](https://github.com/dclause/hermes-studio/actions/workflows/build_backend.yml/badge.svg)](https://github.com/dclause/hermes-studio/actions/workflows/build_backend.yml)
 
-## No-code remote control interface for your robot
+</div>
 
 **_Hermes-Studio_ is an open-source intuitive drag-and-drop interface to manage and remote control your Arduino-based
 robot in minutes. No programming skills required.**
@@ -14,6 +19,13 @@ _Written as a decoupled backend in Rust and frontend in Vue, the whole project s
 the power of the [Hermes-Five](https://github.com/dclause/hermes-five) API for remote control of IoT boards._
 
 _I personally use this project to control my homemade [InMoov](http://inmoov.fr/) robot._
+
+<div align="center">
+<img src="/docs/public/samples/boards_connected.png?raw=true" width=200 />
+<img src="/docs/public/samples/control_connected.png?raw=true" width=200 />
+<img src="/docs/public/samples/groups_connected.png?raw=true" width=200 />
+<img src="/docs/public/samples/timeline_connected.png?raw=true" width=200 />
+</div>
 
 ## Documentation
 
