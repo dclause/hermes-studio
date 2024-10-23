@@ -5,11 +5,11 @@ use std::ops::Deref;
 use std::sync::Arc;
 
 use anyhow::Result;
-use hermes_five::{Board, pause_sync};
-use hermes_five::devices::{Actuator, Device};
+use hermes_five::devices::{Device, Output};
 use hermes_five::errors::Error;
-use hermes_five::utils::{Easing, State};
 use hermes_five::utils::events::{EventHandler, EventManager};
+use hermes_five::utils::{Easing, State};
+use hermes_five::{pause_sync, Board};
 use parking_lot::RwLock;
 use rodio::{Decoder, OutputStream, Sink, Source};
 use serde::{Deserialize, Serialize};
@@ -219,7 +219,7 @@ impl Mp3Player {
 impl Device for Mp3Player {}
 
 #[typetag::serde]
-impl Actuator for Mp3Player {
+impl Output for Mp3Player {
     fn animate<S: Into<State>>(&mut self, state: S, duration: u64, _transition: Easing)
     where
         Self: Sized,

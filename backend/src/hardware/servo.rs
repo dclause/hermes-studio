@@ -3,7 +3,7 @@ use std::ops::{Deref, DerefMut};
 
 use anyhow::Result;
 use hermes_five::animation::Track;
-use hermes_five::devices::Actuator;
+use hermes_five::devices::Output;
 use serde::{Deserialize, Serialize};
 
 use crate::hardware::board::Board;
