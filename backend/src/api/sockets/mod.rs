@@ -29,7 +29,7 @@ pub fn broadcast_and_ack<T: Serialize>(
     if data.is_ok() {
         socket.broadcast().emit(event, data.as_ref().unwrap()).ok();
     }
-    ack.send(Ack::from(data)).ok();
+    ack.send(&Ack::from(data)).ok();
 }
 
 /// Helper function: broadcast some event/value to everyone.

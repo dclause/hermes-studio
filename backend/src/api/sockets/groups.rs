@@ -5,8 +5,8 @@ use log::debug;
 use socketioxide::extract::{AckSender, Data, SocketRef, State, TryData};
 
 use crate::animation::group::Group;
-use crate::api::sockets::{broadcast_and_ack, broadcast_to_all};
 use crate::api::sockets::ack::Ack;
+use crate::api::sockets::{broadcast_and_ack, broadcast_to_all};
 use crate::utils::database::ArcDb;
 use crate::utils::entity::{Entity, Id};
 
@@ -16,7 +16,7 @@ pub fn register_group_events(socket: &SocketRef) {
         |State(database): State<ArcDb>, ack: AckSender| {
             debug!("Event received: [group:list]");
             let groups = database.read().list::<Group>();
-            ack.send(Ack::from(groups)).ok();
+            ack.send(&Ack::from(groups)).ok();
         },
     );
 
@@ -108,7 +108,7 @@ pub fn register_group_events(socket: &SocketRef) {
                     None => bail!("Group not found"),
                     Some(group) => Ok(group),
                 });
-            ack.send(Ack::from(group)).ok();
+            ack.send(&Ack::from(group)).ok();
 
             let groups = database.read().list::<Group>();
             broadcast_to_all("group:list", groups, &socket);

@@ -4,8 +4,8 @@ use log::debug;
 use socketioxide::extract::{AckSender, Data, SocketRef, State, TryData};
 
 use crate::animation::group::Group;
-use crate::api::sockets::{broadcast_and_ack, broadcast_to_all};
 use crate::api::sockets::ack::Ack;
+use crate::api::sockets::{broadcast_and_ack, broadcast_to_all};
 use crate::hardware::board::Board;
 use crate::hardware::device::Device;
 use crate::utils::database::ArcDb;
@@ -17,7 +17,7 @@ pub fn register_device_events(socket: &SocketRef) {
         |State(database): State<ArcDb>, ack: AckSender| {
             debug!("Event received: [device:list]");
             let devices = database.read().list::<Device>();
-            ack.send(Ack::from(devices)).ok();
+            ack.send(&Ack::from(devices)).ok();
         },
     );
 
@@ -49,7 +49,7 @@ pub fn register_device_events(socket: &SocketRef) {
             if mutation.is_ok() {
                 socket
                     .broadcast()
-                    .emit("device:mutated", (id, mutation.as_ref().unwrap()))
+                    .emit("device:mutated", &(id, mutation.as_ref().unwrap()))
                     .ok();
             } else {
                 let board = Board::get(&database, &id).and_then(|board| match board {
@@ -64,7 +64,7 @@ pub fn register_device_events(socket: &SocketRef) {
             }
 
             database.write().set_autosave(true);
-            ack.send(Ack::from(mutation)).ok();
+            ack.send(&Ack::from(mutation)).ok();
         },
     );
 
@@ -110,7 +110,7 @@ pub fn register_device_events(socket: &SocketRef) {
             if mutation.is_ok() {
                 socket
                     .broadcast()
-                    .emit("device:mutated", (id, mutation.as_ref().unwrap()))
+                    .emit("device:mutated", &(id, mutation.as_ref().unwrap()))
                     .ok();
             } else {
                 let board = Board::get(&database, &id).and_then(|board| match board {
@@ -123,7 +123,7 @@ pub fn register_device_events(socket: &SocketRef) {
                 // Update to all, including socket itself myself.
                 broadcast_to_all("board:updated", board, &socket);
             }
-            ack.send(Ack::from(mutation)).ok();
+            ack.send(&Ack::from(mutation)).ok();
         },
     );
 

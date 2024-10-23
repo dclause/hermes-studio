@@ -4,8 +4,8 @@ use log::debug;
 use socketioxide::extract::{AckSender, Data, SocketRef, State, TryData};
 
 use crate::animation::group::Group;
-use crate::api::sockets::{broadcast_and_ack, broadcast_to_all};
 use crate::api::sockets::ack::Ack;
+use crate::api::sockets::{broadcast_and_ack, broadcast_to_all};
 use crate::hardware::board::Board;
 use crate::hardware::device::Device;
 use crate::utils::database::ArcDb;
@@ -17,7 +17,7 @@ pub fn register_board_events(socket: &SocketRef) {
         |State(database): State<ArcDb>, ack: AckSender| {
             debug!("Event received: [board:list]");
             let boards = database.read().list::<Board>();
-            ack.send(Ack::from(boards)).ok();
+            ack.send(&Ack::from(boards)).ok();
         },
     );
 

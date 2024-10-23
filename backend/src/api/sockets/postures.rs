@@ -3,8 +3,8 @@ use log::debug;
 use socketioxide::extract::{AckSender, Data, SocketRef, State, TryData};
 
 use crate::animation::posture::Posture;
-use crate::api::sockets::{broadcast_and_ack, broadcast_to_all};
 use crate::api::sockets::ack::Ack;
+use crate::api::sockets::{broadcast_and_ack, broadcast_to_all};
 use crate::hardware::device::Device;
 use crate::utils::database::ArcDb;
 use crate::utils::entity::Id;
@@ -15,7 +15,7 @@ pub fn register_posture_events(socket: &SocketRef) {
         |ack: AckSender, State(database): State<ArcDb>| {
             debug!("Event received: [posture:list]");
             let postures = database.read().list::<Posture>();
-            ack.send(Ack::from(postures)).ok();
+            ack.send(&Ack::from(postures)).ok();
         },
     );
 
@@ -88,7 +88,7 @@ pub fn register_posture_events(socket: &SocketRef) {
 
             let devices = database.list::<Device>();
             broadcast_to_all("device:list", devices, &socket);
-            ack.send(Ack::from(posture)).ok();
+            ack.send(&Ack::from(posture)).ok();
         },
     );
 }

@@ -13,7 +13,7 @@ pub fn register_config_events(socket: &SocketRef) {
         |ack: AckSender, State(database): State<ArcDb>| {
             debug!("Event received: [config:get]");
             let config = Interface::get_config_from_db(database);
-            ack.send(Ack::from(config)).ok();
+            ack.send(&Ack::from(config)).ok();
         },
     );
 

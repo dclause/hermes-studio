@@ -6,8 +6,8 @@ use socketioxide::extract::{AckSender, Data, SocketRef, State, TryData};
 
 use crate::animation::animation::Animation;
 use crate::api::payloads::animation::AnimationPayload;
-use crate::api::sockets::{broadcast_and_ack, broadcast_to_all};
 use crate::api::sockets::ack::Ack;
+use crate::api::sockets::{broadcast_and_ack, broadcast_to_all};
 use crate::utils::database::ArcDb;
 use crate::utils::entity::Id;
 
@@ -22,7 +22,7 @@ pub fn register_animation_events(socket: &SocketRef) {
                     .map(|(id, animation)| (id, AnimationPayload::from(animation)))
                     .collect::<HashMap<Id, AnimationPayload>>())
             });
-            ack.send(Ack::from(animations)).ok();
+            ack.send(&Ack::from(animations)).ok();
         },
     );
 
