@@ -10,7 +10,7 @@ license = "MIT"
 
 [dependencies]
 # @todo use published crate
-hermes-five = { branch = "develop", git = "https://github.com/dclause/hermes-five", features = ["serde"] }
+hermes-five = { rev = "8394caa", git = "https://github.com/dclause/hermes-five", features = ["serde"] }
 anyhow = "1.0.91"
 axum = { version = "0.7.7", default-features = false, features = ["form", "http1", "json", "matched-path", "multipart", "original-uri", "query", "tokio"] }
 clap = { version = "4.5.20", features = ["derive", "env"] }
