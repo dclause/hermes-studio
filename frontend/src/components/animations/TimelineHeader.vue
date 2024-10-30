@@ -28,6 +28,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
+import { TimelineEvents } from '@/components/animations/timeline/timeline.events';
 import { HardwareMode } from '@/composables/globalComposables';
 import { useTimeline } from '@/composables/timelineComposables';
 import { useConfigStore } from '@/stores/configurationStore';
@@ -51,28 +52,28 @@ const onSwitchMode = () => {
 };
 
 let lastTime = 0;
-// timeline.on(TimelineEvents.updateTime, (time) => {
-//   const duration = time;
-//   const milliseconds = (duration % 1000).toString().padStart(3, '0');
-//   const seconds = Math.floor((duration / 1000) % 60)
-//     .toString()
-//     .padStart(2, '0');
-//   const minutes = Math.floor((duration / (1000 * 60)) % 60)
-//     .toString()
-//     .padStart(2, '0');
-//   const hours = Math.floor((duration / (1000 * 60 * 60)) % 24)
-//     .toString()
-//     .padStart(2, '0');
-//
-//   timer.value = `${hours}:${minutes}:${seconds}:${milliseconds}`;
-//
-//   const fps = Math.floor(1000 / (time - lastTime));
-//   if (fps > 0) {
-//     timer.value += ` (${fps}fps)`;
-//   }
-//
-//   lastTime = time;
-// });
+timeline.on(TimelineEvents.updateTime, (time) => {
+  const duration = time;
+  const milliseconds = (duration % 1000).toString().padStart(3, '0');
+  const seconds = Math.floor((duration / 1000) % 60)
+    .toString()
+    .padStart(2, '0');
+  const minutes = Math.floor((duration / (1000 * 60)) % 60)
+    .toString()
+    .padStart(2, '0');
+  const hours = Math.floor((duration / (1000 * 60 * 60)) % 24)
+    .toString()
+    .padStart(2, '0');
+
+  timer.value = `${hours}:${minutes}:${seconds}:${milliseconds}`;
+
+  const fps = Math.floor(1000 / (time - lastTime));
+  if (fps > 0) {
+    timer.value += ` (${fps}fps)`;
+  }
+
+  lastTime = time;
+});
 </script>
 
 <style lang="scss" scoped>

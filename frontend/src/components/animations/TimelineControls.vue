@@ -177,7 +177,6 @@ const playKeyframeAt = (time: number) => {
           nextKeyFrame.transition,
         )
         .catch(logError);
-      console.log('send target:', position.target);
     }
   }
 
