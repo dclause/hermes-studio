@@ -165,7 +165,7 @@ const playKeyframeAt = (time: number) => {
 
   // playableKeyframes are the ones between the last one played and all the ones to be played in the next 50ms.
   const playableKeyframe = activatedKeyFrames.toReversed().filter((kf) => {
-    return kf.start > lastPlayedTime && kf.start < time + 50;
+    return kf.start > lastPlayedTime && kf.start < time;
   });
   for (const nextKeyFrame of playableKeyframe) {
     for (const position of nextKeyFrame.positions) {
@@ -177,10 +177,11 @@ const playKeyframeAt = (time: number) => {
           nextKeyFrame.transition,
         )
         .catch(logError);
+      console.log('send target:', position.target);
     }
   }
 
-  lastPlayedTime = time + 50;
+  lastPlayedTime = time;
 };
 </script>
 

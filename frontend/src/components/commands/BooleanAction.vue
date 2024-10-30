@@ -39,7 +39,7 @@ import { useDeviceStore } from '@/stores/deviceStore';
 import { OutputDevice } from '@/types/devices';
 import { SocketAck } from '@/types/socket';
 
-const state = defineModel<boolean>({ required: true });
+const state = defineModel<boolean | number>({ required: true });
 const props = withDefaults(
   defineProps<{
     mode?: HardwareMode;
@@ -60,7 +60,7 @@ const loading = ref<boolean>(false);
  */
 const innerValue = computed<boolean>({
   get() {
-    return state.value;
+    return !!state.value;
   },
   set(value) {
     previousState = innerValue.value;

@@ -164,8 +164,8 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
   ): number {
     if (this._ctx) {
       this._scrollContainer!.style.cursor = 'default';
-      const left = this._scrollContainer!.scrollLeft;
-      const right = left + this._ctx.canvas.clientWidth;
+      const trackLeft = 0; // this._scrollContainer!.scrollLeft;
+      const trackRight = trackLeft + this._ctx.canvas.clientWidth;
       const trackHeight = this._config.trackHeight;
 
       const _innerApplyAtPosition = (
@@ -181,7 +181,7 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
           const trackTop = counter * this._config.trackHeight + this._config.headerHeight;
           const trackBottom = trackTop + trackHeight;
 
-          const area: Area = { x1: left, y1: trackTop, x2: right, y2: trackBottom };
+          const area: Area = { x1: trackLeft, y1: trackTop, x2: trackRight, y2: trackBottom };
           let isTrackAtPosition = TimelineUtils.isIntersect(pos, area);
 
           for (const keyframe of track.keyframes) {
@@ -277,7 +277,7 @@ export default abstract class TimelineRenderer extends TimelineDrawing {
   private _renderBackground(): void {
     if (this._ctx) {
       // Transparent background.
-      this._ctx.clearRect(0, 0, this._ctx.canvas.width, this._getTotalHeight());
+      this._ctx.clearRect(0, 0, this._ctx.canvas.width, this._ctx.canvas.height);
     }
   }
 
