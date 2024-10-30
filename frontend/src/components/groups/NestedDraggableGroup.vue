@@ -20,8 +20,8 @@
         <component
           :is="useDeviceComponent(devices[element.device].type)"
           v-if="devices[element.device]"
-          v-model="(devices[element.device] as Actuator).state"
-          :device="devices[element.device] as Actuator"
+          v-model="(devices[element.device] as OutputDevice).state"
+          :device="devices[element.device] as OutputDevice"
           :disabled="element.disabled"
           :class="{ disabled: element.disabled }"
           class="my-2 pl-3"
@@ -68,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Actuator, Device } from '@/types/devices';
+import type { Device, OutputDevice } from '@/types/devices';
 import { storeToRefs } from 'pinia';
 import { MoveEvent } from 'sortablejs';
 import { ref } from 'vue';

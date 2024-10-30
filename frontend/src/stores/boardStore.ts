@@ -1,5 +1,5 @@
 // Register socket events.
-import type { Board, BoardId, Protocol } from '@/types/boards';
+import type { Board, BoardId, Protocol, Transport } from '@/types/boards';
 import { defineStore } from 'pinia';
 import { Socket } from 'socket.io-client';
 import { ArduinoType } from '@/components/hardware/boards/edit/ArduinoBoardEdit.vue';
@@ -62,8 +62,11 @@ export const useBoardStore = defineStore({
         name: 'New board',
         model: { [BoardType.Arduino]: ArduinoType.OTHER } as unknown as BoardType,
         protocol: {
-          type: 'SerialProtocol',
-          port: 'COM3',
+          type: 'FirmataIo',
+          transport: {
+            type: 'Serial',
+            port: 'COM3',
+          } as Transport,
         } as Protocol,
         connected: false,
       };

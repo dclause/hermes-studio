@@ -4,6 +4,13 @@ import { Branded } from '@/types/hardware';
 
 export declare interface Protocol {
   type: keyof typeof ProtocolType;
+  transport?: Transport;
+
+  [x: string]: unknown;
+}
+
+export declare interface Transport {
+  type: string;
 
   [x: string]: unknown;
 }

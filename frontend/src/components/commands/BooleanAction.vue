@@ -36,7 +36,7 @@
 import { computed, ref } from 'vue';
 import { CommandMode, HardwareMode, logError } from '@/composables/globalComposables';
 import { useDeviceStore } from '@/stores/deviceStore';
-import { Actuator } from '@/types/devices';
+import { OutputDevice } from '@/types/devices';
 import { SocketAck } from '@/types/socket';
 
 const state = defineModel<boolean>({ required: true });
@@ -44,7 +44,7 @@ const props = withDefaults(
   defineProps<{
     mode?: HardwareMode;
     variant?: CommandMode;
-    device: Actuator;
+    device: OutputDevice;
   }>(),
   {
     mode: HardwareMode.REALTIME,

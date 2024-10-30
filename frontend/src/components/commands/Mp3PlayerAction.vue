@@ -44,7 +44,7 @@
 import { ref } from 'vue';
 import { CommandMode, HardwareMode, logError } from '@/composables/globalComposables';
 import { useDeviceStore } from '@/stores/deviceStore';
-import { Actuator, DeviceState, Mp3PlayerFile, Mp3PlayerState } from '@/types/devices';
+import { DeviceState, Mp3PlayerFile, Mp3PlayerState, OutputDevice } from '@/types/devices';
 import { SocketAck } from '@/types/socket';
 
 const state = defineModel<Mp3PlayerState>({ required: true });
@@ -53,7 +53,7 @@ const props = withDefaults(
   defineProps<{
     mode?: HardwareMode;
     variant?: CommandMode;
-    device: Actuator;
+    device: OutputDevice;
     files: Mp3PlayerFile[];
   }>(),
   {

@@ -4,9 +4,9 @@
       <component
         :is="useDeviceComponent(devices[group.device].type)"
         v-if="devices[group.device]"
-        v-model="(devices[group.device] as Actuator).state"
+        v-model="(devices[group.device] as OutputDevice).state"
         class="ml-2"
-        :device="devices[group.device] as Actuator"
+        :device="devices[group.device] as OutputDevice"
         :mode="mode"
         :variant="variant"
         @delete="onDelete"
@@ -30,7 +30,7 @@ import { storeToRefs } from 'pinia';
 import { useDeviceComponent } from '@/composables/deviceComposables';
 import { CommandMode, HardwareMode } from '@/composables/globalComposables';
 import { useDeviceStore } from '@/stores/deviceStore';
-import { Actuator, Device } from '@/types/devices';
+import { Device, OutputDevice } from '@/types/devices';
 
 const deviceStore = useDeviceStore();
 const { devices } = storeToRefs(deviceStore);

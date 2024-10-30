@@ -5,8 +5,11 @@ import ArduinoBoardEdit from '@/components/hardware/boards/edit/ArduinoBoardEdit
 import DefaultBoardEdit from '@/components/hardware/boards/edit/DefaultBoardEdit.vue';
 import RaspberryPiBoardEdit from '@/components/hardware/boards/edit/RaspberryPiBoardEdit.vue';
 import DefaultProtocolEdit from '@/components/hardware/protocols/edit/DefaultProtocolEdit.vue';
+import FirmataProtocolEdit from '@/components/hardware/protocols/edit/FirmataProtocolEdit.vue';
 import RaspiProtocolEdit from '@/components/hardware/protocols/edit/RaspiProtocolEdit.vue';
-import SerialProtocolEdit from '@/components/hardware/protocols/edit/SerialProtocolEdit.vue';
+import FirmataProtocol from '@/components/hardware/protocols/FirmataProtocol.vue';
+import RaspiProtocol from '@/components/hardware/protocols/RaspiProtocol.vue';
+import UnknownProtocol from '@/components/hardware/protocols/UnknownProtocol.vue';
 import { useBoardStore } from '@/stores/boardStore';
 import { BoardModel } from '@/types/boards';
 
@@ -45,18 +48,29 @@ export const useBoardModelEditComponent = (model: BoardModel): Component | undef
 // -------------------------------------
 
 export enum ProtocolType {
-  UnknownProtocol = 'Unknown',
-  SerialProtocol = 'Serial protocol',
-  RaspiProtocol = 'Raspi protocol',
+  UnknownProtocol = 'Unknown protocol',
+  FirmataIo = 'FirmataIo',
+  RaspiIo = 'RaspiIo',
 }
+
+export const useProtocolComponent = (
+  protocol: keyof typeof ProtocolType,
+): Component | undefined => {
+  const mapping = {
+    [ProtocolType.FirmataIo]: FirmataProtocol,
+    [ProtocolType.RaspiIo]: RaspiProtocol,
+    [ProtocolType.UnknownProtocol]: UnknownProtocol,
+  };
+  return mapping[ProtocolType[protocol]];
+};
 
 export const useProtocolEditComponent = (
   protocol: keyof typeof ProtocolType,
 ): Component | undefined => {
   const mapping = {
     [ProtocolType.UnknownProtocol]: DefaultProtocolEdit,
-    [ProtocolType.SerialProtocol]: SerialProtocolEdit,
-    [ProtocolType.RaspiProtocol]: RaspiProtocolEdit,
+    [ProtocolType.FirmataIo]: FirmataProtocolEdit,
+    [ProtocolType.RaspiIo]: RaspiProtocolEdit,
   };
   return mapping[ProtocolType[protocol]];
 };

@@ -12,17 +12,17 @@ export declare type Device = Entity<DeviceId> & {
   [x: string]: unknown;
 };
 
-export declare type Actuator = Device & {
+export declare type OutputDevice = Device & {
   default: DeviceState;
   state: DeviceState;
 };
 
-export declare type Led = Actuator & {
+export declare type Led = OutputDevice & {
   pin: number;
   brightness: number;
 };
 
-export declare type Servo = Actuator & {
+export declare type Servo = OutputDevice & {
   pin: number;
   servo_type: 'Standard' | 'Continuous';
   range: Range<number>;
@@ -33,7 +33,7 @@ export declare type Servo = Actuator & {
   detach_delay: number;
 };
 
-export declare type Mp3Player = Actuator & {
+export declare type Mp3Player = OutputDevice & {
   path: string;
 };
 

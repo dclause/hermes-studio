@@ -80,12 +80,12 @@ import { computed } from 'vue';
 import { CommandMode } from '@/composables/globalComposables';
 import { useBoardStore } from '@/stores/boardStore';
 import { useDeviceStore } from '@/stores/deviceStore';
-import { Actuator, Device, DeviceState } from '@/types/devices';
+import { Device, DeviceState, OutputDevice } from '@/types/devices';
 
-const emit = defineEmits<{ delete: [item: Actuator]; reset: [value: DeviceState] }>();
+const emit = defineEmits<{ delete: [item: OutputDevice]; reset: [value: DeviceState] }>();
 const props = withDefaults(
   defineProps<{
-    device: Actuator;
+    device: OutputDevice;
     variant?: CommandMode;
   }>(),
   { variant: CommandMode.FULL },

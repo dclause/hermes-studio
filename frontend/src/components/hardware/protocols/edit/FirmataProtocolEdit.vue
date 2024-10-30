@@ -1,6 +1,6 @@
 <template>
   <v-text-field
-    v-model="protocol.port"
+    v-model="protocol.transport!.port"
     label="Port"
     :rules="[Rule.REQUIRED]"
     required

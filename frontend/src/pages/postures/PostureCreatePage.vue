@@ -47,7 +47,7 @@ import { Rule } from '@/composables/formComposables';
 import { logError } from '@/composables/globalComposables';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { usePostureStore } from '@/stores/postureStore';
-import { Actuator, Device } from '@/types/devices';
+import { Device, OutputDevice } from '@/types/devices';
 import { SocketAck } from '@/types/socket';
 
 const router = useRouter();
@@ -56,7 +56,7 @@ const router = useRouter();
 const postureStore = usePostureStore();
 const posture = ref(postureStore.default());
 posture.value.positions = Object.values(useDeviceStore().devices).map((device: Device) => {
-  return { device: device.id, target: (device as Actuator).state };
+  return { device: device.id, target: (device as OutputDevice).state };
 });
 
 // Create new form.

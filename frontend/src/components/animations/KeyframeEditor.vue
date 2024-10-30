@@ -36,7 +36,7 @@
           <component
             :is="useDeviceComponent(devices[position.device].type)"
             v-model="position.target"
-            :device="devices[position.device] as Actuator"
+            :device="devices[position.device] as OutputDevice"
             :variant="CommandMode.KEYFRAME"
           />
         </div>
@@ -45,7 +45,7 @@
   </v-card>
 </template>
 <script setup lang="ts">
-import type { Actuator } from '@/types/devices';
+import type { OutputDevice } from '@/types/devices';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useDeviceComponent } from '@/composables/deviceComposables';

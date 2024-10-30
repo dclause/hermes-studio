@@ -15,13 +15,13 @@
 import { computed } from 'vue';
 import { CommandMode, HardwareMode } from '@/composables/globalComposables';
 import { useBoardStore } from '@/stores/boardStore';
-import { Actuator } from '@/types/devices';
+import { OutputDevice } from '@/types/devices';
 
 const props = withDefaults(
   defineProps<{
     mode?: HardwareMode;
     variant?: CommandMode;
-    device: Actuator;
+    device: OutputDevice;
   }>(),
   {
     mode: HardwareMode.REALTIME,
