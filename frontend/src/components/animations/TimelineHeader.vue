@@ -77,7 +77,7 @@ timeline.on(TimelineEvents.updateTime, (time) => {
 </script>
 
 <style lang="scss" scoped>
-@import 'vuetify/styles';
+@use 'vuetify/styles';
 
 .timeline-header {
   background-color: rgb(var(--v-theme-primary));
