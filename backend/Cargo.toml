@@ -10,7 +10,7 @@ license = "MIT"
 
 [dependencies]
 # @todo use published crate
-hermes-five = { rev = "8394caa", git = "https://github.com/dclause/hermes-five", features = ["serde"] }
+hermes-five = { rev = "cae9600", git = "https://github.com/dclause/hermes-five", features = ["serde"] }
 anyhow = "1.0.91"
 axum = { version = "0.7.7", default-features = false, features = ["form", "http1", "json", "matched-path", "multipart", "original-uri", "query", "tokio"] }
 clap = { version = "4.5.20", features = ["derive", "env"] }
@@ -21,7 +21,7 @@ figment = { version = "0.10.19", features = ["env", "json"] }
 log = "0.4.22"
 log4rs = { version = "1.3.0", default-features = false, features = ["console_appender", "rolling_file_appender", "compound_policy", "size_trigger", "fixed_window_roller", "config_parsing"] }
 parking_lot = "0.12.3"
-serde = { version = "1.0.213", features = ["derive"] }
+serde = { version = "1.0.214", features = ["derive"] }
 socketioxide = { version = "0.15.0", features = ["state", "extensions"] }
 tokio = "1.41.0"
 tower-http = { version = "0.6.1", features = ["cors", "fs"] }

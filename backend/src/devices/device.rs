@@ -2,12 +2,12 @@ use std::fmt::Debug;
 
 use anyhow::Result;
 use dyn_clone::DynClone;
-use hermes_five::animation::Track;
-use hermes_five::utils::{Easing, State};
+use hermes_five::animations::{Easing, Track};
+use hermes_five::utils::State;
 use serde::{Deserialize, Serialize};
 
-use crate::animation::group::Group;
-use crate::hardware::board::Board;
+use crate::animations::Group;
+use crate::hardware::Board;
 use crate::impl_entity;
 use crate::utils::database::Database;
 use crate::utils::entity::Id;
@@ -94,7 +94,7 @@ macro_rules! impl_device {
         #[typetag::serde]
         impl DeviceType for $struct_name {
 
-            fn animate(&mut self, state: hermes_five::utils::State, duration: u64, transition: hermes_five::utils::Easing) -> anyhow::Result<hermes_five::utils::State> {
+            fn animate(&mut self, state: hermes_five::utils::State, duration: u64, transition: hermes_five::animations::Easing) -> anyhow::Result<hermes_five::utils::State> {
                 self.inner.animate(state.clone(), duration, transition);
                 Ok(state)
             }
@@ -110,7 +110,7 @@ macro_rules! impl_device {
             }
 
             fn reset(&mut self) -> Result<hermes_five::utils::State> {
-                let state = self.animate(self.inner.get_default(), 500, hermes_five::utils::Easing::SineInOut)?;
+                let state = self.animate(self.inner.get_default(), 500, hermes_five::animations::Easing::SineInOut)?;
                 Ok(state)
             }
 

@@ -4,9 +4,10 @@ use anyhow::Result;
 
 use crate::app::App;
 
-mod animation;
+mod animations;
 mod api;
 mod app;
+mod devices;
 mod extra;
 mod hardware;
 mod server;

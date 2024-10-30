@@ -1,8 +1,8 @@
 use anyhow::Result;
-use hermes_five::Board as InnerBoard;
+use hermes_five::hardware::Board as HermesBoard;
 use serde::{Deserialize, Serialize};
 
-use crate::hardware::device::Device;
+use crate::devices::Device;
 use crate::impl_entity;
 use crate::utils::database::{ArcDb, Database};
 use crate::utils::entity::{Entity, Id};
@@ -13,7 +13,7 @@ pub struct Board {
     pub name: String,
     pub model: BoardType,
     #[serde(flatten)]
-    pub inner: InnerBoard,
+    pub inner: HermesBoard,
     pub connected: bool,
 }
 

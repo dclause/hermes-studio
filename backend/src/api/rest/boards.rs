@@ -1,13 +1,13 @@
 //! This file provides general routes and handlers for CRUD operations regarding `Board`s specifically.
 
-use axum::{Json, Router};
 use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::routing::get;
+use axum::{Json, Router};
 
+use crate::api::payloads::CreateBoard;
 use crate::api::AppState;
-use crate::api::payloads::board::CreateBoard;
-use crate::hardware::board::Board;
+use crate::hardware::Board;
 
 /// Consolidates all available REST API routes for `Board`.
 pub(crate) fn routes() -> Router<AppState> {

@@ -5,11 +5,12 @@ use std::ops::Deref;
 use std::sync::Arc;
 
 use anyhow::Result;
+use hermes_five::animations::Easing;
 use hermes_five::devices::{Device, Output};
 use hermes_five::errors::Error;
-use hermes_five::utils::events::{EventHandler, EventManager};
-use hermes_five::utils::{Easing, State};
-use hermes_five::{pause_sync, Board};
+use hermes_five::hardware::Board;
+use hermes_five::pause_sync;
+use hermes_five::utils::{EventHandler, EventManager, State};
 use parking_lot::RwLock;
 use rodio::{Decoder, OutputStream, Sink, Source};
 use serde::{Deserialize, Serialize};
@@ -124,10 +125,11 @@ impl Mp3Player {
             tokio::task::spawn_blocking(move || {
                 // Start playing the current file
                 // Get an output stream handle to the default physical sound device
-                let (_stream, stream_handle) =
-                    OutputStream::try_default().map_err(|err| hermes_five::errors::Unknown {
+                let (_stream, stream_handle) = OutputStream::try_default().map_err(|err| {
+                    hermes_five::errors::UnknownError {
                         info: err.to_string(),
-                    })?;
+                    }
+                })?;
 
                 // Load a sound from a file, using a path relative to Cargo.toml
                 let path = self_clone.state.read().path.clone();
@@ -135,7 +137,7 @@ impl Mp3Player {
 
                 // Decode that sound file into a source
                 let source = Decoder::new(file)
-                    .map_err(|err| hermes_five::errors::Unknown {
+                    .map_err(|err| hermes_five::errors::UnknownError {
                         info: err.to_string(),
                     })?
                     .convert_samples::<f32>();
@@ -146,10 +148,11 @@ impl Mp3Player {
                     .min(duration as u128);
 
                 // Play the sound directly on the device
-                let sink =
-                    Sink::try_new(&stream_handle).map_err(|err| hermes_five::errors::Unknown {
+                let sink = Sink::try_new(&stream_handle).map_err(|err| {
+                    hermes_five::errors::UnknownError {
                         info: err.to_string(),
-                    })?;
+                    }
+                })?;
                 sink.append(source);
 
                 self_clone
@@ -220,31 +223,8 @@ impl Device for Mp3Player {}
 
 #[typetag::serde]
 impl Output for Mp3Player {
-    fn animate<S: Into<State>>(&mut self, state: S, duration: u64, _transition: Easing)
-    where
-        Self: Sized,
-    {
-        match state.into().clone() {
-            State::Object(state) => {
-                if let Some(path) = state.get("path") {
-                    self.state.write().path = path.as_string();
-                }
-                let _ = self.play(duration);
-            }
-            state => {
-                let _ = self.set_state(state.clone());
-            }
-        }
-    }
-
-    /// Stops the current song.
-    fn stop(&mut self) {
-        // match self.control.read().deref() {
-        //     None => {}
-        //     Some(control) => control.stop(),
-        // };
-        *self.control.write() = None;
-        self.state.write().status = Mp3Command::STOP;
+    fn get_state(&self) -> State {
+        State::into_state(self.state.read().clone())
     }
 
     fn set_state(&mut self, state: State) -> Result<State, Error> {
@@ -277,12 +257,25 @@ impl Output for Mp3Player {
         Ok(State::into_state(new_state))
     }
 
-    fn get_state(&self) -> State {
-        State::into_state(self.state.read().clone())
-    }
-
     fn get_default(&self) -> State {
         State::into_state(self.default.clone())
+    }
+
+    fn animate<S: Into<State>>(&mut self, state: S, duration: u64, _transition: Easing)
+    where
+        Self: Sized,
+    {
+        match state.into().clone() {
+            State::Object(state) => {
+                if let Some(path) = state.get("path") {
+                    self.state.write().path = path.as_string();
+                }
+                let _ = self.play(duration);
+            }
+            state => {
+                let _ = self.set_state(state.clone());
+            }
+        }
     }
 
     fn is_busy(&self) -> bool {
@@ -290,6 +283,16 @@ impl Output for Mp3Player {
             None => false,
             Some(control) => !control.empty(),
         }
+    }
+
+    /// Stops the current song.
+    fn stop(&mut self) {
+        // match self.control.read().deref() {
+        //     None => {}
+        //     Some(control) => control.stop(),
+        // };
+        *self.control.write() = None;
+        self.state.write().status = Mp3Command::STOP;
     }
 
     fn scale_state(&mut self, _previous: State, target: State, progress: f32) -> State {

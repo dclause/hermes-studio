@@ -1,7 +1,7 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
-use crate::hardware::device::Device;
+use crate::devices::Device;
 use crate::impl_entity;
 use crate::utils::database::Database;
 use crate::utils::entity::Id;

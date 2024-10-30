@@ -1,5 +1,4 @@
-pub mod board;
-pub mod device;
-pub mod led;
-pub mod mp3;
-pub mod servo;
+mod board;
+mod raspi;
+
+pub use board::*;

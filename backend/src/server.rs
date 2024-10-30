@@ -9,12 +9,12 @@ use socketioxide::SocketIo;
 use tower_http::cors::CorsLayer;
 use tower_http::services::{ServeDir, ServeFile};
 
-use crate::{tui_success, tui_warn};
-use crate::api::AppState;
 use crate::api::rest::build_rest_routes;
 use crate::api::sockets::register_socket_events;
+use crate::api::AppState;
 use crate::utils::config::Config;
 use crate::utils::database::Database;
+use crate::{tui_success, tui_warn};
 
 /// Server (both REST and SocketIO).
 pub struct Server {
@@ -113,7 +113,7 @@ impl Server {
 
         let listener = tokio::net::TcpListener::bind((self.config.host, self.config.port)).await?;
         tui_success!(
-            "Server ready at",
+            "Interface is ready, please visit",
             match self.config.host.is_loopback() || self.config.host.is_unspecified() {
                 true => format!("http://localhost:{}", self.config.port),
                 false => format!("http://{}", listener.local_addr()?.to_string()),

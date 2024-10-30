@@ -1,11 +1,11 @@
 //! This file provides general routes and handlers for CRUD operations regarding `Animation`s specifically.
 
-use axum::{Json, Router};
 use axum::response::IntoResponse;
 use axum::routing::get;
+use axum::{Json, Router};
 use socketioxide::SocketIo;
 
-use crate::animations::animation::Animation;
+use crate::animations::Animation;
 use crate::storage::storage::Storage;
 
 /// Consolidates all available REST API routes for `Animation`.

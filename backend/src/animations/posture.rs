@@ -1,10 +1,10 @@
+use hermes_five::animations::Easing;
 use hermes_five::pause_sync;
-use hermes_five::utils::Easing;
 use serde::{Deserialize, Serialize};
 
-use crate::animation::animation::Position;
-use crate::hardware::board::Board;
-use crate::hardware::device::Device;
+use crate::animations::Position;
+use crate::devices::Device;
+use crate::hardware::Board;
 use crate::impl_entity;
 use crate::utils::database::Database;
 use crate::utils::entity::Id;

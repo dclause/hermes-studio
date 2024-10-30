@@ -4,16 +4,16 @@ use std::fs::{create_dir_all, File};
 use std::io::Write;
 use std::path::PathBuf;
 
-use axum::{Json, Router};
 use axum::extract::{Multipart, Path, State};
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::routing::{delete, get, post};
+use axum::{Json, Router};
 use log::debug;
 use serde_json::json;
 
 use crate::api::AppState;
-use crate::hardware::device::Device;
+use crate::devices::Device;
 use crate::utils::entity::Id;
 
 /// Consolidates all available REST API routes for `Device`.

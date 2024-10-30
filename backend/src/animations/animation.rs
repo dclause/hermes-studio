@@ -3,14 +3,14 @@
 use std::collections::HashMap;
 
 use anyhow::Result;
-use hermes_five::animation::Track;
-use hermes_five::utils::{Easing, State};
+use hermes_five::animations::{Easing, Track};
+use hermes_five::utils::State;
 use log::debug;
 use serde::{Deserialize, Serialize};
 
-use crate::animation::group::Group;
-use crate::hardware::board::Board;
-use crate::hardware::device::Device;
+use crate::animations::Group;
+use crate::devices::Device;
+use crate::hardware::Board;
 use crate::impl_entity;
 use crate::utils::database::Database;
 use crate::utils::entity::Id;
@@ -37,7 +37,7 @@ pub struct Animation {
     // ########################################
     // # Volatile utility data.
     #[serde(skip)]
-    pub inner: hermes_five::animation::Animation,
+    pub inner: hermes_five::animations::Animation,
 }
 impl_entity!(Animation, {
     fn post_load(&mut self, database: &Database) -> Result<()> {
@@ -48,7 +48,7 @@ impl_entity!(Animation, {
 
 impl Animation {
     fn build(&mut self, database: &Database) -> Result<()> {
-        let mut new_segment = hermes_five::animation::Segment::default()
+        let mut new_segment = hermes_five::animations::Segment::default()
             .set_repeat(self.repeat)
             .set_loopback(self.loopback)
             .set_speed(self.speed)
@@ -94,7 +94,7 @@ impl Animation {
 
                     // 4. Add the position as a new hermes-keyframe on the hermes-track.
                     let track = track.with_keyframe(
-                        hermes_five::animation::Keyframe::new(
+                        hermes_five::animations::Keyframe::new(
                             position.target.clone(),
                             keyframe.start,
                             keyframe.end,
@@ -112,7 +112,7 @@ impl Animation {
             new_segment = new_segment.with_track(track)
         }
 
-        self.inner = hermes_five::animation::Animation::from(new_segment);
+        self.inner = hermes_five::animations::Animation::from(new_segment);
         Ok(())
     }
 

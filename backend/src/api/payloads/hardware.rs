@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-use crate::hardware::board::{Board, BoardType};
+use crate::hardware::{Board, BoardType};
 
 // ########################################
 // API data exchange.

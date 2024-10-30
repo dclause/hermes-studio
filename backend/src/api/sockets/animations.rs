@@ -4,8 +4,8 @@ use anyhow::{anyhow, bail};
 use log::debug;
 use socketioxide::extract::{AckSender, Data, SocketRef, State, TryData};
 
-use crate::animation::animation::Animation;
-use crate::api::payloads::animation::AnimationPayload;
+use crate::animations::Animation;
+use crate::api::payloads::AnimationPayload;
 use crate::api::sockets::ack::Ack;
 use crate::api::sockets::{broadcast_and_ack, broadcast_to_all};
 use crate::utils::database::ArcDb;
@@ -106,7 +106,7 @@ pub fn register_animation_events(socket: &SocketRef) {
                             _ => {
                                 let cloned_socket = socket.clone();
                                 let clone_animation = animation.clone();
-                                animation.inner.on(hermes_five::animation::AnimationEvent::OnComplete, move|animation: hermes_five::animation::Animation| {
+                                animation.inner.on(hermes_five::animations::AnimationEvent::OnComplete, move|animation: hermes_five::animations::Animation| {
                                     // How to avoid theses double clones ?
                                     let cloned_socket = cloned_socket.clone();
                                     let mut clone_animation = clone_animation.clone();

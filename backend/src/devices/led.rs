@@ -2,12 +2,12 @@ use std::fmt::Debug;
 use std::ops::{Deref, DerefMut};
 
 use anyhow::Result;
-use hermes_five::animation::Track;
+use hermes_five::animations::Track;
 use hermes_five::devices::Output;
 use serde::{Deserialize, Serialize};
 
-use crate::hardware::board::Board;
-use crate::hardware::device::DeviceType;
+use crate::devices::device::DeviceType;
+use crate::hardware::Board;
 use crate::impl_device;
 
 impl_device!(Led, {

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use crate::animation::animation::{Animation, Keyframe};
+use crate::animations::{Animation, Keyframe};
 use crate::utils::entity::Id;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

@@ -1,13 +1,13 @@
 use anyhow::{anyhow, bail};
-use hermes_five::utils::Easing;
+use hermes_five::animations::Easing;
 use log::debug;
 use socketioxide::extract::{AckSender, Data, SocketRef, State, TryData};
 
-use crate::animation::group::Group;
+use crate::animations::Group;
 use crate::api::sockets::ack::Ack;
 use crate::api::sockets::{broadcast_and_ack, broadcast_to_all};
-use crate::hardware::board::Board;
-use crate::hardware::device::Device;
+use crate::devices::Device;
+use crate::hardware::Board;
 use crate::utils::database::ArcDb;
 use crate::utils::entity::{Entity, Id};
 

@@ -2,10 +2,10 @@ use anyhow::{anyhow, bail};
 use log::debug;
 use socketioxide::extract::{AckSender, Data, SocketRef, State, TryData};
 
-use crate::animation::posture::Posture;
+use crate::animations::Posture;
 use crate::api::sockets::ack::Ack;
 use crate::api::sockets::{broadcast_and_ack, broadcast_to_all};
-use crate::hardware::device::Device;
+use crate::devices::Device;
 use crate::utils::database::ArcDb;
 use crate::utils::entity::Id;
 

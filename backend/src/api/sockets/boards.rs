@@ -3,11 +3,11 @@ use hermes_five::pause_sync;
 use log::debug;
 use socketioxide::extract::{AckSender, Data, SocketRef, State, TryData};
 
-use crate::animation::group::Group;
+use crate::animations::Group;
 use crate::api::sockets::ack::Ack;
 use crate::api::sockets::{broadcast_and_ack, broadcast_to_all};
-use crate::hardware::board::Board;
-use crate::hardware::device::Device;
+use crate::devices::Device;
+use crate::hardware::Board;
 use crate::utils::database::ArcDb;
 use crate::utils::entity::{Entity, Id};
 
