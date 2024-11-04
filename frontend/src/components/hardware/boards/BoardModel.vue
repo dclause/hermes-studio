@@ -6,7 +6,7 @@ import { computed } from 'vue';
 import ArduinoModel from '@/components/hardware/boards/ArduinoModel.vue';
 import RaspberryModel from '@/components/hardware/boards/RaspberryModel.vue';
 import UnknownModel from '@/components/hardware/boards/UnknownModel.vue';
-import { BoardModel } from '@/types/boards';
+import { BoardModel } from '@/types/hardwares';
 
 const props = defineProps<{ model: BoardModel }>();
 const component = computed(() => {

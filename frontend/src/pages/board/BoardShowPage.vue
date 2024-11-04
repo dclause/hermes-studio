@@ -90,9 +90,9 @@
   </div>
 </template>
 <script lang="ts" setup>
-import type { BoardId } from '@/types/boards';
 import type { Device } from '@/types/devices';
 import type { NestedGroup } from '@/types/groups';
+import type { HardwareId } from '@/types/hardwares';
 import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n'; // Retrieve the board.
@@ -107,7 +107,7 @@ const { t } = useI18n();
 // Retrieve the board.
 const route = useRoute();
 const boardStore = useBoardStore();
-const board = computed(() => boardStore.get(Number(route.params.bid) as BoardId));
+const board = computed(() => boardStore.get(Number(route.params.hid) as HardwareId));
 
 // Retrieve the associated devices.
 const deviceStore = useDeviceStore();

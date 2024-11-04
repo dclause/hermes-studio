@@ -2,7 +2,7 @@
   <div>RaspberryPi {{ type }}</div>
 </template>
 <script setup lang="ts">
-import { BoardModel } from '@/types/boards';
+import { BoardModel } from '@/types/hardwares';
 
 const props = defineProps<{ model: BoardModel }>();
 const type = (props.model as { [key: string]: string })['RaspberryPi'];

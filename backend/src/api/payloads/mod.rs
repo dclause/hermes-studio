@@ -1,5 +1,5 @@
 mod animations;
-// mod hardware;
+mod hardware;
 
 pub use crate::api::payloads::animations::*;
-// pub use crate::api::payloads::hardware::*;
+pub use crate::api::payloads::hardware::*;

@@ -1,5 +1,5 @@
 // Register socket events.
-import type { BoardId } from '@/types/boards';
+import type { HardwareId } from '@/types/hardwares';
 import { defineStore } from 'pinia';
 import { Socket } from 'socket.io-client';
 import { useSocketIO } from '@/composables/socketComposables';
@@ -62,18 +62,18 @@ export const useDeviceStore = defineStore({
     },
 
     /** List all devices for given board */
-    list_by_board(bid: BoardId): Device[] {
-      return Object.values(this.devices).filter((device) => device.bid === bid);
+    list_by_board(hid: HardwareId): Device[] {
+      return Object.values(this.devices).filter((device) => device.hid === hid);
     },
 
     /** Creates a new default actuator (without saving). */
-    default(bid = null): Device {
+    default(hid = null): Device {
       return {
         entity: 'Device',
         id: 0 as DeviceId,
         name: 'New device',
         type: 'Unknown',
-        bid,
+        hid: hid,
         pin: 13,
         state: 0,
         default: 0,
@@ -108,8 +108,8 @@ export const useDeviceStore = defineStore({
       });
     },
 
-    get(bid: DeviceId): Device {
-      return this.devices[bid];
+    get(hid: DeviceId): Device {
+      return this.devices[hid];
     },
 
     delete(id: DeviceId) {

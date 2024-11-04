@@ -116,7 +116,7 @@ const resume = () => {
       // Remove disabled tracks.
       if (!track.disabled && track.keyframes.length) {
         // const device = deviceStore.get(track.device);
-        // const board = boardStore.get(device.bid);
+        // const board = boardStore.get(device.hid);
         // if (board.connected) {
         // Remove keyframes for none connected boards.
         keyframes.push(...track.keyframes);

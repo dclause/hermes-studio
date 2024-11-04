@@ -15,12 +15,12 @@ export default [
   },
   {
     name: 'board.show',
-    path: '/board/:bid',
+    path: '/board/:hid',
     component: BoardShowPage,
   },
   {
     name: 'board.edit',
-    path: '/board/:bid/edit',
+    path: '/board/:hid/edit',
     component: BoardEditPage,
   },
 ];

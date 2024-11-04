@@ -3,7 +3,7 @@
 </template>
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
-import { BoardModel } from '@/types/boards';
+import { BoardModel } from '@/types/hardwares';
 
 defineProps<{ model: BoardModel }>();
 

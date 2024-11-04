@@ -91,7 +91,7 @@ import {
 import { Rule } from '@/composables/formComposables';
 import { logError, mapEnumToOptions, useRedirect } from '@/composables/globalComposables';
 import { useBoardStore } from '@/stores/boardStore';
-import { Board, BoardId } from '@/types/boards';
+import { Board, HardwareId } from '@/types/hardwares';
 
 const { redirect } = useRedirect();
 const route = useRoute();
@@ -100,10 +100,10 @@ const isEdit = route.name === 'board.edit';
 const boardStore = useBoardStore();
 
 // Get or create a board from route parameters.
-const bid = Number(route.params.bid) as BoardId;
+const hid = Number(route.params.hid) as HardwareId;
 const boardFromStore = computed<Board>(() => {
   if (isEdit) {
-    const board = boardStore.get(bid);
+    const board = boardStore.get(hid);
     return board ? { ...board } : boardStore.default();
   }
   return boardStore.default();

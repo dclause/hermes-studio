@@ -23,7 +23,7 @@ const boardStore = useBoardStore();
 const deviceStore = useDeviceStore();
 const track = defineModel<Track>({ required: true });
 const device = computed(() => deviceStore.get(track.value.device!));
-const board = computed(() => boardStore.get(device.value.bid));
+const board = computed(() => boardStore.get(device.value.hid));
 </script>
 <style lang="scss" scoped>
 .disabled span {

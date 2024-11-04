@@ -17,5 +17,10 @@ pub(crate) fn routes() -> Router<AppState> {
 /// Retrieves all animations information.
 async fn handler_animations_list() -> impl IntoResponse {
     let animations = Storage::list::<Animation>().unwrap();
-    Json(animations)
+    Json(
+        animations
+            .into_iter()
+            .map(|(id, animation)| (id, AnimationPayload::from(animation)))
+            .collect::<HashMap<Id, AnimationPayload>>(),
+    )
 }

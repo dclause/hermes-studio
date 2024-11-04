@@ -5,7 +5,7 @@
 </template>
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
-import { Protocol } from '@/types/boards';
+import { Protocol } from '@/types/hardwares';
 
 defineProps<{ protocol: Protocol }>();
 

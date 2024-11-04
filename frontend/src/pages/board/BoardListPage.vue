@@ -50,7 +50,7 @@
       <board-connection-switch v-model="items[index]" />
     </template>
     <template #[`item.name`]="{ item }">
-      <app-link :to="{ name: 'board.show', params: { bid: item.id } }">
+      <app-link :to="{ name: 'board.show', params: { hid: item.id } }">
         {{ item.name }}
       </app-link>
     </template>
@@ -65,7 +65,7 @@
       <v-btn
         icon="mdi-pencil"
         size="small"
-        :to="{ name: 'board.edit', params: { bid: item.id } }"
+        :to="{ name: 'board.edit', params: { hid: item.id } }"
         variant="text"
       />
       <v-btn
@@ -86,7 +86,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { Board } from '@/types/boards';
+import type { Board } from '@/types/hardwares';
 import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';

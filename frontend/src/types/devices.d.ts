@@ -1,5 +1,5 @@
-import type { BoardId } from '@/types/boards';
 import type { Branded, Entity, Range } from '@/types/core';
+import type { HardwareId } from '@/types/hardwares';
 import { DeviceType } from '@/composables/deviceComposables';
 
 export declare type DeviceId = Branded<number, 'DeviceId'>;
@@ -7,7 +7,7 @@ export declare type DeviceState = unknown;
 
 export declare type Device = Entity<DeviceId> & {
   type: keyof typeof DeviceType;
-  bid: BoardId;
+  hid: HardwareId;
 
   [x: string]: unknown;
 };

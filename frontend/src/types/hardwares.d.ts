@@ -15,14 +15,14 @@ export declare interface Transport {
   [x: string]: unknown;
 }
 
-export declare type BoardId = Branded<number, 'BoardId'>;
+export declare type HardwareId = Branded<number, 'BoardId'>;
 export declare type BoardModel =
   | string
   | {
       [x: string]: unknown;
     };
 
-export declare interface Board extends Entity<BoardId> {
+export declare interface Board extends Entity<HardwareId> {
   connected: boolean;
   protocol: Protocol;
   model: BoardModel;

@@ -62,7 +62,7 @@ const props = defineProps<{ track: Track }>();
 const { devices } = useDeviceStore();
 const { boards } = useBoardStore();
 const device = computed(() => props.track.device && devices[props.track.device]);
-const board = computed(() => device.value && device.value.bid && boards[device.value.bid]);
+const board = computed(() => device.value && device.value.hid && boards[device.value.hid]);
 
 // onBeforeMount(() => {
 //   const buildPositionsForGroup = (group: FlatGroup): Position[] => {

@@ -95,6 +95,7 @@ macro_rules! impl_device {
         impl DeviceType for $struct_name {
 
             fn animate(&mut self, state: hermes_five::utils::State, duration: u64, transition: hermes_five::animations::Easing) -> anyhow::Result<hermes_five::utils::State> {
+                println!("animation from {} to {}", self.inner.get_state(), state);
                 self.inner.animate(state.clone(), duration, transition);
                 Ok(state)
             }

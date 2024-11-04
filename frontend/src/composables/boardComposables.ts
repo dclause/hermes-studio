@@ -5,13 +5,13 @@ import ArduinoBoardEdit from '@/components/hardware/boards/edit/ArduinoBoardEdit
 import DefaultBoardEdit from '@/components/hardware/boards/edit/DefaultBoardEdit.vue';
 import RaspberryPiBoardEdit from '@/components/hardware/boards/edit/RaspberryPiBoardEdit.vue';
 import DefaultProtocolEdit from '@/components/hardware/protocols/edit/DefaultProtocolEdit.vue';
-import FirmataProtocolEdit from '@/components/hardware/protocols/edit/FirmataProtocolEdit.vue';
 import RaspiProtocolEdit from '@/components/hardware/protocols/edit/RaspiProtocolEdit.vue';
-import FirmataProtocol from '@/components/hardware/protocols/FirmataProtocol.vue';
+import RemoteProtocolEdit from '@/components/hardware/protocols/edit/RemoteProtocolEdit.vue';
 import RaspiProtocol from '@/components/hardware/protocols/RaspiProtocol.vue';
+import RemoteProtocol from '@/components/hardware/protocols/RemoteProtocol.vue';
 import UnknownProtocol from '@/components/hardware/protocols/UnknownProtocol.vue';
 import { useBoardStore } from '@/stores/boardStore';
-import { BoardModel } from '@/types/boards';
+import { BoardModel } from '@/types/hardwares';
 
 export enum RobotStatus {
   OFF = 0,
@@ -49,7 +49,7 @@ export const useBoardModelEditComponent = (model: BoardModel): Component | undef
 
 export enum ProtocolType {
   UnknownProtocol = 'Unknown protocol',
-  FirmataIo = 'FirmataIo',
+  RemoteIo = 'RemoteIo',
   RaspiIo = 'RaspiIo',
 }
 
@@ -57,7 +57,7 @@ export const useProtocolComponent = (
   protocol: keyof typeof ProtocolType,
 ): Component | undefined => {
   const mapping = {
-    [ProtocolType.FirmataIo]: FirmataProtocol,
+    [ProtocolType.RemoteIo]: RemoteProtocol,
     [ProtocolType.RaspiIo]: RaspiProtocol,
     [ProtocolType.UnknownProtocol]: UnknownProtocol,
   };
@@ -69,7 +69,7 @@ export const useProtocolEditComponent = (
 ): Component | undefined => {
   const mapping = {
     [ProtocolType.UnknownProtocol]: DefaultProtocolEdit,
-    [ProtocolType.FirmataIo]: FirmataProtocolEdit,
+    [ProtocolType.RemoteIo]: RemoteProtocolEdit,
     [ProtocolType.RaspiIo]: RaspiProtocolEdit,
   };
   return mapping[ProtocolType[protocol]];

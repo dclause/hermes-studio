@@ -6,7 +6,7 @@
       <v-row>
         <v-col class="align-self-center" cols="12" sm="6">
           <v-select
-            v-model="device.bid"
+            v-model="device.hid"
             :items="boardItems"
             item-title="name"
             item-value="id"
@@ -66,8 +66,8 @@
 </template>
 
 <script lang="ts" setup>
-import type { BoardId } from '@/types/boards';
 import type { Device, DeviceId } from '@/types/devices';
+import type { HardwareId } from '@/types/hardwares';
 import { storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
@@ -80,14 +80,14 @@ import { useDeviceStore } from '@/stores/deviceStore';
 
 const route = useRoute();
 const { redirect } = useRedirect();
-const bid = route.query['board'] ? (Number(route.query['board']) as BoardId) : null;
+const hid = route.query['board'] ? (Number(route.query['board']) as HardwareId) : null;
 const isEdit = route.name === 'device.edit';
 
 /** Retrieve the device from the URL parameter */
 const deviceStore = useDeviceStore();
 const id = Number(route.params.id) as DeviceId;
 const deviceFromStore = computed<Device>(() =>
-  isEdit ? { ...deviceStore.get(id) } : deviceStore.default(bid),
+  isEdit ? { ...deviceStore.get(id) } : deviceStore.default(hid),
 );
 const device = ref<Device>(deviceFromStore.value);
 watch(deviceFromStore, (deviceFromStore) => {

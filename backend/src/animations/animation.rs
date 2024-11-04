@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::animations::Group;
 use crate::devices::Device;
-use crate::hardware::Hardware;
+use crate::hardware::Board;
 use crate::impl_entity;
 use crate::utils::database::Database;
 use crate::utils::entity::Id;
@@ -76,7 +76,7 @@ impl Animation {
                     };
 
                     // 2. ensure the board associated with the position still exists and is connected.
-                    match database.get::<Hardware>(&device.hid)? {
+                    match database.get::<Board>(&device.hid)? {
                         None => continue,
                         Some(board) => {
                             if !board.connected {

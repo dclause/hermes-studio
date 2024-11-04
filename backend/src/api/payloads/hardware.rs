@@ -1,25 +1,30 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::hardware::{Board, BoardType};
+use crate::utils::entity::Id;
+use hermes_five::hardware::Board as HermesBoard;
 
 // ########################################
 // API data exchange.
 
-#[derive(Deserialize, Debug)]
-pub struct CreateBoard {
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct BoardPayload {
+    pub id: Id,
     pub name: String,
-    // #[allow(dead_code)]
-    // pub model: BoardType,
+    pub model: BoardType,
+    pub connected: bool,
+    #[serde(flatten)]
+    pub inner: HermesBoard,
 }
 
-impl Into<Board> for CreateBoard {
-    fn into(self) -> Board {
-        Board {
-            id: 0,
-            name: self.name,
-            inner: Default::default(),
-            connected: false,
-            model: Default::default(),
+impl From<Board> for BoardPayload {
+    fn from(board: Board) -> Self {
+        Self {
+            id: board.id,
+            name: board.name,
+            model: board.model,
+            connected: board.connected,
+            inner: board.inner,
         }
     }
 }

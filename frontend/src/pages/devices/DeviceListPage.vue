@@ -80,7 +80,7 @@ const onDeleteRequest = (item: NestedGroup | Device) => (toBeDeleted.value = ite
 const onConfirmDelete = () => {
   if (toBeDeleted.value) {
     // Trick to detect type of toBeDeleted.
-    if ('bid' in toBeDeleted.value) {
+    if ('hid' in toBeDeleted.value) {
       deviceStore.delete(toBeDeleted.value.id);
     } else {
       groupStore.delete(toBeDeleted.value.id);

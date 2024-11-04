@@ -1,14 +1,14 @@
 use anyhow::{anyhow, bail};
-use hermes_five::animations::Easing;
 use log::debug;
 use socketioxide::extract::{AckSender, Data, SocketRef, State, TryData};
-use std::ops::Deref;
+
+use hermes_five::animations::Easing;
 
 use crate::animations::Group;
 use crate::api::sockets::ack::Ack;
 use crate::api::sockets::{broadcast_and_ack, broadcast_to_all};
 use crate::devices::Device;
-use crate::hardware::Hardware;
+use crate::hardware::Board;
 use crate::utils::database::ArcDb;
 use crate::utils::entity::{Entity, Id};
 
@@ -53,7 +53,7 @@ pub fn register_device_events(socket: &SocketRef) {
                     .emit("device:mutated", &(id, mutation.as_ref().unwrap()))
                     .ok();
             } else {
-                let board = Hardware::get(&database, &id).and_then(|board| match board {
+                let board = Board::get(&database, &id).and_then(|board| match board {
                     None => bail!("Board not found"),
                     Some(mut board) => {
                         board.connected = false;
@@ -114,7 +114,7 @@ pub fn register_device_events(socket: &SocketRef) {
                     .emit("device:mutated", &(id, mutation.as_ref().unwrap()))
                     .ok();
             } else {
-                let board = Hardware::get(&database, &id).and_then(|board| match board {
+                let board = Board::get(&database, &id).and_then(|board| match board {
                     None => bail!("Board not found"),
                     Some(mut board) => {
                         board.connected = false;
@@ -139,11 +139,11 @@ pub fn register_device_events(socket: &SocketRef) {
             let device = match new_device {
                 Err(error) => Err(anyhow!("Invalid device: {}", error)),
                 Ok(mut new_device) => {
-                    Hardware::get(&database, &new_device.hid).and_then(|board| match board {
-                        None => bail!("Hardware [{}] not found", new_device.hid),
-                        Some(mut board) => {
+                    Board::get(&database, &new_device.hid).and_then(|board| match board {
+                        None => bail!("Board [{}] not found", new_device.hid),
+                        Some(board) => {
                             if board.connected {
-                                new_device.inner.set_hardware(board.inner.get_hardware())?;
+                                new_device.inner.set_hardware(&board.inner)?;
                             }
                             database.write().insert(new_device)
                         }
@@ -167,11 +167,11 @@ pub fn register_device_events(socket: &SocketRef) {
             let device = match device {
                 Err(error) => Err(anyhow!("Invalid device: {}", error)),
                 Ok(mut device) => {
-                    Hardware::get(&database, &device.hid).and_then(|board| match board {
-                        None => bail!("Hardware [{}] not found", device.hid),
-                        Some(mut board) => {
+                    Board::get(&database, &device.hid).and_then(|board| match board {
+                        None => bail!("Board [{}] not found", device.hid),
+                        Some(board) => {
                             if board.connected {
-                                device.inner.set_hardware(board.inner.get_hardware())?;
+                                device.inner.set_hardware(&board.inner)?;
                             }
                             database.write().update(device)
                         }

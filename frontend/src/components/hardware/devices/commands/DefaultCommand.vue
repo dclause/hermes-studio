@@ -95,7 +95,7 @@ const isEditable = computed(() => props.variant === CommandMode.FULL);
 
 const boardStore = useBoardStore();
 
-const board = computed(() => boardStore.get(props.device.bid));
+const board = computed(() => boardStore.get(props.device.hid));
 
 const cardVariant = computed(() => {
   switch (props.variant) {

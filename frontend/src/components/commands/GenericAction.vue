@@ -33,5 +33,5 @@ const isCommandable = computed(
 );
 
 // Get the associated board.
-const board = computed(() => useBoardStore().get(props.device.bid));
+const board = computed(() => useBoardStore().get(props.device.hid));
 </script>

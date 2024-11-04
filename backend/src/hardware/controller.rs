@@ -9,15 +9,17 @@ use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Hardware {
+pub struct Controller {
     pub id: Id,
+    pub hid: Id,
     pub name: String,
     #[serde(flatten)]
-    pub inner: Box<dyn HardwareTrait>,
+    pub inner: Box<dyn ControllerTrait>,
+    #[serde(skip)]
     pub connected: bool,
 }
 
-impl_entity!(Hardware, {
+impl_entity!(Controller, {
     // Delete all associated devices.
     fn post_delete(&mut self, database: &mut Database) -> Result<()> {
         let devices = database.list::<Device>()?;
@@ -30,12 +32,11 @@ impl_entity!(Hardware, {
     }
 });
 
-impl Hardware {
+impl Controller {
     pub fn open(mut self, database: &ArcDb) -> Result<Self> {
         let mut protocol = self.inner.get_hardware().get_protocol();
         protocol.open()?;
-        self.connected = protocol.is_connected();
-        self.inner.get_hardware().set_protocol(protocol);
+        self.inner.get_mut_hardware().set_protocol(protocol);
         println!(
             "PROTOCOL CLONE: {}",
             self.inner.get_hardware().get_protocol()
@@ -65,7 +66,7 @@ impl Hardware {
         //     .get_protocol()
         //     .digital_write(13, true)?;
 
-        // Initialize properly the inner device value because now that Hardware is open(), the
+        // Initialize properly the inner device value because now that Controller is open(), the
         // handshake as given us the hardware configuration, which lets us properly initialize
         // our devices.
         let devices = database.write().list::<Device>()?;
@@ -78,18 +79,18 @@ impl Hardware {
 
         Ok(self)
     }
-    pub fn close(mut self) -> Result<Self> {
+    pub fn close(self) -> Result<Self> {
         self.inner.get_hardware().get_protocol().close()?;
-        self.connected = false;
         Ok(self)
     }
 }
 
 #[typetag::serde(tag = "type")]
-pub trait HardwareTrait: DynClone + Debug + Send + Sync {
-    fn get_hardware(&mut self) -> &mut dyn HermesHardware;
+pub trait ControllerTrait: DynClone + Debug + Send + Sync {
+    fn get_hardware(&self) -> &dyn HermesHardware;
+    fn get_mut_hardware(&mut self) -> &mut dyn HermesHardware;
 }
-dyn_clone::clone_trait_object!(HardwareTrait);
+dyn_clone::clone_trait_object!(ControllerTrait);
 
 // ########################################
 /// Helper macro to implement a [`Device`] for a given hermes_five device type.
@@ -97,8 +98,11 @@ dyn_clone::clone_trait_object!(HardwareTrait);
 macro_rules! impl_hardware {
     ($struct_name:ident $(, { $($additional_impl:item)* })?) => {
         #[typetag::serde]
-        impl crate::hardware::HardwareTrait for $struct_name {
-            fn get_hardware(&mut self) -> &mut dyn hermes_five::hardware::Hardware {
+        impl crate::hardware::ControllerTrait for $struct_name {
+            fn get_hardware(&self) -> &dyn hermes_five::hardware::Hardware {
+                &self.inner
+            }
+            fn get_mut_hardware(&mut self) -> &mut dyn hermes_five::hardware::Hardware {
                 &mut self.inner
             }
         }
@@ -117,7 +121,7 @@ macro_rules! impl_hardware {
             }
         }
 
-        // impl hermes_five::hardware::Hardware for $struct_name {
+        // impl hermes_five::hardware::Controller for $struct_name {
         //     fn get_protocol(&self) -> Box<dyn hermes_five::io::IoProtocol> {
         //         self.inner.get_protocol()
         //     }
@@ -199,71 +203,77 @@ macro_rules! impl_hardware {
 
 // #[derive(Debug, Clone, Serialize, Deserialize)]
 // #[serde(tag = "type")]
-// pub enum HardwareType {
+// pub enum ControllerType {
 //     Board(Board),
 //     PCA9685(PCA9685),
 // }
 
-// impl HardwareType {
-//     pub fn get_hardware(&self) -> &dyn HermesHardware {
+// impl ControllerType {
+//     pub fn get_hardware(&self) -> &dyn HermesController {
 //         match &self {
-//             HardwareType::Board(hardware) => &hardware.inner,
-//             HardwareType::PCA9685(hardware) => &hardware.inner,
+//             ControllerType::Board(hardware) => &hardware.inner,
+//             ControllerType::PCA9685(hardware) => &hardware.inner,
 //         }
 //     }
 // }
 
-// impl Deref for HardwareType {
-//     type Target = dyn HermesHardware;
+// impl Deref for ControllerType {
+//     type Target = dyn HermesController;
 //
 //     fn deref(&self) -> &Self::Target {
 //         match self {
-//             HardwareType::Board(ref hardware) => &hardware.inner,
-//             HardwareType::PCA9685(ref hardware) => &hardware.inner,
+//             ControllerType::Board(ref hardware) => &hardware.inner,
+//             ControllerType::PCA9685(ref hardware) => &hardware.inner,
 //         }
 //     }
 // }
 //
-// impl DerefMut for HardwareType {
+// impl DerefMut for ControllerType {
 //     fn deref_mut(&mut self) -> &mut Self::Target {
 //         match self {
-//             HardwareType::Board(ref mut hardware) => &mut hardware.inner,
-//             HardwareType::PCA9685(ref mut hardware) => &mut hardware.inner,
+//             ControllerType::Board(ref mut hardware) => &mut hardware.inner,
+//             ControllerType::PCA9685(ref mut hardware) => &mut hardware.inner,
 //         }
 //     }
 // }
 
-// #[cfg(test)]
-// mod tests {
-//     use crate::hardware::board::Board;
-//     use crate::hardware::{Hardware, HardwareType};
-//
-//     #[test]
-//     fn test_serialize() {
-//         let hardware = Hardware {
-//             id: 1,
-//             name: "Hardware Test".to_string(),
-//             inner: HardwareType::Board(Board {
-//                 model: Default::default(),
-//                 inner: Default::default(),
-//             }),
-//             connected: false,
-//         };
-//
-//         let json = serde_json::to_string(&hardware).unwrap();
-//         assert_eq!(
-//             json,
-//             r#"{"id":1,"name":"Hardware Test","type":"Board","model":"Unknown","protocol":{"type":"RemoteIo","transport":{"type":"Serial","port":"COM7"}},"connected":false}"#
-//         );
-//     }
-//
-//     #[test]
-//     fn test_deserialize() {
-//         let json = r#"{"id":1,"name":"Hardware Test","type":"Board","model":"Unknown","protocol":{"type":"RemoteIo","transport":{"type":"Serial","port":"COM7"}},"connected":false}"#;
-//         let hardware = serde_json::from_str::<Hardware>(&json);
-//         assert!(hardware.is_ok());
-//         let hardware = hardware.unwrap();
-//         assert_eq!(hardware.name, "Hardware Test".to_string());
-//         assert_eq!(hardware.inner.get_protocol_name(), "RemoteIo".to_string());
-//     }
-// }
+#[cfg(test)]
+mod tests {
+    use crate::hardware::pca9685::PCA9685;
+    use crate::hardware::Controller;
+    use hermes_five::mocks::plugin_io::MockIoProtocol;
+
+    #[test]
+    fn test_serialize() {
+        let board = hermes_five::hardware::Board::new(MockIoProtocol::default());
+        let hardware = Controller {
+            id: 1,
+            name: "Controller Test".to_string(),
+            hid: 1,
+            inner: Box::new(PCA9685 {
+                inner: hermes_five::hardware::PCA9685::new(&board, 0x66).unwrap(),
+            }),
+            connected: true,
+        };
+
+        let json = serde_json::to_string(&hardware).unwrap();
+        assert_eq!(
+            json,
+            r#"{"id":1,"hid":1,"name":"Controller Test","type":"PCA9685","address":102,"frequency":50,"connected":true}"#
+        );
+    }
+
+    #[test]
+    fn test_deserialize() {
+        let json = r#"{"id":1,"hid":1,"name":"Controller Test","type":"PCA9685","address":102,"frequency":50,"connected":true}"#;
+        let controller = serde_json::from_str::<Controller>(&json);
+        assert!(controller.is_ok());
+        let controller = controller.unwrap();
+        assert_eq!(controller.name, "Controller Test".to_string());
+        assert!(controller.inner.get_hardware().is_connected());
+        assert_eq!(
+            controller.inner.get_hardware().get_protocol_name(),
+            "PCA9685"
+        );
+    }
+}

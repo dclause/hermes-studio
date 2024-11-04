@@ -2,6 +2,7 @@
 name = "hermes-studio"
 version = "0.1.0-beta"
 edition = "2021"
+resolver = "2"
 description = "Hermes-Studio backend API using Hermes-Five."
 authors = ["Dominique CLAUSE <contact@acino.fr>"]
 repository = "https://github.com/dclause/hermes-studio"
@@ -10,8 +11,8 @@ license = "MIT"
 
 [dependencies]
 # @todo use published crate
-#hermes-five = { rev = "cae9600", git = "https://github.com/dclause/hermes-five", features = ["serde"] }
-hermes-five = { path = "../../hermes-five/hermes-five", features = ["serde"] }
+#hermes-five = { path = "../../hermes-five/hermes-five", features = ["serde"] }
+hermes-five = { rev = "8f5da26", git = "https://github.com/dclause/hermes-five", features = ["serde"] }
 anyhow = "1.0.91"
 axum = { version = "0.7.7", default-features = false, features = ["form", "http1", "json", "matched-path", "multipart", "original-uri", "query", "tokio"] }
 clap = { version = "4.5.20", features = ["derive", "env"] }
@@ -32,6 +33,7 @@ rodio = "0.19.0"
 
 [dev-dependencies]
 tempfile = "3.13.0"
+hermes-five = { rev = "8f5da26", git = "https://github.com/dclause/hermes-five", features = ["serde", "mocks"] }
 
 [profile.release]
 opt-level = 3               # All optimizations

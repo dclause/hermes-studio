@@ -17,7 +17,7 @@ import { computed } from 'vue';
 import { HardwareMode, logError } from '@/composables/globalComposables';
 import { useBoardStore } from '@/stores/boardStore';
 import { useConfigStore } from '@/stores/configurationStore';
-import { Board } from '@/types/boards';
+import { Board } from '@/types/hardwares';
 
 const boardStore = useBoardStore();
 const board = defineModel<Board>({ required: true });

@@ -1,6 +1,7 @@
 mod board;
-mod hardware;
+mod controller;
 mod pca9685;
 mod raspi;
 
-pub use hardware::*;
+pub use board::*;
+pub use controller::*;

@@ -24,7 +24,7 @@ export enum ArduinoType {
 import { ref } from 'vue';
 import { Rule } from '@/composables/formComposables';
 import { mapEnumToOptions } from '@/composables/globalComposables';
-import { Board } from '@/types/boards';
+import { Board } from '@/types/hardwares';
 
 const board = defineModel<Board>({ required: true });
 const model = ref<string>((board.value.model as { Arduino: string }).Arduino);
