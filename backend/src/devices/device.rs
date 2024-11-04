@@ -2,12 +2,12 @@ use std::fmt::Debug;
 
 use anyhow::Result;
 use dyn_clone::DynClone;
-use hermes_five::animations::{Easing, Track};
-use hermes_five::utils::State;
 use serde::{Deserialize, Serialize};
 
+use hermes_five::animations::{Easing, Track};
+use hermes_five::utils::State;
+
 use crate::animations::Group;
-use crate::hardware::Board;
 use crate::impl_entity;
 use crate::utils::database::Database;
 use crate::utils::entity::Id;
@@ -15,7 +15,7 @@ use crate::utils::entity::Id;
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Device {
     pub id: Id,
-    pub bid: Id,
+    pub hid: Id,
     pub name: String,
     #[serde(flatten)]
     pub inner: Box<dyn DeviceType>,
@@ -60,7 +60,7 @@ impl_entity!(Device, {
 #[typetag::serde(tag = "type")]
 pub trait DeviceType: DynClone + Debug + Send + Sync {
     fn reset(&mut self) -> Result<State>;
-    fn set_board(&mut self, board: &Board) -> Result<()>;
+    fn set_hardware(&mut self, hardware: &dyn hermes_five::hardware::Hardware) -> Result<()>;
     fn set_state(&mut self, state: State) -> Result<State>;
     fn animate(&mut self, state: State, duration: u64, transition: Easing) -> Result<State>;
     fn into_track(&self) -> Result<Track>;
@@ -77,7 +77,7 @@ macro_rules! impl_device {
             pub inner: hermes_five::devices::$struct_name,
         }
 
-        impl Deref for $struct_name {
+        impl std::ops::Deref for $struct_name {
             type Target = hermes_five::devices::$struct_name;
 
             fn deref(&self) -> &Self::Target {
@@ -85,7 +85,7 @@ macro_rules! impl_device {
             }
         }
 
-        impl DerefMut for $struct_name {
+        impl std::ops::DerefMut for $struct_name {
             fn deref_mut(&mut self) -> &mut Self::Target {
                 &mut self.inner
             }

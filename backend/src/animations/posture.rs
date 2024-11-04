@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::animations::Position;
 use crate::devices::Device;
-use crate::hardware::Board;
+use crate::hardware::Hardware;
 use crate::impl_entity;
 use crate::utils::database::Database;
 use crate::utils::entity::Id;
@@ -28,7 +28,7 @@ impl Posture {
                     None => Ok(()), // Do not bother with unknown devices
                     Some(mut device) => {
                         database
-                            .get::<Board>(&device.bid)
+                            .get::<Hardware>(&device.hid)
                             .and_then(|board| match board {
                                 None => Ok(()), // Should not happen ?
                                 Some(board) => match board.connected {

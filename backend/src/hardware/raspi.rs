@@ -2,7 +2,7 @@ use std::fmt::{Display, Formatter};
 use std::sync::Arc;
 
 use hermes_five::errors::Error;
-use hermes_five::io::{IoData, IoProtocol, PinModeId};
+use hermes_five::io::{IoData, IoProtocol, PinModeId, IO};
 use hermes_five::utils::Range;
 use log::trace;
 use parking_lot::RwLock;
@@ -36,9 +36,6 @@ impl RaspiIo {
 
 #[typetag::serde]
 impl IoProtocol for RaspiIo {
-    fn get_data(&self) -> &Arc<RwLock<IoData>> {
-        &self.data
-    }
     fn open(&mut self) -> Result<(), Error> {
         // Perform handshake.
         self.set_connected(false);
@@ -55,37 +52,60 @@ impl IoProtocol for RaspiIo {
         self.connected = false;
         Ok(())
     }
+
+    fn report_analog(&mut self, _: u8, _: bool) -> Result<(), Error> {
+        todo!()
+    }
+    fn report_digital(&mut self, _: u8, _: bool) -> Result<(), Error> {
+        todo!()
+    }
+    fn sampling_interval(&mut self, _: u16) -> Result<(), Error> {
+        todo!()
+    }
+}
+
+impl IO for RaspiIo {
+    fn get_io(&self) -> &Arc<RwLock<IoData>> {
+        todo!()
+    }
+
     fn is_connected(&self) -> bool {
         self.connected
     }
-    fn set_pin_mode(&mut self, pin: u16, mode: PinModeId) -> Result<(), Error> {
+
+    fn set_pin_mode(&mut self, _: u8, _: PinModeId) -> Result<(), Error> {
         todo!()
     }
-    fn digital_write(&mut self, pin: u16, level: bool) -> Result<(), Error> {
+
+    fn digital_write(&mut self, _: u8, _: bool) -> Result<(), Error> {
         todo!()
     }
-    fn analog_write(&mut self, pin: u16, level: u16) -> Result<(), Error> {
+
+    fn analog_write(&mut self, _: u8, _: u16) -> Result<(), Error> {
         todo!()
     }
-    fn report_analog(&mut self, channel: u8, state: bool) -> Result<(), Error> {
+
+    fn digital_read(&mut self, _: u8) -> Result<bool, Error> {
         todo!()
     }
-    fn report_digital(&mut self, pin: u16, state: bool) -> Result<(), Error> {
+
+    fn analog_read(&mut self, _: u8) -> Result<u16, Error> {
         todo!()
     }
-    fn sampling_interval(&mut self, interval: u16) -> Result<(), Error> {
+
+    fn servo_config(&mut self, _: u8, _: Range<u16>) -> Result<(), Error> {
         todo!()
     }
-    fn i2c_config(&mut self, delay: u16) -> Result<(), Error> {
+
+    fn i2c_config(&mut self, _: u16) -> Result<(), Error> {
         todo!()
     }
-    fn i2c_read(&mut self, address: i32, size: i32) -> Result<(), Error> {
+
+    fn i2c_read(&mut self, _: u8, _: u16) -> Result<(), Error> {
         todo!()
     }
-    fn i2c_write(&mut self, address: i32, data: &[u8]) -> Result<(), Error> {
-        todo!()
-    }
-    fn servo_config(&mut self, pin: u16, pwm_range: Range<u16>) -> Result<(), Error> {
+
+    fn i2c_write(&mut self, _: u8, _: &[u16]) -> Result<(), Error> {
         todo!()
     }
 }
@@ -96,7 +116,7 @@ impl Display for RaspiIo {
         write!(
             f,
             "{} [firmware={}, version={}, protocol={}]",
-            self.get_protocol_name(),
+            self.get_name(),
             data.firmware_name,
             data.firmware_version,
             data.protocol_version

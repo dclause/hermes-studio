@@ -8,7 +8,7 @@ use anyhow::Result;
 use hermes_five::animations::Easing;
 use hermes_five::devices::{Device, Output};
 use hermes_five::errors::Error;
-use hermes_five::hardware::Board;
+use hermes_five::hardware::Hardware as HermesHardware;
 use hermes_five::pause_sync;
 use hermes_five::utils::{EventHandler, EventManager, State};
 use parking_lot::RwLock;
@@ -95,7 +95,7 @@ pub struct Mp3Player {
 }
 
 impl Mp3Player {
-    pub fn new(_board: &Board) -> Result<Self, Error> {
+    pub fn new(_board: &dyn HermesHardware) -> Result<Self, Error> {
         Ok(Self {
             state: Arc::new(Default::default()),
             default: Default::default(),

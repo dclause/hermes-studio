@@ -7,7 +7,7 @@ use crate::animations::Group;
 use crate::api::sockets::ack::Ack;
 use crate::api::sockets::{broadcast_and_ack, broadcast_to_all};
 use crate::devices::Device;
-use crate::hardware::Board;
+use crate::hardware::Hardware;
 use crate::utils::database::ArcDb;
 use crate::utils::entity::{Entity, Id};
 
@@ -16,7 +16,7 @@ pub fn register_board_events(socket: &SocketRef) {
         "board:list",
         |State(database): State<ArcDb>, ack: AckSender| {
             debug!("Event received: [board:list]");
-            let boards = database.read().list::<Board>();
+            let boards = database.read().list::<Hardware>();
             ack.send(&Ack::from(boards)).ok();
         },
     );
@@ -25,7 +25,7 @@ pub fn register_board_events(socket: &SocketRef) {
         "board:open",
         |socket: SocketRef, State(database): State<ArcDb>, Data(id): Data<Id>, ack: AckSender| {
             debug!("Event received: [board:open]: board:{}", id);
-            let board = Board::get(&database, &id).and_then(|board| match board {
+            let board = Hardware::get(&database, &id).and_then(|board| match board {
                 None => bail!("Board not found"),
                 Some(board) => board.open(&database)?.save(&database),
             });
@@ -37,8 +37,8 @@ pub fn register_board_events(socket: &SocketRef) {
         "board:close",
         |socket: SocketRef, State(database): State<ArcDb>, Data(id): Data<Id>, ack: AckSender| {
             debug!("Event received: [board:close]: board:{}", id);
-            let board = Board::get(&database, &id).and_then(|board| match board {
-                None => bail!("Board not found"),
+            let board = Hardware::get(&database, &id).and_then(|board| match board {
+                None => bail!("Hardware not found"),
                 Some(board) => board.close()?.save(&database),
             });
             broadcast_and_ack("board:updated", board, &socket, ack);
@@ -53,7 +53,7 @@ pub fn register_board_events(socket: &SocketRef) {
             database.write().set_autosave(false);
             let _ = database.read().list::<Device>().and_then(|mut devices| {
                 for (_, device) in &mut devices {
-                    if device.bid == id {
+                    if device.hid == id {
                         device.inner.reset().and_then(|mutation| {
                             broadcast_to_all("device:mutated", Ok((device.id, mutation)), &socket);
                             Ok(())
@@ -91,7 +91,7 @@ pub fn register_board_events(socket: &SocketRef) {
     socket.on(
         "board:create",
         |socket: SocketRef,
-         TryData(new_board): TryData<Board>,
+         TryData(new_board): TryData<Hardware>,
          database: State<ArcDb>,
          ack: AckSender| {
             debug!("Event received: [board:create]: board:{:#?}", new_board);
@@ -107,20 +107,19 @@ pub fn register_board_events(socket: &SocketRef) {
     socket.on(
         "board:update",
         |socket: SocketRef,
-         TryData(board): TryData<Board>,
+         TryData(board): TryData<Hardware>,
          database: State<ArcDb>,
          ack: AckSender| {
             debug!("Event received: [board:update]: board:{:#?}", board);
 
             let board = match board {
                 Err(error) => Err(anyhow!("Invalid board: {}", error)),
-                Ok(board) => {
-                    Board::get(&database, &board.id).and_then(|existing_board| match existing_board
-                    {
-                        None => bail!("Board [{}] not found", board.id),
+                Ok(board) => Hardware::get(&database, &board.id).and_then(|existing_board| {
+                    match existing_board {
+                        None => bail!("Hardware [{}] not found", board.id),
                         Some(_) => database.write().update(board),
-                    })
-                }
+                    }
+                }),
             };
             broadcast_and_ack("board:updated", board, &socket, ack);
         },
@@ -132,9 +131,9 @@ pub fn register_board_events(socket: &SocketRef) {
             debug!("Event received: [board:delete]: id:{:?}", id);
             let board = database
                 .write()
-                .delete::<Board>(id)
+                .delete::<Hardware>(id)
                 .and_then(|board| match board {
-                    None => bail!("Board not found"),
+                    None => bail!("Hardware not found"),
                     Some(board) => Ok(board),
                 });
 

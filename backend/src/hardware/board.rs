@@ -1,64 +1,20 @@
-use anyhow::Result;
-use hermes_five::hardware::Board as HermesBoard;
 use serde::{Deserialize, Serialize};
 
-use crate::devices::Device;
-use crate::impl_entity;
-use crate::utils::database::{ArcDb, Database};
-use crate::utils::entity::{Entity, Id};
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Board {
-    pub id: Id,
-    pub name: String,
     pub model: BoardType,
     #[serde(flatten)]
-    pub inner: HermesBoard,
-    pub connected: bool,
+    pub inner: hermes_five::hardware::Board,
 }
 
-impl_entity!(Board, {
-    fn post_load(&mut self, _: &Database) -> Result<()> {
-        // Reset connection state on load.
-        self.connected = false;
-        Ok(())
-    }
-    // Delete all associated devices.
-    fn post_delete(&mut self, database: &mut Database) -> Result<()> {
-        let devices = database.list::<Device>()?;
-        for (_, device) in devices {
-            if device.bid == self.id {
-                database.delete::<Device>(device.id)?;
-            }
-        }
-        Ok(())
-    }
-});
-
-impl Board {
-    pub fn open(mut self, database: &ArcDb) -> Result<Self> {
-        self.inner = self.inner.blocking_open()?;
-        self.connected = self.inner.is_connected();
-
-        // Initialize properly the inner device value because now that board is open(), the
-        // handshake as given us the hardware board configuration, which lets us properly initialize
-        // our devices.
-        let devices = database.write().list::<Device>()?;
-        for (_, mut device) in devices {
-            if device.bid == self.id {
-                device.inner.set_board(&self)?;
-                device.save(&database)?;
-            }
-        }
-
-        Ok(self)
-    }
-    pub fn close(mut self) -> Result<Self> {
-        self.inner = self.inner.close();
-        self.connected = false;
-        Ok(self)
+#[typetag::serde]
+impl crate::hardware::HardwareTrait for Board {
+    fn get_hardware(&mut self) -> &mut dyn hermes_five::hardware::Hardware {
+        &mut self.inner
     }
 }
+
+// impl_hardware!(Board);
 
 // ########################################
 

@@ -1,14 +1,13 @@
+use anyhow::Result;
+use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use std::ops::{Deref, DerefMut};
 
-use anyhow::Result;
 use hermes_five::animations::{Easing, Track};
 use hermes_five::devices::Output;
 use hermes_five::utils::State;
-use serde::{Deserialize, Serialize};
 
 use crate::devices::DeviceType;
-use crate::hardware::Board;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Mp3Player {
@@ -37,9 +36,8 @@ impl DeviceType for Mp3Player {
         Ok(state)
     }
 
-    fn set_board(&mut self, board: &Board) -> Result<()> {
-        let current = self.inner.clone();
-        self.inner = crate::extra::mp3::Mp3Player::new(&board.inner)?.set_path(current.get_path());
+    fn set_hardware(&mut self, hardware: &dyn hermes_five::hardware::Hardware) -> Result<()> {
+        self.inner = crate::extra::mp3::Mp3Player::new(hardware)?.set_path(self.inner.get_path());
         Ok(())
     }
 

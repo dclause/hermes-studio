@@ -2,26 +2,24 @@ use std::fmt::Debug;
 use std::ops::{Deref, DerefMut};
 
 use anyhow::Result;
-use hermes_five::animations::Track;
-use hermes_five::devices::Output;
 use serde::{Deserialize, Serialize};
 
-use crate::devices::DeviceType;
-use crate::hardware::Board;
+use crate::devices::device::DeviceType;
 use crate::impl_device;
+use hermes_five::animations::Track;
+use hermes_five::devices::Output;
 
 impl_device!(Servo, {
-    fn set_board(&mut self, board: &Board) -> Result<()> {
+    fn set_hardware(&mut self, hardware: &dyn hermes_five::hardware::Hardware) -> Result<()> {
         let current = self.inner.clone();
-
         self.inner = match current.is_inverted() {
             false => hermes_five::devices::Servo::new(
-                &board.inner,
+                hardware,
                 current.get_pin(),
                 current.get_default().as_integer() as u16,
             )?,
             true => hermes_five::devices::Servo::new_inverted(
-                &board.inner,
+                hardware,
                 current.get_pin(),
                 (100 - current.get_default().as_integer()) as u16,
             )?,

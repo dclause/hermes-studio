@@ -130,7 +130,14 @@ impl Database {
 
                 // Deserialize data from the current entity_type file in the storage folder.
                 let data = std::fs::read_to_string(file)?;
-                let entities = serde_json::from_str::<HashMap<Id, Box<dyn Entity>>>(data.as_str())?;
+                let entities = serde_json::from_str::<HashMap<Id, Box<dyn Entity>>>(data.as_str())
+                    .map_err(|err| {
+                        anyhow!(
+                            "{} in file `{}.entities.json`",
+                            err.to_string(),
+                            entity_type
+                        )
+                    })?;
 
                 // Update the storage to save the provided entity
                 self.entities.insert(entity_type, entities);
