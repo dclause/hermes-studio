@@ -1,15 +1,15 @@
 import { storeToRefs } from 'pinia';
 import { Component, computed } from 'vue';
 import { useTheme } from 'vuetify';
-import ArduinoBoardEdit from '@/components/hardware/boards/edit/ArduinoBoardEdit.vue';
-import DefaultBoardEdit from '@/components/hardware/boards/edit/DefaultBoardEdit.vue';
-import RaspberryPiBoardEdit from '@/components/hardware/boards/edit/RaspberryPiBoardEdit.vue';
-import DefaultProtocolEdit from '@/components/hardware/protocols/edit/DefaultProtocolEdit.vue';
-import RaspiProtocolEdit from '@/components/hardware/protocols/edit/RaspiProtocolEdit.vue';
-import RemoteProtocolEdit from '@/components/hardware/protocols/edit/RemoteProtocolEdit.vue';
-import RaspiProtocol from '@/components/hardware/protocols/RaspiProtocol.vue';
-import RemoteProtocol from '@/components/hardware/protocols/RemoteProtocol.vue';
-import UnknownProtocol from '@/components/hardware/protocols/UnknownProtocol.vue';
+import ArduinoBoardEdit from '@/components/hardware/board/edit/ArduinoBoardEdit.vue';
+import DefaultBoardEdit from '@/components/hardware/board/edit/DefaultBoardEdit.vue';
+import RaspberryPiBoardEdit from '@/components/hardware/board/edit/RaspberryPiBoardEdit.vue';
+import DefaultProtocolEdit from '@/components/hardware/protocol/edit/DefaultProtocolEdit.vue';
+import RaspiProtocolEdit from '@/components/hardware/protocol/edit/RaspiProtocolEdit.vue';
+import RemoteProtocolEdit from '@/components/hardware/protocol/edit/RemoteProtocolEdit.vue';
+import RaspiProtocol from '@/components/hardware/protocol/RaspiProtocol.vue';
+import RemoteProtocol from '@/components/hardware/protocol/RemoteProtocol.vue';
+import UnknownProtocol from '@/components/hardware/protocol/UnknownProtocol.vue';
 import { useBoardStore } from '@/stores/boardStore';
 import { BoardModel } from '@/types/hardwares';
 

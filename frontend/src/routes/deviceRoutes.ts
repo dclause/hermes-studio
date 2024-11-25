@@ -1,5 +1,5 @@
-import DeviceEditPage from '@/pages/devices/DeviceEditPage.vue';
-import DeviceListPage from '@/pages/devices/DeviceListPage.vue';
+import DeviceListPage from "@/pages/device/DeviceListPage.vue";
+import DeviceEditPage from "@/pages/device/DeviceEditPage.vue";
 
 export default [
   {

@@ -68,8 +68,6 @@ pub fn register_group_events(socket: &SocketRef) {
          database: State<ArcDb>,
          ack: AckSender| {
             debug!("Event received: [groups:save]");
-
-            // Disable autosave temporarily.
             database.write().set_autosave(false);
 
             let groups: Result<Vec<Group>> = match groups {

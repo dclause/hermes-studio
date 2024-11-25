@@ -1,7 +1,9 @@
 // Register socket events.
-import type { HardwareId } from '@/types/hardwares';
+import type { BoardId, ExpanderId, HardwareId } from '@/types/hardwares';
 import { defineStore } from 'pinia';
 import { Socket } from 'socket.io-client';
+import { DeviceType } from '@/composables/deviceComposables';
+import { HardwareType } from '@/composables/hardwareComposables';
 import { useSocketIO } from '@/composables/socketComposables';
 import { Easing } from '@/composables/timelineComposables';
 import { useToasterStore } from '@/stores/toastStore';
@@ -61,19 +63,35 @@ export const useDeviceStore = defineStore({
       });
     },
 
+    /** List all devices for given hardware */
+    list_by_hardware(hid: HardwareId): Device[] {
+      return Object.values(this.devices).filter(
+        (device) => device.hid.type === hid.type && device.hid.id === hid.id,
+      );
+    },
+
     /** List all devices for given board */
-    list_by_board(hid: HardwareId): Device[] {
-      return Object.values(this.devices).filter((device) => device.hid === hid);
+    list_by_board(hid: BoardId): Device[] {
+      return Object.values(this.devices).filter(
+        (device) => device.hid.type === HardwareType.Board && (device.hid.id as BoardId) === hid,
+      );
+    },
+    /** List all devices for given expander */
+    list_by_expander(hid: ExpanderId): Device[] {
+      return Object.values(this.devices).filter(
+        (device) =>
+          device.hid.type === HardwareType.Expander && (device.hid.id as ExpanderId) === hid,
+      );
     },
 
     /** Creates a new default actuator (without saving). */
-    default(hid = null): Device {
+    default(hid = 0): Device {
       return {
         entity: 'Device',
         id: 0 as DeviceId,
         name: 'New device',
-        type: 'Unknown',
-        hid: hid,
+        type: DeviceType.Led,
+        hid: { type: 'Board', id: hid } as HardwareId,
         pin: 13,
         state: 0,
         default: 0,

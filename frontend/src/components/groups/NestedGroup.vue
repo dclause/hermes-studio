@@ -29,6 +29,7 @@ import type { NestedGroup } from '@/types/groups';
 import { storeToRefs } from 'pinia';
 import { useDeviceComponent } from '@/composables/deviceComposables';
 import { CommandMode, HardwareMode } from '@/composables/globalComposables';
+import { HardwareType } from '@/composables/hardwareComposables';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { Device, OutputDevice } from '@/types/devices';
 
@@ -47,10 +48,10 @@ withDefaults(
 );
 
 const emit = defineEmits<{
-  delete: [item: Device];
+  delete: [item: Device, type: HardwareType];
 }>();
 const onDelete = (item: Device) => {
-  emit('delete', item);
+  emit('delete', item, HardwareType.Device);
 };
 
 const shouldDisplay = (group: NestedGroup) => {

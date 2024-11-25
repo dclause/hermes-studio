@@ -17,13 +17,14 @@
 import { computed } from 'vue';
 import { useBoardStore } from '@/stores/boardStore';
 import { useDeviceStore } from '@/stores/deviceStore';
+import { BoardId } from '@/types/hardwares';
 import { Track } from '@/types/timeline';
 
 const boardStore = useBoardStore();
 const deviceStore = useDeviceStore();
 const track = defineModel<Track>({ required: true });
 const device = computed(() => deviceStore.get(track.value.device!));
-const board = computed(() => boardStore.get(device.value.hid));
+const board = computed(() => boardStore.get(device.value.hid.id as BoardId));
 </script>
 <style lang="scss" scoped>
 .disabled span {

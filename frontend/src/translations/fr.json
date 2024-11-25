@@ -18,7 +18,9 @@
     "pending": "connexion..."
   },
   "entities": {
-    "board": "Carte"
+    "board": "Carte",
+    "device": "Device",
+    "expander": "Extenseur"
   },
   "command": {
     "pin": "Pin",

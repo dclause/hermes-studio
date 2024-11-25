@@ -1,7 +1,6 @@
-use std::fmt::Debug;
-
-use crate::impl_hardware;
+use crate::impl_expander;
 use serde::{Deserialize, Serialize};
+use std::fmt::Debug;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct PCA9685 {
@@ -9,7 +8,15 @@ pub struct PCA9685 {
     pub inner: hermes_five::hardware::PCA9685,
 }
 
-impl_hardware!(PCA9685);
+impl_expander!(PCA9685, {
+    fn set_hardware(
+        &mut self,
+        hardware: &dyn hermes_five::hardware::Hardware,
+    ) -> anyhow::Result<()> {
+        self.inner = hermes_five::hardware::PCA9685::new(hardware, self.inner.get_address())?;
+        Ok(())
+    }
+});
 
 #[cfg(test)]
 mod tests {

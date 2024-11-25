@@ -22,8 +22,8 @@
           <div class="font-weight-bold">
             {{ device.name }}
           </div>
-          <div class="text-body-2 font-italic">
-            {{ board.name }}
+          <div v-if="hardware" class="text-body-2 font-italic">
+            {{ hardware.name }}
           </div>
         </slot>
       </v-label>
@@ -49,7 +49,7 @@
         icon="mdi-refresh"
         size="small"
         variant="text"
-        :disabled="!board.connected"
+        :disabled="!board || !board.connected"
         @click="onReset(device)"
       />
 
@@ -78,7 +78,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { CommandMode } from '@/composables/globalComposables';
-import { useBoardStore } from '@/stores/boardStore';
+import { useHardware } from '@/composables/hardwareComposables';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { Device, DeviceState, OutputDevice } from '@/types/devices';
 
@@ -93,9 +93,10 @@ const props = withDefaults(
 const isChip = computed(() => props.variant === CommandMode.NONE);
 const isEditable = computed(() => props.variant === CommandMode.FULL);
 
-const boardStore = useBoardStore();
-
-const board = computed(() => boardStore.get(props.device.hid));
+// Get associated hardware & board.
+const { get_hardware, get_board } = useHardware();
+const hardware = computed(() => get_hardware(props.device.hid));
+const board = computed(() => get_board(props.device.hid));
 
 const cardVariant = computed(() => {
   switch (props.variant) {

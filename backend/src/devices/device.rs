@@ -8,6 +8,7 @@ use hermes_five::animations::{Easing, Track};
 use hermes_five::utils::State;
 
 use crate::animations::Group;
+use crate::hardware::HardwareType;
 use crate::impl_entity;
 use crate::utils::database::Database;
 use crate::utils::entity::Id;
@@ -15,7 +16,7 @@ use crate::utils::entity::Id;
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Device {
     pub id: Id,
-    pub hid: Id,
+    pub hid: HardwareType,
     pub name: String,
     #[serde(flatten)]
     pub inner: Box<dyn DeviceType>,

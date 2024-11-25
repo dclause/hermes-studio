@@ -15,6 +15,11 @@ impl_device!(Led, {
             self.inner.get_pin(),
             self.inner.get_default().as_bool(),
         )?;
+
+        println!(
+            "Init LED with hardware: {:#?}",
+            hardware.get_protocol_name()
+        );
         Ok(())
     }
 });

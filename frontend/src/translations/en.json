@@ -18,7 +18,9 @@
     "pending": "connecting..."
   },
   "entities:": {
-    "board": "Board"
+    "board": "Board",
+    "device": "Device",
+    "expander": "Expander"
   },
   "command": {
     "pin": "Pin",

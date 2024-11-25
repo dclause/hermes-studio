@@ -8,6 +8,7 @@ use crate::api::sockets::animations::register_animation_events;
 use crate::api::sockets::boards::register_board_events;
 use crate::api::sockets::config::register_config_events;
 use crate::api::sockets::devices::register_device_events;
+use crate::api::sockets::expanders::register_expander_events;
 use crate::api::sockets::groups::register_group_events;
 use crate::api::sockets::postures::register_posture_events;
 
@@ -16,6 +17,7 @@ mod animations;
 mod boards;
 mod config;
 mod devices;
+mod expanders;
 mod groups;
 mod postures;
 
@@ -50,6 +52,7 @@ pub fn register_socket_events(
 ) {
     register_config_events(&socket);
     register_board_events(&socket);
+    register_expander_events(&socket);
     register_device_events(&socket);
     register_group_events(&socket);
     register_posture_events(&socket);

@@ -1,8 +1,8 @@
 // Register socket events.
-import type { Board, HardwareId, Protocol, Transport } from '@/types/hardwares';
+import type { Board, BoardId, Protocol, Transport } from '@/types/hardwares';
 import { defineStore } from 'pinia';
 import { Socket } from 'socket.io-client';
-import { ArduinoType } from '@/components/hardware/boards/edit/ArduinoBoardEdit.vue';
+import { ArduinoType } from '@/components/hardware/board/edit/ArduinoBoardEdit.vue';
 import { BoardType } from '@/composables/boardComposables';
 import { useSocketIO } from '@/composables/socketComposables';
 import { useDeviceStore } from '@/stores/deviceStore';
@@ -40,14 +40,14 @@ export const useBoardStore = defineStore({
   id: 'boards',
   state: () => ({
     loading: false,
-    boards: {} as Record<HardwareId, Board>,
+    boards: {} as Record<BoardId, Board>,
   }),
   actions: {
     refresh() {
       this.loading = true;
       socketEmit('board:list', (ack: SocketAck) => {
         if (ack.success) {
-          this.boards = ack.success as Record<HardwareId, Board>;
+          this.boards = ack.success as Record<BoardId, Board>;
         }
         this.loading = false;
       });
@@ -58,7 +58,7 @@ export const useBoardStore = defineStore({
      */
     default(): Board {
       return {
-        id: 0 as HardwareId,
+        id: 0 as BoardId,
         name: 'New board',
         model: { [BoardType.Arduino]: ArduinoType.OTHER } as unknown as BoardType,
         protocol: {
@@ -100,11 +100,11 @@ export const useBoardStore = defineStore({
       });
     },
 
-    get(id: HardwareId): Board {
+    get(id: BoardId): Board {
       return this.boards[id];
     },
 
-    delete(id: HardwareId) {
+    delete(id: BoardId) {
       this.loading = true;
       return socketEmit('board:delete', id, (ack: SocketAck) => {
         if (ack.success) {
@@ -118,7 +118,7 @@ export const useBoardStore = defineStore({
       });
     },
 
-    open(id: HardwareId) {
+    open(id: BoardId) {
       this.boards[id].loading = true;
       return socketEmit('board:open', id, (ack: SocketAck) => {
         if (ack.success) {
@@ -129,7 +129,7 @@ export const useBoardStore = defineStore({
         this.boards[id].loading = false;
       });
     },
-    close(id: HardwareId) {
+    close(id: BoardId) {
       this.boards[id].loading = true;
       return socketEmit('board:close', id, (ack: SocketAck) => {
         if (ack.success) {
@@ -140,7 +140,7 @@ export const useBoardStore = defineStore({
       });
     },
 
-    reset(id: HardwareId) {
+    reset(id: BoardId) {
       return socketEmit('board:reset', id);
     },
 

@@ -1,7 +1,7 @@
-import PostureControlPage from '@/pages/postures/PostureControlPage.vue';
-import PostureCreatePage from '@/pages/postures/PostureCreatePage.vue';
-import PostureEditPage from '@/pages/postures/PostureEditPage.vue';
-import PostureListPage from '@/pages/postures/PostureListPage.vue';
+import PostureControlPage from '@/pages/posture/PostureControlPage.vue';
+import PostureCreatePage from '@/pages/posture/PostureCreatePage.vue';
+import PostureEditPage from '@/pages/posture/PostureEditPage.vue';
+import PostureListPage from '@/pages/posture/PostureListPage.vue';
 
 export default [
   {

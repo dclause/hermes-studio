@@ -3,9 +3,9 @@
 </template>
 <script setup lang="ts">
 import { computed } from 'vue';
-import ArduinoModel from '@/components/hardware/boards/ArduinoModel.vue';
-import RaspberryModel from '@/components/hardware/boards/RaspberryModel.vue';
-import UnknownModel from '@/components/hardware/boards/UnknownModel.vue';
+import ArduinoModel from '@/components/hardware/board/ArduinoModel.vue';
+import RaspberryModel from '@/components/hardware/board/RaspberryModel.vue';
+import UnknownModel from '@/components/hardware/board/UnknownModel.vue';
 import { BoardModel } from '@/types/hardwares';
 
 const props = defineProps<{ model: BoardModel }>();

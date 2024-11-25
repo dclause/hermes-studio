@@ -76,7 +76,7 @@ impl Animation {
                     };
 
                     // 2. ensure the board associated with the position still exists and is connected.
-                    match database.get::<Board>(&device.hid)? {
+                    match database.get::<Board>(&*device.hid)? {
                         None => continue,
                         Some(board) => {
                             if !board.connected {

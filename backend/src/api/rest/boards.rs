@@ -16,8 +16,8 @@ pub(crate) fn routes() -> Router<AppState> {
     Router::new().route("/", get(handler_boards_list)) //.post(handler_create_board))
 }
 
-/// GET /:version/hardwares.
-/// Retrieves all hardwares information.
+/// GET /:version/boards.
+/// Retrieves all boards information.
 async fn handler_boards_list(State(state): State<AppState>) -> impl IntoResponse {
     let boards = state.database.read().list::<Board>().unwrap();
     let payloads = boards

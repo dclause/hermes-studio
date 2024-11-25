@@ -4,6 +4,7 @@ use hermes_five::io::IO;
 use serde::{Deserialize, Serialize};
 
 use crate::devices::Device;
+use crate::hardware::{Expander, HardwareType};
 use crate::impl_entity;
 use crate::utils::database::{ArcDb, Database};
 use crate::utils::entity::{Entity, Id};
@@ -25,12 +26,29 @@ impl_entity!(Board, {
         self.connected = false;
         Ok(())
     }
-    // Delete all associated devices.
+    // Delete all associated expanders & devices.
     fn post_delete(&mut self, database: &mut Database) -> Result<()> {
+        let expanders = database.list::<Expander>()?;
+        for (_, expander) in expanders {
+            match expander.hid {
+                HardwareType::Board(bid) => {
+                    if bid == self.id {
+                        database.delete::<Expander>(expander.id)?;
+                    }
+                }
+                HardwareType::Expander(_) => {}
+            }
+        }
+
         let devices = database.list::<Device>()?;
         for (_, device) in devices {
-            if device.hid == self.id {
-                database.delete::<Device>(device.id)?;
+            match device.hid {
+                HardwareType::Board(bid) => {
+                    if bid == self.id {
+                        database.delete::<Device>(device.id)?;
+                    }
+                }
+                HardwareType::Expander(_) => {}
             }
         }
         Ok(())
@@ -42,22 +60,59 @@ impl Board {
         self.inner = self.inner.blocking_open()?;
         self.connected = self.inner.is_connected();
 
-        // Initialize properly the inner device value because now that board is open(), the
+        // Initialize properly the inner expander value because now that board is open(), the
         // handshake as given us the hardware board configuration, which lets us properly initialize
-        // our devices.
+        // our expanders.
+        let expanders = database.write().list::<Expander>()?;
+        for (_, mut expander) in expanders {
+            match expander.hid {
+                HardwareType::Board(id) => {
+                    if id == self.id {
+                        println!("Set hardware for expander {}", expander.name);
+                        expander.inner.set_hardware(&self.inner)?;
+                        expander.open(database)?.save(&database)?;
+                    }
+                }
+                HardwareType::Expander(_) => {}
+            }
+        }
+
+        // Same with devices
         let devices = database.write().list::<Device>()?;
         for (_, mut device) in devices {
-            if device.hid == self.id {
-                device.inner.set_hardware(&self.inner)?;
-                device.save(&database)?;
+            match device.hid {
+                HardwareType::Board(id) => {
+                    if id == self.id {
+                        println!("Set hardware for device {}", device.name);
+                        device.inner.set_hardware(&self.inner)?;
+                        device.save(&database)?;
+                    }
+                }
+                HardwareType::Expander(_) => {}
             }
         }
 
         Ok(self)
     }
-    pub fn close(mut self) -> Result<Self> {
+    pub fn close(mut self, database: &ArcDb) -> Result<Self> {
         self.inner = self.inner.close();
         self.connected = false;
+
+        // Initialize properly the inner expander value because now that board is open(), the
+        // handshake as given us the hardware board configuration, which lets us properly initialize
+        // our expanders.
+        let expanders = database.write().list::<Expander>()?;
+        for (_, expander) in expanders {
+            match expander.hid {
+                HardwareType::Board(id) => {
+                    if id == self.id {
+                        expander.close()?.save(&database)?;
+                    }
+                }
+                HardwareType::Expander(_) => {}
+            }
+        }
+
         Ok(self)
     }
 }

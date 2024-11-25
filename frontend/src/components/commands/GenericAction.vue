@@ -1,20 +1,24 @@
 <template>
   <div class="d-flex flex-grow-1 align-center action">
-    <div v-if="mode != HardwareMode.OFF && board && !board.connected" class="text-center">
-      <em>{{ $t('connexion.disconnect') }}</em>
-    </div>
-    <slot v-else name="action" v-bind="{ isCommandable: isCommandable }">
+    <slot
+      v-if="mode == HardwareMode.OFF || (board && board.connected)"
+      name="action"
+      v-bind="{ isCommandable: isCommandable }"
+    >
       <div class="font-italic text-error-lighten-1 action action-unknown">
         {{ $t('command.none') }}
       </div>
     </slot>
+    <div v-else class="text-center">
+      <em>{{ $t('connexion.disconnect') }}</em>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { CommandMode, HardwareMode } from '@/composables/globalComposables';
-import { useBoardStore } from '@/stores/boardStore';
+import { useHardware } from '@/composables/hardwareComposables';
 import { OutputDevice } from '@/types/devices';
 
 const props = withDefaults(
@@ -33,5 +37,6 @@ const isCommandable = computed(
 );
 
 // Get the associated board.
-const board = computed(() => useBoardStore().get(props.device.hid));
+const { get_board } = useHardware();
+const board = computed(() => get_board(props.device.hid));
 </script>

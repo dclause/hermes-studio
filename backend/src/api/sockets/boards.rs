@@ -9,7 +9,7 @@ use crate::api::payloads::BoardPayload;
 use crate::api::sockets::ack::Ack;
 use crate::api::sockets::{broadcast_and_ack, broadcast_to_all};
 use crate::devices::Device;
-use crate::hardware::Board;
+use crate::hardware::{Board, Expander, HardwareType};
 use crate::utils::database::ArcDb;
 use crate::utils::entity::{Entity, Id};
 
@@ -32,12 +32,16 @@ pub fn register_board_events(socket: &SocketRef) {
         "board:open",
         |socket: SocketRef, State(database): State<ArcDb>, Data(id): Data<Id>, ack: AckSender| {
             debug!("Event received: [board:open]: board:{}", id);
+            database.write().set_autosave(false);
+
             let board = Board::get(&database, &id)
                 .and_then(|board| match board {
                     None => bail!("Board not found"),
                     Some(board) => board.open(&database)?.save(&database),
                 })
                 .and_then(|board| Ok(BoardPayload::from(board)));
+
+            database.write().set_autosave(true);
             broadcast_and_ack("board:updated", board, &socket, ack);
         },
     );
@@ -49,7 +53,7 @@ pub fn register_board_events(socket: &SocketRef) {
             let board = Board::get(&database, &id)
                 .and_then(|board| match board {
                     None => bail!("Board not found"),
-                    Some(board) => board.close()?.save(&database),
+                    Some(board) => board.close(&database)?.save(&database),
                 })
                 .and_then(|board| Ok(BoardPayload::from(board)));
             broadcast_and_ack("board:updated", board, &socket, ack);
@@ -60,15 +64,37 @@ pub fn register_board_events(socket: &SocketRef) {
         "board:reset",
         |socket: SocketRef, State(database): State<ArcDb>, Data(id): Data<Id>| {
             debug!("Event received: [board:reset]: board:{}", id);
-
             database.write().set_autosave(false);
+
+            let expander_ids = database.read().list::<Expander>().and_then(|expanders| {
+                Ok(expanders.iter()
+                    .filter(|(_, expander)| match expander.hid {
+                        HardwareType::Board(bid) => bid == id,
+                        HardwareType::Expander(_) => false,
+                    })
+                    .map(|(_, expander)| expander.id)
+                    .collect::<Vec<Id>>())
+            }).unwrap();
+
             let _ = database.read().list::<Device>().and_then(|mut devices| {
                 for (_, device) in &mut devices {
-                    if device.hid == id {
-                        device.inner.reset().and_then(|mutation| {
-                            broadcast_to_all("device:mutated", Ok((device.id, mutation)), &socket);
-                            Ok(())
-                        })?;
+                    match device.hid {
+                        HardwareType::Board(bid) => {
+                            if bid == id {
+                                device.inner.reset().and_then(|mutation| {
+                                    broadcast_to_all("device:mutated", Ok((device.id, mutation)), &socket);
+                                    Ok(())
+                                })?;
+                            }
+                        }
+                        HardwareType::Expander(eid) => {
+                            if expander_ids.contains(&eid) {
+                                device.inner.reset().and_then(|mutation| {
+                                    broadcast_to_all("device:mutated", Ok((device.id, mutation)), &socket);
+                                    Ok(())
+                                })?;
+                            }
+                        }
                     }
                 }
 

@@ -1,12 +1,17 @@
 <template>
   <v-card class="mx-auto pa-4" variant="elevated" max-width="600" width="100%">
-    <v-form ref="form" :disabled="loading || !device" :loading="loading" @submit.prevent="onSubmit">
-      <v-text-field v-model="device.name" label="Name" required :rules="[Rule.REQUIRED]" />
+    <v-form
+      ref="form"
+      :disabled="loading || !expander"
+      :loading="loading"
+      @submit.prevent="onSubmit"
+    >
+      <v-text-field v-model="expander.name" label="Name" required :rules="[Rule.REQUIRED]" />
 
       <v-row>
         <v-col class="align-self-center" cols="12" sm="6">
           <v-select
-            v-model="device.hid"
+            v-model="expander.hid.id"
             :items="boardItems"
             item-title="name"
             item-value="id"
@@ -18,18 +23,18 @@
         </v-col>
         <v-col class="align-self-center" cols="12" sm="6">
           <v-select
-            v-model="device.type"
-            :items="mapEnumToOptions(DeviceType, [DeviceType.Unknown])"
+            v-model="expander.type"
+            :items="mapEnumToOptions(ExpanderType, [ExpanderType.Unknown])"
             item-title="text"
             item-value="value"
-            label="Device type"
+            label="Expander type"
             required
-            :rules="[Rule.REQUIRED, (value: DeviceType) => value != DeviceType.Unknown]"
+            :rules="[Rule.REQUIRED, (value: ExpanderType) => value != ExpanderType.Unknown]"
             :disabled="isEdit"
           />
         </v-col>
       </v-row>
-      <component :is="editComponent" v-model="device" />
+      <component :is="editComponent" v-model="expander" />
 
       <!-- Submit -->
       <v-row>
@@ -38,7 +43,7 @@
             block
             class="mt-2"
             color="primary"
-            :disabled="!device.type || loading"
+            :disabled="!expander.type || loading"
             :loading="loading"
             size="large"
             type="submit"
@@ -66,32 +71,31 @@
 </template>
 
 <script lang="ts" setup>
-import type { Device, DeviceId } from '@/types/devices';
-import type { HardwareId } from '@/types/hardwares';
+import type { BoardId, Expander, ExpanderId } from '@/types/hardwares';
 import { storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { VForm } from 'vuetify/components';
-import { DeviceType, useDeviceEditComponent } from '@/composables/deviceComposables';
+import { ExpanderType, useExpanderEditComponent } from '@/composables/expanderComposables';
 import { Rule } from '@/composables/formComposables';
 import { logError, mapEnumToOptions, useRedirect } from '@/composables/globalComposables';
 import { useBoardStore } from '@/stores/boardStore';
-import { useDeviceStore } from '@/stores/deviceStore';
+import { useExpanderStore } from '@/stores/expanderStore';
 
 const route = useRoute();
 const { redirect } = useRedirect();
-const hid = route.query['board'] ? (Number(route.query['board']) as HardwareId) : null;
-const isEdit = route.name === 'device.edit';
+const hid = route.query['board'] ? (Number(route.query['board']) as BoardId) : null;
+const isEdit = route.name === 'expander.edit';
 
-/** Retrieve the device from the URL parameter */
-const deviceStore = useDeviceStore();
-const id = Number(route.params.id) as DeviceId;
-const deviceFromStore = computed<Device>(() =>
-  isEdit ? { ...deviceStore.get(id) } : deviceStore.default(hid),
+/** Retrieve the expander from the URL parameter */
+const expanderStore = useExpanderStore();
+const id = Number(route.params.id) as ExpanderId;
+const expanderFromStore = computed<Expander>(() =>
+  isEdit ? { ...expanderStore.get(id) } : expanderStore.default(hid as BoardId),
 );
-const device = ref<Device>(deviceFromStore.value);
-watch(deviceFromStore, (deviceFromStore) => {
-  device.value = { ...deviceFromStore };
+const expander = ref<Expander>(expanderFromStore.value);
+watch(expanderFromStore, (expanderFromStore) => {
+  expander.value = { ...expanderFromStore };
 });
 
 // Build the board selection.
@@ -101,22 +105,22 @@ const boardItems = computed(() => Object.values(boards.value));
 // Create new form.
 const form = ref<VForm>();
 
-// Update the create/edit specific device type component.
-const editComponent = computed(() => useDeviceEditComponent(device.value.type));
+// Update the create/edit specific expander type component.
+const editComponent = computed(() => useExpanderEditComponent(expander.value.type));
 
-// Save the newly created device.
+// Save the newly created expander.
 const loading = ref<boolean>(false);
 const onSubmit = async () => {
   const { valid } = await form.value!.validate();
   if (valid) {
     loading.value = true;
     isEdit
-      ? deviceStore
-          .update(device.value)
+      ? expanderStore
+          .update(expander.value)
           .then(() => redirect())
           .catch(logError)
-      : deviceStore
-          .create(device.value)
+      : expanderStore
+          .create(expander.value)
           .then(() => redirect())
           .catch(logError);
     loading.value = false;

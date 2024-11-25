@@ -53,6 +53,7 @@ import { CommandMode } from '@/composables/globalComposables';
 import { useBoardStore } from '@/stores/boardStore';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { Keyframe } from '@/types/animations';
+import { BoardId } from '@/types/hardwares';
 import { Track } from '@/types/timeline';
 
 const { t } = useI18n();
@@ -62,7 +63,9 @@ const props = defineProps<{ track: Track }>();
 const { devices } = useDeviceStore();
 const { boards } = useBoardStore();
 const device = computed(() => props.track.device && devices[props.track.device]);
-const board = computed(() => device.value && device.value.hid && boards[device.value.hid]);
+const board = computed(
+  () => device.value && device.value.hid && boards[device.value.hid.id as BoardId],
+);
 
 // onBeforeMount(() => {
 //   const buildPositionsForGroup = (group: FlatGroup): Position[] => {

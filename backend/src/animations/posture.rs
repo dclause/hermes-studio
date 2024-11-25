@@ -28,7 +28,7 @@ impl Posture {
                     None => Ok(()), // Do not bother with unknown devices
                     Some(mut device) => {
                         database
-                            .get::<Board>(&device.hid)
+                            .get::<Board>(&*device.hid)
                             .and_then(|board| match board {
                                 None => Ok(()), // Should not happen ?
                                 Some(board) => match board.connected {

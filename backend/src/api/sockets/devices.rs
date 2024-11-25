@@ -8,7 +8,7 @@ use crate::animations::Group;
 use crate::api::sockets::ack::Ack;
 use crate::api::sockets::{broadcast_and_ack, broadcast_to_all};
 use crate::devices::Device;
-use crate::hardware::Board;
+use crate::hardware::{Board, Expander, HardwareType};
 use crate::utils::database::ArcDb;
 use crate::utils::entity::{Entity, Id};
 
@@ -139,15 +139,34 @@ pub fn register_device_events(socket: &SocketRef) {
             let device = match new_device {
                 Err(error) => Err(anyhow!("Invalid device: {}", error)),
                 Ok(mut new_device) => {
-                    Board::get(&database, &new_device.hid).and_then(|board| match board {
-                        None => bail!("Board [{}] not found", new_device.hid),
-                        Some(board) => {
-                            if board.connected {
-                                new_device.inner.set_hardware(&board.inner)?;
-                            }
-                            database.write().insert(new_device)
+                    let new_device = match new_device.hid {
+                        HardwareType::Board(id) => {
+                            Board::get(&database, &id).and_then(|board| match board {
+                                None => bail!("Board [{}] not found", *new_device.hid),
+                                Some(board) => {
+                                    if board.connected {
+                                        new_device.inner.set_hardware(&board.inner)?;
+                                    }
+                                    Ok(new_device)
+                                }
+                            })
                         }
-                    })
+
+                        HardwareType::Expander(id) => {
+                            Expander::get(&database, &id).and_then(|expander| match expander {
+                                None => bail!("Expander [{}] not found", *new_device.hid),
+                                Some(expander) => {
+                                    new_device
+                                        .inner
+                                        .set_hardware(expander.inner.get_hardware())?;
+                                    Ok(new_device)
+                                }
+                            })
+                        }
+                    };
+
+                    // Insert the device into the database if no errors occurred
+                    new_device.and_then(|device| database.write().insert(device))
                 }
             };
 
@@ -166,16 +185,37 @@ pub fn register_device_events(socket: &SocketRef) {
 
             let device = match device {
                 Err(error) => Err(anyhow!("Invalid device: {}", error)),
-                Ok(mut device) => {
-                    Board::get(&database, &device.hid).and_then(|board| match board {
-                        None => bail!("Board [{}] not found", device.hid),
-                        Some(board) => {
-                            if board.connected {
-                                device.inner.set_hardware(&board.inner)?;
-                            }
-                            database.write().update(device)
+                Ok(mut updated_device) => {
+                    let new_device = match updated_device.hid {
+                        HardwareType::Board(id) => {
+                            Board::get(&database, &id).and_then(|board| match board {
+                                None => bail!("Board [{}] not found", *updated_device.hid),
+                                Some(board) => {
+                                    if board.connected {
+                                        updated_device.inner.set_hardware(&board.inner)?;
+                                    }
+                                    Ok(updated_device)
+                                }
+                            })
                         }
-                    })
+
+                        HardwareType::Expander(id) => {
+                            Expander::get(&database, &id).and_then(|expander| match expander {
+                                None => bail!("Expander [{}] not found", *updated_device.hid),
+                                Some(expander) => {
+                                    if expander.connected {
+                                        updated_device
+                                            .inner
+                                            .set_hardware(expander.inner.get_hardware())?;
+                                    }
+                                    Ok(updated_device)
+                                }
+                            })
+                        }
+                    };
+
+                    // Update the device into the database if no errors occurred
+                    new_device.and_then(|device| database.write().update(device))
                 }
             };
 

@@ -12,7 +12,7 @@ license = "MIT"
 [dependencies]
 # @todo use published crate
 #hermes-five = { path = "../../hermes-five/hermes-five", features = ["serde"] }
-hermes-five = { rev = "8f5da26", git = "https://github.com/dclause/hermes-five", features = ["serde"] }
+hermes-five = { rev = "302a15f", git = "https://github.com/dclause/hermes-five", features = ["serde"] }
 anyhow = "1.0.91"
 axum = { version = "0.7.7", default-features = false, features = ["form", "http1", "json", "matched-path", "multipart", "original-uri", "query", "tokio"] }
 clap = { version = "4.5.20", features = ["derive", "env"] }
@@ -33,7 +33,8 @@ rodio = "0.19.0"
 
 [dev-dependencies]
 tempfile = "3.13.0"
-hermes-five = { rev = "8f5da26", git = "https://github.com/dclause/hermes-five", features = ["serde", "mocks"] }
+#hermes-five = { path = "../../hermes-five/hermes-five", features = ["serde", "mocks"] }
+hermes-five = { rev = "302a15f", git = "https://github.com/dclause/hermes-five", features = ["serde", "mocks"] }
 
 [profile.release]
 opt-level = 3               # All optimizations
