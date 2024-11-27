@@ -24,7 +24,7 @@ configs/*
 !configs/readme.md
 
 # Database
-database
+database*
 
 # Files
 misc
