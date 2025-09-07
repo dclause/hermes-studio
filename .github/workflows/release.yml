@@ -125,9 +125,10 @@ jobs:
         run: |
           brew update
           brew install llvm pkg-config
+          SDKROOT=$(xcrun --show-sdk-path)
           echo "LIBCLANG_PATH=$(brew --prefix llvm)/lib" >> $GITHUB_ENV
-          echo "SDKROOT=$(xcrun --show-sdk-path)" >> $GITHUB_ENV
-          echo 'BINDGEN_EXTRA_CLANG_ARGS=-isysroot "$SDKROOT"' >> $GITHUB_ENV
+          echo "SDKROOT=$SDKROOT" >> $GITHUB_ENV
+          echo "BINDGEN_EXTRA_CLANG_ARGS=-isysroot $SDKROOT" >> $GITHUB_ENV
 
       - name: Update Cross
         if: matrix.cross == true
