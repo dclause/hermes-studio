@@ -1,17 +1,17 @@
 name: Release
 
 on:
-  # Runs this workflow when a tag is done to releases branch.
+  # Runs this workflow when a tag is pushed
   push:
     tags:
       # Regex for a version number such as 0.2.1
       - "v[0-9]+.[0-9]+.[0-9]+"
 
-  # Runs this workflow every night at midnight.
+  # Runs this workflow every night at midnight
   schedule:
     - cron: 0 0 * * *
 
-  # Allows to run this workflow manually from the Actions tab.
+  # Allows to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
       tagname:
@@ -21,48 +21,61 @@ on:
 
 jobs:
 
-  # Build the tagname and branch.
+  # Build the tagname and branch
   prepare:
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.output.outputs.version }}
-      branch: ${{ steps.output.outputs.branch }}
+      version: ${{ steps.set.outputs.version }}
+      ref: ${{ steps.set.outputs.ref }}
     steps:
-
-      # Hardcoded on 'schedule'
-      - if: github.event_name == 'schedule'
+      - name: Set version (schedule)
+        if: github.event_name == 'schedule'
         run: |
           echo "VERSION=nightly" >> $GITHUB_ENV
-          echo "BRANCH=develop" >> $GITHUB_ENV
+          echo "REF=develop" >> $GITHUB_ENV
 
-      # Manual input on 'workflow_dispatch'
-      - if: github.event_name == 'workflow_dispatch'
+      - name: Set version (workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch'
         run: |
           echo "VERSION=${{ github.event.inputs.tagname }}" >> $GITHUB_ENV
-          echo "BRANCH=develop" >> $GITHUB_ENV
+          if [[ "${{ github.event.inputs.tagname }}" == "nightly" ]]; then
+            echo "REF=develop" >> $GITHUB_ENV
+          else
+            # For manual tag triggers, use the tag directly
+            echo "REF=${{ github.event.inputs.tagname }}" >> $GITHUB_ENV
+          fi
 
-      # Based on tag name when pushed on 'releases' branch.
-      - if: github.event_name == 'push'
+      - name: Set version (push tag)
+        if: github.event_name == 'push'
         run: |
-          TAGNAME=${{ github.ref }}
-          echo "VERSION=${TAGNAME#refs/tags/}" >> $GITHUB_ENV
-          echo "BRANCH=releases" >> $GITHUB_ENV
+          # Extract the tag name from the ref (removes refs/tags/ prefix)
+          TAGNAME="${{ github.ref_name }}"
+          echo "VERSION=$TAGNAME" >> $GITHUB_ENV
+          echo "REF=$TAGNAME" >> $GITHUB_ENV
 
-      - id: output
+      - id: set
         run: |
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+          echo "ref=$REF" >> $GITHUB_OUTPUT
+          echo "Prepared version=$VERSION and ref=$REF"
 
-  # Builds the frontend using the reusable action.
+  # Builds the frontend using the reusable action
   website:
     name: Build FRONTEND
     runs-on: windows-latest
     needs: prepare
     steps:
-      - name: Checkout sources
-        uses: actions/checkout@v4
+      - name: Debug outputs
+        run: |
+          echo "Version: ${{ needs.prepare.outputs.version }}"
+          echo "Ref: ${{ needs.prepare.outputs.ref }}"
+
+      - name: Checkout
+        uses: actions/checkout@v5
         with:
-          ref: ${{ needs.prepare.outputs.branch }}
+          ref: ${{ needs.prepare.outputs.ref }}
+          fetch-depth: 0
+          fetch-tags: true
 
       - uses: ./.github/actions/build_frontend
 
@@ -73,55 +86,51 @@ jobs:
           path: ./frontend/dist/
           retention-days: 1
 
-  # Builds multiple version of the backend and package them.
   backend:
     name: Cross-platform build BACKEND
     runs-on: ${{ matrix.os }}
-    needs:
-      - prepare
-      - website
+    needs: [prepare, website]
     env:
       CARGO_TERM_COLOR: always
       CROSS_CONFIG: ./backend/Cross.toml
     strategy:
       matrix:
         include:
-          - name: linux-x86_64
-            target: x86_64-unknown-linux-gnu
-            os: ubuntu-latest
-            cross: true
-          - name: darwin-x86_64
-            target: x86_64-apple-darwin
-            os: macos-latest
-            cross: false
-          - name: windows-x86_64
-            target: x86_64-pc-windows-msvc
-            os: windows-latest
-            cross: false
-          - name: raspberryPi-64bits
-            target: aarch64-unknown-linux-gnu # raspberryPI OS 64bits
-            os: ubuntu-latest
-            cross: true
-          - name: raspberryPi-32bits
-            target: armv7-unknown-linux-gnueabihf # raspberryPI OS 32bits
-            os: ubuntu-latest
-            cross: true
+          - { name: linux-x86_64, target: x86_64-unknown-linux-gnu, os: ubuntu-latest, cross: true }
+          - { name: darwin-x86_64, target: x86_64-apple-darwin, os: macos-13, cross: false }
+          - { name: darwin-aarch64, target: aarch64-apple-darwin, os: macos-14, cross: false }
+          - { name: windows-x86_64, target: x86_64-pc-windows-msvc, os: windows-latest, cross: false }
+          - { name: raspberryPi-64bits, target: aarch64-unknown-linux-gnu, os: ubuntu-latest, cross: true }
+          - { name: raspberryPi-32bits, target: armv7-unknown-linux-gnueabihf, os: ubuntu-latest, cross: true }
 
     steps:
-      - name: Clone repository
-        uses: actions/checkout@v4
+      - name: Debug outputs
+        run: |
+          echo "Version: ${{ needs.prepare.outputs.version }}"
+          echo "Ref: ${{ needs.prepare.outputs.ref }}"
+
+      - name: Checkout
+        uses: actions/checkout@v5
         with:
-          ref: ${{ needs.prepare.outputs.branch }}
+          ref: ${{ needs.prepare.outputs.ref }}
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          target: ${{ matrix.target }}
-          toolchain: stable
-          override: true
-          profile: minimal
+        run: rustup target add ${{ matrix.target }}
+
+      # Install LLVM/clang for bindgen on macOS
+      - name: Setup LLVM/Clang (macOS)
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          brew update
+          brew install llvm pkg-config
+          echo "LIBCLANG_PATH=$(brew --prefix llvm)/lib" >> $GITHUB_ENV
+          echo "SDKROOT=$(xcrun --show-sdk-path)" >> $GITHUB_ENV
+          echo 'BINDGEN_EXTRA_CLANG_ARGS=-isysroot "$SDKROOT"' >> $GITHUB_ENV
 
       - name: Update Cross
+        if: matrix.cross == true
         uses: actions-rs/cargo@v1
         with:
           command: install
@@ -192,7 +201,7 @@ jobs:
     steps:
       # Must perform checkout first, since it deletes the target directory
       # before running, and would therefore delete the downloaded artifacts
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Retrieve all artifacts
         uses: actions/download-artifact@v4
